@@ -23,5 +23,8 @@
     <ClInclude Include="Include\IncludeGLFW.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Input\InputTypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
