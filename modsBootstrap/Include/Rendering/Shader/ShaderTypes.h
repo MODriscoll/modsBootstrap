@@ -18,6 +18,6 @@ namespace mods
 		Geometry			= GL_GEOMETRY_SHADER,
 		Fragment			= GL_FRAGMENT_SHADER,
 
-		Compute				//= GL_COMPUTE_SHADER// Need to implement openGL 4.3 (4.0 currently in use, try updating to most recent version)
+		Compute				= GL_COMPUTE_SHADER
 	};
 }

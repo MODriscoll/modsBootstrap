@@ -25,6 +25,46 @@ void processInput(GLFWwindow* window)
 		glfwSetWindowShouldClose(window, 1);
 }
 
+void on_key_press(GLFWwindow* window, int key, int scancode, int action, int mods)
+{
+	std::cout << "(on_key_press) Key " << glfwGetKeyName(key, scancode) << " has been ";
+
+	switch (action)
+	{
+		case GLFW_PRESS:
+		{
+			std::cout << "Pressed";
+			break;
+		}
+		case GLFW_REPEAT:
+		{
+			std::cout << "Held Down";
+			break;
+		}
+		case GLFW_RELEASE:
+		{
+			std::cout << "Released";
+			break;
+		}
+		default:
+		{
+			std::cout << " ... I forget (Unknown)";
+		}
+	}
+
+	std::cout << std::endl;
+}
+
+void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
+{
+	std::cout << "Mouse position: X= " << xpos << ", Y= " << ypos << std::endl;
+}
+
+void handle_error(int code, const char* description)
+{
+	std::cout << "Error code: " << code << "\nDescription:\n" << description << std::endl;
+}
+
 struct mdVertexBuffer
 {
 	mdVertexBuffer(float* const vertecies, int32 verticessize, uint32* indices, uint32 indicessize)
@@ -166,6 +206,8 @@ int main()
 	if (!glfwInit())
 		return -1;
 
+	glfwSetErrorCallback(handle_error);
+
 	// Initiate glfw window
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -217,6 +259,9 @@ int main()
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+	glfwSetKeyCallback(window, on_key_press);
+	glfwSetCursorPosCallback(window, on_mouse_move);
+
 	// Game loop, keep looping while window is active
 	while (!glfwWindowShouldClose(window))
 	{
@@ -235,6 +280,9 @@ int main()
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
+
+	glfwSetCursorPosCallback(window, nullptr);
+	glfwSetKeyCallback(window, nullptr);
 
 	// Always terminate before exiting
 	glfwTerminate();
