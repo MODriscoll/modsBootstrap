@@ -1,6 +1,6 @@
 #pragma once
 
-namespace modsBootstrap
+namespace mods
 {
 	enum class mdInputKey : int
 	{
@@ -170,6 +170,34 @@ namespace modsBootstrap
 		return static_cast<int>(lhs) == rhs;
 	}
 
-	// TODO:
-	//enum class mdInputMods : int
+	enum class mdInputMod : int
+	{
+		Shift			= 0x0001,
+		Control			= 0x0002,
+		Alt				= 0x0004,
+		Super			= 0x0008,
+
+		None			= 0x0000
+	};
+
+	inline bool operator == (mdInputMod lhs, int rhs)
+	{
+		return lhs == rhs;
+	}
+	inline int operator | (mdInputMod lhs, int rhs)
+	{
+		return static_cast<int>(lhs) | rhs;
+	}
+	inline int operator & (mdInputMod lhs, int rhs)
+	{
+		return static_cast<int>(lhs) & rhs;
+	}
+	inline mdInputMod operator | (mdInputMod lhs, mdInputMod rhs)
+	{
+		return static_cast<mdInputMod>(static_cast<int>(lhs) | static_cast<int>(rhs));
+	}
+	inline mdInputMod operator & (mdInputMod lhs, mdInputMod rhs)
+	{
+		return static_cast<mdInputMod>(static_cast<int>(lhs) & static_cast<int>(rhs));
+	}
 }
