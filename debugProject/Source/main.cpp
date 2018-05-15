@@ -1,3 +1,5 @@
+#include "..\..\modsBootstrap\Include\Rendering\Shader\Shader.h"
+#include "..\..\modsBootstrap\Include\Rendering\Shader\Shader.h"
 
 #include <IncludeGLFW.h>
 
@@ -87,9 +89,9 @@ const char *fragmentshader = "#version 400 core\n"
 "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
 "}\n\0";
 
-struct mdShader
+struct mddShader
 {
-	mdShader(const char* vertex, const char* fragment)
+	mddShader(const char* vertex, const char* fragment)
 	{
 		uint32 vertexhandle = glCreateShader(GL_VERTEX_SHADER);
 		glShaderSource(vertexhandle, 1, &vertex, nullptr);
@@ -152,7 +154,7 @@ struct mdShader
 		glDeleteShader(fragmenthandle);
 	}
 
-	~mdShader()
+	~mddShader()
 	{
 		glDeleteProgram(program);
 	}
@@ -224,7 +226,7 @@ int main()
 	};
 
 	mdVertexBuffer box(vertices, 12, indices, 6);
-	mdShader shader(vertexshader, fragmentshader);
+	mddShader shader(vertexshader, fragmentshader);
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 

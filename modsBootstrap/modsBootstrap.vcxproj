@@ -22,12 +22,15 @@
     <ClCompile Include="Source\Camera\Camera.cpp" />
     <ClCompile Include="Source\glad.c" />
     <ClCompile Include="Source\Input\Input.cpp" />
+    <ClCompile Include="Source\Rendering\Shader\Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Camera\Camera.h" />
     <ClInclude Include="Include\IncludeGLFW.h" />
     <ClInclude Include="Include\Input\Input.h" />
     <ClInclude Include="Include\Input\InputTypes.h" />
+    <ClInclude Include="Include\Rendering\Shader\Shader.h" />
+    <ClInclude Include="Include\Rendering\Shader\ShaderTypes.h" />
     <ClInclude Include="Include\Window\Window.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

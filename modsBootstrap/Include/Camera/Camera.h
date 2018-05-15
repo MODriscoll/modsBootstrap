@@ -24,6 +24,36 @@ namespace mods
 
 	public:
 
+		// Set this cameras rotation using euler angles
+		virtual void SetEulerRotation(const glm::vec3& euler);
+
+	public:
+
+		// Get the eular rotation of this camera
+		virtual glm::vec3 GetEulerRotation() const;
+
+		// Get the direction this camera is facing (forward vector)
+		virtual glm::vec3 GetHeading() const;
+
+		// Get the view matrix of this camera
+		glm::mat4 GetViewMatrix() const;
+
+		// Get the projection matrix of this camera.
+		// This matrix will be different based on ProjectionMode
+		glm::mat4 GetProjectionMatrix() const;
+
+		// Get the projection matrix specified to the given mode
+		virtual glm::mat4 GetProjectionMatrix(mdProjectionMode mode) const;
+
+		// Get the projection view matrix of this camera.
+		// This matrix will be different based on ProjectionMode
+		glm::mat4 GetProjectionView() const;
+
+		// Get the projection view matrix specified to the given mode
+		virtual glm::mat4 GetProjectionView(mdProjectionMode mode) const;
+
+	public:
+
 		// Set the near clipping plane of the camera
 		virtual void SetNearClippingPlane(float near);
 
