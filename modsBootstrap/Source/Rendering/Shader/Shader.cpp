@@ -4,7 +4,6 @@
 
 #include <glm\gtc\type_ptr.hpp>
 
-#include <cassert>
 #include <fstream>
 #include <iostream>
 

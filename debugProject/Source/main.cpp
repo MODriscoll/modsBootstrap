@@ -21,8 +21,7 @@ void framebuffer_size_callback(GLFWwindow* window, int32 width, int32 height)
 // Process input
 void processInput(GLFWwindow* window)
 {
-	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, 1);
+
 }
 
 void on_key_press(GLFWwindow* window, int key, int scancode, int action, int mods)
@@ -55,9 +54,56 @@ void on_key_press(GLFWwindow* window, int key, int scancode, int action, int mod
 	std::cout << std::endl;
 }
 
+void on_mouse_enter(GLFWwindow* window, int entered)
+{
+	if (entered)
+	{
+		std::cout << "Mouse has entered window" << std::endl;
+	}
+	else
+	{
+		std::cout << "Mouse has left window" << std::endl;
+	}
+}
+
 void on_mouse_move(GLFWwindow* window, double xpos, double ypos)
 {
 	std::cout << "Mouse position: X= " << xpos << ", Y= " << ypos << std::endl;
+}
+
+void on_mouse_press(GLFWwindow* window, int button, int action, int mods)
+{
+	std::cout << "(on_mouse_press) Mouse button has been ";
+
+	switch (action)
+	{
+		case GLFW_PRESS:
+		{
+			std::cout << "Pressed";
+			break;
+		}
+		case GLFW_REPEAT:
+		{
+			std::cout << "Held Down";
+			break;
+		}
+		case GLFW_RELEASE:
+		{
+			std::cout << "Released";
+			break;
+		}
+		default:
+		{
+			std::cout << " ... I forget (Unknown)";
+		}
+	}
+
+	std::cout << std::endl;
+}
+
+void on_mouse_scroll(GLFWwindow* window, double xoffset, double yoffset)
+{
+	std::cout << "Mouse was scrolled. XOffset= " << xoffset << ", YOffset = " << yoffset << std::endl;
 }
 
 void handle_error(int code, const char* description)
@@ -213,6 +259,10 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+#ifdef _DEBUG
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
+#endif
+
 	// Create window
 	GLFWwindow* window = glfwCreateWindow(1280, 720, "modsBootstrap", nullptr, nullptr);
 	if (!window)
@@ -261,6 +311,9 @@ int main()
 
 	glfwSetKeyCallback(window, on_key_press);
 	glfwSetCursorPosCallback(window, on_mouse_move);
+	glfwSetMouseButtonCallback(window, on_mouse_press);
+	glfwSetCursorEnterCallback(window, on_mouse_enter);
+	glfwSetScrollCallback(window, on_mouse_scroll);
 
 	// Game loop, keep looping while window is active
 	while (!glfwWindowShouldClose(window))
@@ -281,8 +334,7 @@ int main()
 		glfwPollEvents();
 	}
 
-	glfwSetCursorPosCallback(window, nullptr);
-	glfwSetKeyCallback(window, nullptr);
+	glfwDestroyWindow(window);
 
 	// Always terminate before exiting
 	glfwTerminate();

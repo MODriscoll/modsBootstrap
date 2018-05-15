@@ -4,10 +4,39 @@
 
 #include <glm\fwd.hpp>
 
+#include <string>
 #include <unordered_map>
+#include <vector>
 
 namespace mods
 {
+	// Context for a new shader to create
+	struct mdShaderContext final
+	{
+		friend class mdShader;
+
+	private:
+
+		struct Data
+		{
+			// Type of shader this is
+			mdShaderType Type;
+
+			// Path to shaders source
+			std::string Path;
+		};
+
+	public:
+
+		// Adds a new shader to create
+		void AddShader(const std::string& path, mdShaderType type);
+
+	private:
+
+		// All shaders to link into a shader program
+		std::vector<Data> m_Shaders;
+	};
+
 	// Wraps the handle to a shader program
 	class mdShader
 	{

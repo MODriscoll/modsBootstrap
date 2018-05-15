@@ -2,9 +2,6 @@
 
 #include "IncludeGLFW.h"
 
-#include <string>
-#include <vector>
-
 namespace mods
 {
 	constexpr unsigned int InvalidShader = 0;
