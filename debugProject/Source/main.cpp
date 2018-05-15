@@ -1,5 +1,4 @@
-#include "..\..\modsBootstrap\Include\Rendering\Shader\Shader.h"
-#include "..\..\modsBootstrap\Include\Rendering\Shader\Shader.h"
+#include <Rendering\Shader\Shader.h>
 
 #include <IncludeGLFW.h>
 
@@ -75,19 +74,6 @@ private:
 	uint32 vbo;
 	uint32 ebo;
 };
-
-const char *vertexshader = "#version 400 core\n"
-"layout (location = 0) in vec3 aPos;\n"
-"void main()\n"
-"{\n"
-"   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-"}\0";
-const char *fragmentshader = "#version 400 core\n"
-"out vec4 FragColor;\n"
-"void main()\n"
-"{\n"
-"   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-"}\n\0";
 
 struct mddShader
 {
@@ -226,9 +212,10 @@ int main()
 	};
 
 	mdVertexBuffer box(vertices, 12, indices, 6);
-	mddShader shader(vertexshader, fragmentshader);
+	mods::mdShader shader;
+	shader.Create("Shaders/Vertex.vert", "Shaders/Fragment.frag");
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	// Game loop, keep looping while window is active
 	while (!glfwWindowShouldClose(window))

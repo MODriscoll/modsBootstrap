@@ -10,6 +10,12 @@
 
 namespace mods
 {
+	mdShader::mdShader()
+		: m_Program(InvalidProgram)
+	{
+
+	}
+
 	mdShader::mdShader(mdShader&& rhs)
 	{
 		// Delete any existing program
