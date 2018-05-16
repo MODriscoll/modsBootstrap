@@ -2,7 +2,7 @@
 
 namespace mods
 {
-	enum class mdInputKey : int
+	enum class eInputKey : int
 	{
 		Unkown				= -1,
 
@@ -147,16 +147,16 @@ namespace mods
 		MouseButton8		= 7
 	};
 
-	inline bool operator == (mdInputKey lhs, int rhs)
+	inline bool operator == (eInputKey lhs, int rhs)
 	{
 		return static_cast<int>(lhs) == rhs;
 	}
-	inline bool operator < (mdInputKey lhs, mdInputKey rhs)
+	inline bool operator < (eInputKey lhs, eInputKey rhs)
 	{
 		return static_cast<int>(lhs) < static_cast<int>(rhs);
 	}
 
-	enum class mdInputAction : int
+	enum class eInputAction : int
 	{
 		Release			= 0,
 		Press			= 1,
@@ -165,12 +165,12 @@ namespace mods
 		Axis			= 3
 	};
 
-	inline bool operator == (mdInputAction lhs, int rhs)
+	inline bool operator == (eInputAction lhs, int rhs)
 	{
 		return static_cast<int>(lhs) == rhs;
 	}
 
-	enum class mdInputMods : int
+	enum class eInputMods : int
 	{
 		Shift			= 0x0001,
 		Control			= 0x0002,
@@ -180,24 +180,24 @@ namespace mods
 		None			= 0x0000
 	};
 
-	inline bool operator == (mdInputMods lhs, int rhs)
+	inline bool operator == (eInputMods lhs, int rhs)
 	{
 		return lhs == rhs;
 	}
-	inline int operator | (mdInputMods lhs, int rhs)
+	inline int operator | (eInputMods lhs, int rhs)
 	{
 		return static_cast<int>(lhs) | rhs;
 	}
-	inline int operator & (mdInputMods lhs, int rhs)
+	inline int operator & (eInputMods lhs, int rhs)
 	{
 		return static_cast<int>(lhs) & rhs;
 	}
-	inline mdInputMods operator | (mdInputMods lhs, mdInputMods rhs)
+	inline eInputMods operator | (eInputMods lhs, eInputMods rhs)
 	{
-		return static_cast<mdInputMods>(static_cast<int>(lhs) | static_cast<int>(rhs));
+		return static_cast<eInputMods>(static_cast<int>(lhs) | static_cast<int>(rhs));
 	}
-	inline mdInputMods operator & (mdInputMods lhs, mdInputMods rhs)
+	inline eInputMods operator & (eInputMods lhs, eInputMods rhs)
 	{
-		return static_cast<mdInputMods>(static_cast<int>(lhs) & static_cast<int>(rhs));
+		return static_cast<eInputMods>(static_cast<int>(lhs) & static_cast<int>(rhs));
 	}
 }

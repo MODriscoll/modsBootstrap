@@ -31,6 +31,7 @@
     <ClInclude Include="Include\Input\InputTypes.h" />
     <ClInclude Include="Include\Rendering\Shader\Shader.h" />
     <ClInclude Include="Include\Rendering\Shader\ShaderTypes.h" />
+    <ClInclude Include="Include\Rendering\Texture\Texture.h" />
     <ClInclude Include="Include\Window\Window.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
@@ -90,7 +91,7 @@
     <OutDir>$(SolutionDir)Libraries\</OutDir>
     <IntDir>$(SolutionDir)Intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)_d</TargetName>
-    <IncludePath>$(SolutionDir)Dependencies\GLM\;$(SolutionDir)Dependencies\KHR\;$(SolutionDir)Dependencies\GLFW\;$(SolutionDir)Dependencies\GLAD\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Dependencies\STB\;$(SolutionDir)Dependencies\GLM\;$(SolutionDir)Dependencies\GLFW\;$(SolutionDir)Dependencies\GLAD\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Libraries\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -98,21 +99,21 @@
     <OutDir>$(SolutionDir)Libraries\</OutDir>
     <IntDir>$(SolutionDir)Intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)_d</TargetName>
-    <IncludePath>$(SolutionDir)Dependencies\GLM\;$(SolutionDir)Dependencies\KHR\;$(SolutionDir)Dependencies\GLFW\;$(SolutionDir)Dependencies\GLAD\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Dependencies\STB\;$(SolutionDir)Dependencies\GLM\;$(SolutionDir)Dependencies\GLFW\;$(SolutionDir)Dependencies\GLAD\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Libraries\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)Libraries\</OutDir>
     <IntDir>$(SolutionDir)Intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Dependencies\GLM\;$(SolutionDir)Dependencies\KHR\;$(SolutionDir)Dependencies\GLFW\;$(SolutionDir)Dependencies\GLAD\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Dependencies\STB\;$(SolutionDir)Dependencies\GLM\;$(SolutionDir)Dependencies\GLFW\;$(SolutionDir)Dependencies\GLAD\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Libraries\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)Libraries\</OutDir>
     <IntDir>$(SolutionDir)Intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Dependencies\GLM\;$(SolutionDir)Dependencies\KHR\;$(SolutionDir)Dependencies\GLFW\;$(SolutionDir)Dependencies\GLAD\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Dependencies\STB\;$(SolutionDir)Dependencies\GLM\;$(SolutionDir)Dependencies\GLFW\;$(SolutionDir)Dependencies\GLAD\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Libraries\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -122,7 +123,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>STB_IMAGE_IMPLEMENTATION;WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)Include\</AdditionalIncludeDirectories>
     </ClCompile>
@@ -141,7 +142,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>STB_IMAGE_IMPLEMENTATION;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)Include\</AdditionalIncludeDirectories>
     </ClCompile>
@@ -162,7 +163,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>STB_IMAGE_IMPLEMENTATION;WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)Include\</AdditionalIncludeDirectories>
     </ClCompile>
@@ -185,7 +186,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>STB_IMAGE_IMPLEMENTATION;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(ProjectDir)Include\</AdditionalIncludeDirectories>
     </ClCompile>

@@ -10,9 +10,9 @@
 
 namespace mods
 {
-	class mdWindow;
+	class Window;
 
-	enum mdInputStatus : int
+	enum eInputStatus : int
 	{
 		Release		= 0,
 		Up			= 1,
@@ -21,11 +21,11 @@ namespace mods
 		Down		= 3
 	};
 
-	struct mdKey
+	struct Key
 	{
-		mdKey()
+		Key()
 		{
-			Status = mdInputStatus::Up;
+			Status = eInputStatus::Up;
 		}
 
 		int Status;
@@ -35,34 +35,34 @@ namespace mods
 	// not be used outside of the window wrapper
 	// TODO: TIDY, feels very dirty right now
 	// implement action and axis bindings
-	class mdInput final	// Make virtual in future?
+	class Input final	// Make virtual in future?
 	{
-		friend mdWindow;
+		friend Window;
 
 	private:
 
-		mdInput();
-		mdInput(const mdInput& rhs) = delete;
-		mdInput(mdInput&& rhs) = delete;
+		Input();
+		Input(const Input& rhs) = delete;
+		Input(Input&& rhs) = delete;
 
-		~mdInput();
+		~Input();
 
-		mdInput& operator = (const mdInput& rhs) = delete;
-		mdInput& operator = (mdInput&& rhs) = delete;
+		Input& operator = (const Input& rhs) = delete;
+		Input& operator = (Input&& rhs) = delete;
 
 	public:
 
 		// Get if the given key is down
-		bool IsKeyDown(mdInputKey key) const;
+		bool IsKeyDown(eInputKey key) const;
 		
 		// Get if the given key is up
-		bool IsKeyUp(mdInputKey key) const;
+		bool IsKeyUp(eInputKey key) const;
 
 		// Get if the given key was recently pressed
-		bool WasKeyPressed(mdInputKey key) const;
+		bool WasKeyPressed(eInputKey key) const;
 
 		// Get if the given key was recently released
-		bool WasKeyReleased(mdInputKey key) const;
+		bool WasKeyReleased(eInputKey key) const;
 
 		// Get the position of the mouse
 		void GetMousePosition(int& x, int& y) const;
@@ -74,7 +74,7 @@ namespace mods
 	private:
 
 		// Initializes this input to track the input of the given window
-		bool Initialize(mdWindow* window);
+		bool Initialize(Window* window);
 
 		// Cleans up the association with the current window
 		bool CleanUp();
@@ -89,7 +89,7 @@ namespace mods
 	private:
 
 		// Event called by window when action has been performed on a key
-		void HandleKeyEvent(mdInputKey key, mdInputAction action, mdInputMods mods);
+		void HandleKeyEvent(eInputKey key, eInputAction action, eInputMods mods);
 
 		// Event called by window when mouse has been moved
 		void HandleMouseMove(double x, double y);
@@ -100,13 +100,13 @@ namespace mods
 	private:
 
 		// Window this input is associated with
-		mdWindow* m_Window;
+		Window* m_Window;
 
 		// Status of all keys (including mouse buttons)
-		std::map<mdInputKey, mdKey> m_KeyStatus;
+		std::map<eInputKey, Key> m_KeyStatus;
 
 		// Keys updated during last polling
-		std::vector<mdInputKey> m_UpdatedKeys;
+		std::vector<eInputKey> m_UpdatedKeys;
 
 		// Position of the mouse
 		double m_MouseX, m_MouseY;

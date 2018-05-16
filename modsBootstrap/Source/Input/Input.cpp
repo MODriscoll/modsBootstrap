@@ -8,7 +8,7 @@
 
 namespace mods
 {
-	mdInput::mdInput()
+	Input::Input()
 		: m_Window(nullptr)
 		, m_MouseX(0.0)
 		, m_MouseY(0.0)
@@ -17,18 +17,18 @@ namespace mods
 
 	}
 
-	mdInput::~mdInput()
+	Input::~Input()
 	{
 		CleanUp();
 	}
 
-	bool mdInput::IsKeyDown(mdInputKey key) const
+	bool Input::IsKeyDown(eInputKey key) const
 	{
 		auto it = m_KeyStatus.find(key);
 		if (it == m_KeyStatus.cend())
 		{
-			const mdKey& status = it->second;
-			return status.Status == mdInputStatus::Press || status.Status == mdInputStatus::Down;
+			const Key& status = it->second;
+			return status.Status == eInputStatus::Press || status.Status == eInputStatus::Down;
 		}
 		
 		// Key has not been found, this most
@@ -36,13 +36,13 @@ namespace mods
 		return false;
 	}
 
-	bool mdInput::IsKeyUp(mdInputKey key) const
+	bool Input::IsKeyUp(eInputKey key) const
 	{
 		auto it = m_KeyStatus.find(key);
 		if (it == m_KeyStatus.cend())
 		{
-			const mdKey& status = it->second;
-			return status.Status == mdInputStatus::Release || status.Status == mdInputStatus::Up;
+			const Key& status = it->second;
+			return status.Status == eInputStatus::Release || status.Status == eInputStatus::Up;
 		}
 
 		// Key has not been found, this most
@@ -50,13 +50,13 @@ namespace mods
 		return true;
 	}
 
-	bool mdInput::WasKeyPressed(mdInputKey key) const
+	bool Input::WasKeyPressed(eInputKey key) const
 	{
 		auto it = m_KeyStatus.find(key);
 		if (it == m_KeyStatus.cend())
 		{
-			const mdKey& status = it->second;
-			return status.Status == mdInputStatus::Press;
+			const Key& status = it->second;
+			return status.Status == eInputStatus::Press;
 		}
 
 		// Key has not been found, this most
@@ -64,13 +64,13 @@ namespace mods
 		return false;
 	}
 
-	bool mdInput::WasKeyReleased(mdInputKey key) const
+	bool Input::WasKeyReleased(eInputKey key) const
 	{
 		auto it = m_KeyStatus.find(key);
 		if (it == m_KeyStatus.cend())
 		{
-			const mdKey& status = it->second;
-			return status.Status == mdInputStatus::Release;
+			const Key& status = it->second;
+			return status.Status == eInputStatus::Release;
 		}
 
 		// Key has not been found, this most
@@ -78,24 +78,24 @@ namespace mods
 		return false;
 	}
 
-	void mdInput::GetMousePosition(int& x, int& y) const
+	void Input::GetMousePosition(int& x, int& y) const
 	{
 		x = (int)m_MouseX;
 		y = (int)m_MouseY;
 	}
 
-	void mdInput::GetMousePosition(float& x, float& y) const
+	void Input::GetMousePosition(float& x, float& y) const
 	{
 		x = (float)m_MouseX;
 		y = (float)m_MouseY;
 	}
 
-	float mdInput::GetMouseScroll() const
+	float Input::GetMouseScroll() const
 	{
 		return (float)m_MouseScroll;
 	}
 
-	bool mdInput::Initialize(mdWindow* wrapper)
+	bool Input::Initialize(Window* wrapper)
 	{
 		if (wrapper == m_Window)
 			return true;
@@ -122,21 +122,21 @@ namespace mods
 				return;
 			}
 
-			mdWindow* wrapper = static_cast<mdWindow*>(glfwGetWindowUserPointer(window));
+			Window* wrapper = static_cast<Window*>(glfwGetWindowUserPointer(window));
 			assert(wrapper != nullptr);
 
-			wrapper->GetInput()->HandleKeyEvent((mdInputKey)key, (mdInputAction)action, (mdInputMods)mods);
+			wrapper->GetInput()->HandleKeyEvent((eInputKey)key, (eInputAction)action, (eInputMods)mods);
 		};
 		auto ButtonCallback = [](GLFWwindow* window, int button, int action, int mods)->void
 		{
-			mdWindow* wrapper = static_cast<mdWindow*>(glfwGetWindowUserPointer(window));
+			Window* wrapper = static_cast<Window*>(glfwGetWindowUserPointer(window));
 			assert(wrapper != nullptr);
 
-			wrapper->GetInput()->HandleKeyEvent((mdInputKey)button, (mdInputAction)action, (mdInputMods)mods);
+			wrapper->GetInput()->HandleKeyEvent((eInputKey)button, (eInputAction)action, (eInputMods)mods);
 		};
 		auto MoveCallback = [](GLFWwindow* window, double xpos, double ypos)->void
 		{
-			mdWindow* wrapper = static_cast<mdWindow*>(glfwGetWindowUserPointer(window));
+			Window* wrapper = static_cast<Window*>(glfwGetWindowUserPointer(window));
 			assert(wrapper != nullptr);
 
 			// Convert Y origin to bottom of screen instead of top
@@ -149,7 +149,7 @@ namespace mods
 		};
 		auto ScrollCallback = [](GLFWwindow* window, double xoffset, double yoffset)->void
 		{
-			mdWindow* wrapper = static_cast<mdWindow*>(glfwGetWindowUserPointer(window));
+			Window* wrapper = static_cast<Window*>(glfwGetWindowUserPointer(window));
 			assert(wrapper != nullptr);
 
 			wrapper->GetInput()->HandleMouseScroll(yoffset);
@@ -165,7 +165,7 @@ namespace mods
 		return true;
 	}
 
-	bool mdInput::CleanUp()
+	bool Input::CleanUp()
 	{
 		if (!m_Window)
 			return true;
@@ -185,10 +185,10 @@ namespace mods
 		return true;
 	}
 
-	void mdInput::PollInputs()
+	void Input::PollInputs()
 	{
 		// Update the polled inputs
-		for (const mdInputKey& key : m_UpdatedKeys)
+		for (const eInputKey& key : m_UpdatedKeys)
 		{
 			// The input status is designed so that
 			// adding one to either press or release
@@ -202,7 +202,7 @@ namespace mods
 		m_MouseScroll = 0.0;
 	}
 
-	void mdInput::ClearRecords()
+	void Input::ClearRecords()
 	{
 		m_KeyStatus.clear();
 		m_UpdatedKeys.clear();
@@ -210,26 +210,26 @@ namespace mods
 		m_MouseScroll = 0.0;
 	}
 
-	void mdInput::HandleKeyEvent(mdInputKey key, mdInputAction action, mdInputMods mods)
+	void Input::HandleKeyEvent(eInputKey key, eInputAction action, eInputMods mods)
 	{
-		mdKey& status = m_KeyStatus[key];
+		Key& status = m_KeyStatus[key];
 
 		switch (action)
 		{
-			case mdInputAction::Press:
+			case eInputAction::Press:
 			{
-				status.Status = mdInputStatus::Press;
+				status.Status = eInputStatus::Press;
 				break;
 			}
-			case mdInputAction::Release:
+			case eInputAction::Release:
 			{
-				status.Status = mdInputStatus::Release;
+				status.Status = eInputStatus::Release;
 				break;
 			}
 			// Any action after press or released don't need to be further polled
-			case mdInputAction::Repeat:
+			case eInputAction::Repeat:
 			{
-				status.Status = mdInputStatus::Down;
+				status.Status = eInputStatus::Down;
 				return;
 			}
 			default:				
@@ -241,13 +241,13 @@ namespace mods
 		m_UpdatedKeys.push_back(key);
 	}
 
-	void mdInput::HandleMouseMove(double x, double y)
+	void Input::HandleMouseMove(double x, double y)
 	{
 		m_MouseX = x;
 		m_MouseY = y;
 	}
 
-	void mdInput::HandleMouseScroll(double offset)
+	void Input::HandleMouseScroll(double offset)
 	{
 		m_MouseScroll += offset;
 	}

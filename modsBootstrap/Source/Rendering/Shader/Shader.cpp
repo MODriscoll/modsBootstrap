@@ -9,13 +9,13 @@
 
 namespace mods
 {
-	mdShader::mdShader()
+	Shader::Shader()
 		: m_Program(InvalidProgram)
 	{
 
 	}
 
-	mdShader::mdShader(mdShader&& rhs)
+	Shader::Shader(Shader&& rhs)
 	{
 		// Delete any existing program
 		if (IsValid())
@@ -29,12 +29,12 @@ namespace mods
 		rhs.m_UniformCache.clear();
 	}
 
-	mdShader::~mdShader()
+	Shader::~Shader()
 	{
 		Clear();
 	}
 
-	mdShader& mdShader::operator=(mdShader&& rhs)
+	Shader& Shader::operator=(Shader&& rhs)
 	{
 		// Delete any existing program
 		if (IsValid())
@@ -50,7 +50,7 @@ namespace mods
 		return *this;
 	}
 
-	bool mdShader::Create(const std::string& vertex, const std::string& fragment)
+	bool Shader::Create(const std::string& vertex, const std::string& fragment)
 	{
 		// Clear any existing program
 		Clear();
@@ -62,9 +62,9 @@ namespace mods
 
 		// Create the shaders, make sure they are valid
 		unsigned int shaders[2];
-		if (!CreateShader(vsource, mdShaderType::Vertex, shaders[0]))
+		if (!CreateShader(vsource, eShaderType::Vertex, shaders[0]))
 			return false;
-		else if (!CreateShader(fsource, mdShaderType::Fragment, shaders[1]))
+		else if (!CreateShader(fsource, eShaderType::Fragment, shaders[1]))
 		{
 			glDeleteShader(shaders[0]);
 			return false;
@@ -74,7 +74,7 @@ namespace mods
 		return CreateProgram(shaders, 2, m_Program);
 	}
 
-	void mdShader::Clear()
+	void Shader::Clear()
 	{
 		if (!IsValid())
 			return;
@@ -86,57 +86,57 @@ namespace mods
 		m_UniformCache.clear();
 	}
 
-	void mdShader::Bind()
+	void Shader::Bind()
 	{
 		glUseProgram(m_Program);
 	}
 
-	void mdShader::Unbind()
+	void Shader::Unbind()
 	{
 		glUseProgram(0);
 	}
 
-	void mdShader::SetUniformValue(const std::string& name, bool value)
+	void Shader::SetUniformValue(const std::string& name, bool value)
 	{
 		SetUniformValue(name, (int)value);
 	}
 
-	void mdShader::SetUniformValue(const std::string& name, int value)
+	void Shader::SetUniformValue(const std::string& name, int value)
 	{
 		int location;
 		if (GetUniformLocation(name, location))
 			glUniform1i(location, value);
 	}
 
-	void mdShader::SetUniformValue(const std::string& name, float value)
+	void Shader::SetUniformValue(const std::string& name, float value)
 	{
 		int location;
 		if (GetUniformLocation(name, location))
 			glUniform1f(location, value);
 	}
 
-	void mdShader::SetUniformValue(const std::string& name, const glm::vec2& value)
+	void Shader::SetUniformValue(const std::string& name, const glm::vec2& value)
 	{
 		int location;
 		if (GetUniformLocation(name, location))
 			glUniform2fv(location, 1, glm::value_ptr(value));
 	}
 
-	void mdShader::SetUniformValue(const std::string& name, const glm::vec3& value)
+	void Shader::SetUniformValue(const std::string& name, const glm::vec3& value)
 	{
 		int location;
 		if (GetUniformLocation(name, location))
 			glUniform3fv(location, 1, glm::value_ptr(value));
 	}
 
-	void mdShader::SetUniformValue(const std::string& name, const glm::mat4& value, bool transpose)
+	void Shader::SetUniformValue(const std::string& name, const glm::mat4& value, bool transpose)
 	{
 		int location;
 		if (GetUniformLocation(name, location))
 			glUniformMatrix4fv(location, 1, transpose, glm::value_ptr(value));
 	}
 
-	bool mdShader::LoadSource(const std::string& path, std::string& script)
+	bool Shader::LoadSource(const std::string& path, std::string& script)
 	{
 		script.clear();
 
@@ -158,7 +158,7 @@ namespace mods
 		return true;
 	}
 
-	bool mdShader::CreateShader(const std::string& source, mdShaderType type, unsigned int& shader)
+	bool Shader::CreateShader(const std::string& source, eShaderType type, unsigned int& shader)
 	{
 		const char* script = source.c_str();
 
@@ -182,7 +182,7 @@ namespace mods
 		return true;
 	}
 
-	bool mdShader::CreateProgram(unsigned int* const shaders, int count, unsigned int& program)
+	bool Shader::CreateProgram(unsigned int* const shaders, int count, unsigned int& program)
 	{
 		program = glCreateProgram();
 
@@ -224,7 +224,7 @@ namespace mods
 		}
 	}
 
-	bool mdShader::GetUniformLocation(const std::string& name, int& location)
+	bool Shader::GetUniformLocation(const std::string& name, int& location)
 	{
 		location = -1;
 

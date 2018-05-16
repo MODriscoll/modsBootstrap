@@ -11,16 +11,16 @@
 namespace mods
 {
 	// Context for a new shader to create
-	struct mdShaderContext final
+	struct ShaderContext final
 	{
-		friend class mdShader;
+		friend class Shader;
 
 	private:
 
 		struct Data
 		{
 			// Type of shader this is
-			mdShaderType Type;
+			eShaderType Type;
 
 			// Path to shaders source
 			std::string Path;
@@ -29,7 +29,7 @@ namespace mods
 	public:
 
 		// Adds a new shader to create
-		void AddShader(const std::string& path, mdShaderType type);
+		void AddShader(const std::string& path, eShaderType type);
 
 	private:
 
@@ -38,18 +38,18 @@ namespace mods
 	};
 
 	// Wraps the handle to a shader program
-	class mdShader
+	class Shader
 	{
 	public:
 
-		mdShader();
-		mdShader(const mdShader& rhs) = delete;
-		mdShader(mdShader&& rhs);
+		Shader();
+		Shader(const Shader& rhs) = delete;
+		Shader(Shader&& rhs);
 
-		virtual ~mdShader();
+		virtual ~Shader();
 
-		mdShader& operator = (const mdShader& rhs) = delete;
-		mdShader& operator = (mdShader&& rhs);
+		Shader& operator = (const Shader& rhs) = delete;
+		Shader& operator = (Shader&& rhs);
 
 	public:
 
@@ -87,7 +87,7 @@ namespace mods
 		virtual bool LoadSource(const std::string& path, std::string& script);
 
 		// Creates and compiles a new shader from the given script
-		virtual bool CreateShader(const std::string& source, mdShaderType type, unsigned int& shader);
+		virtual bool CreateShader(const std::string& source, eShaderType type, unsigned int& shader);
 
 		// Creates and compiles a new program from the given shaders
 		virtual bool CreateProgram(unsigned int* const shaders, int count, unsigned int& program);

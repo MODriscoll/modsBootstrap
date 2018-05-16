@@ -7,11 +7,11 @@ struct GLFWwindow;
 namespace mods
 {
 	// Context for the creation of a new window
-	struct mdWindowContext
+	struct WindowContext
 	{
 	public:
 
-		mdWindowContext()
+		WindowContext()
 			: Name("MyWindow")
 			, Width(1280.f)
 			, Height(720.f)
@@ -34,12 +34,12 @@ namespace mods
 	};
 
 	// A wrapper for a glfw window.
-	class mdWindow
+	class Window
 	{
 	public:
 
-		mdWindow(const mdWindowContext& context);
-		virtual ~mdWindow();
+		Window(const WindowContext& context);
+		virtual ~Window();
 
 	public:
 
@@ -47,7 +47,7 @@ namespace mods
 		GLFWwindow* GetWindowContext() const { return m_Window; }
 
 		// Get input associated with this window
-		mdInput* GetInput() const { return m_Input; }
+		Input* GetInput() const { return m_Input; }
 
 	private:
 
@@ -55,6 +55,6 @@ namespace mods
 		GLFWwindow* m_Window;
 
 		// Input for this window
-		mdInput* m_Input;
+		Input* m_Input;
 	};
 }

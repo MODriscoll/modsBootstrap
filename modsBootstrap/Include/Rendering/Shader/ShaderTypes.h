@@ -7,7 +7,7 @@ namespace mods
 	constexpr unsigned int InvalidShader = 0;
 	constexpr unsigned int InvalidProgram = 0;
 
-	enum class mdShaderType : unsigned int
+	enum class eShaderType : unsigned int
 	{
 		Vertex				= GL_VERTEX_SHADER,
 		TessControl			= GL_TESS_CONTROL_SHADER,

@@ -50,5 +50,8 @@
     <ClInclude Include="Include\Rendering\Shader\ShaderTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Rendering\Texture\Texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
