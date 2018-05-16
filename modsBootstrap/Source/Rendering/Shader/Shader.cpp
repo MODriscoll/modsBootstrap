@@ -9,6 +9,22 @@
 
 namespace mods
 {
+	void ShaderContext::AddShader(eShaderCreation type, const std::string& path)
+	{
+		char bit = (char)type;
+
+		// Don't allow multiple shaders of the
+		// same type to be added to this context
+		if ((m_Mask & bit) == m_Mask)
+		{
+			std::cout << "Warning: Type (id) " << bit << " has already been added." << std::endl;
+			return;
+		}
+
+		m_Shaders[type] = path;
+		m_Mask |= bit;
+	}
+
 	Shader::Shader(const std::string& vertex, const std::string& fragment)
 		: m_Program(InvalidProgram)
 	{

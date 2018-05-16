@@ -18,4 +18,14 @@ namespace mods
 
 		Compute				= GL_COMPUTE_SHADER
 	};
+
+	// Rename and maybe move
+	enum class eShaderCreation : char
+	{
+		Vertex			= 1 << 0,
+		TessControl		= 1 << 1,
+		TessEvaluation	= 1 << 2,
+		Geometry		= 1 << 3,
+		Fragment		= 1 << 4
+	};
 }

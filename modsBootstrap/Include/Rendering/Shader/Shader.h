@@ -4,12 +4,51 @@
 
 #include <glm\fwd.hpp>
 
+#include <map>
 #include <string>
 #include <unordered_map>
-#include <vector>
 
 namespace mods
 {
+	// To create a context and add shaders
+	// ShaderContext context;
+	// context.AddShader(eShaderType::Vertex, "vertex.vert");
+	// context.AddShader(eShaderType::Fragment, "fragment.frag");
+
+	// Ways to create the shader(not both, just one)
+	// Shader shader(context);
+	// Shader shader = context.Compile();
+
+	struct ShaderContext final
+	{
+		friend class Shader;
+
+	private:
+
+		static constexpr char RequiredShaders = 17;
+
+	public:
+
+		ShaderContext()
+			: m_Mask(0)
+		{
+			
+		}
+
+	public:
+
+		// Adds a new shader to this context
+		void AddShader(eShaderCreation type, const std::string& path);
+
+	private:
+
+		// Bitmask of added shader types
+		char m_Mask;
+
+		// Every shader to compile
+		std::map<eShaderCreation, std::string> m_Shaders;
+	};
+
 	// Wraps the handle to a shader program
 	class Shader
 	{
@@ -26,7 +65,8 @@ namespace mods
 
 	public:
 
-		// Loads the shaders scripts from the given path and compiles them into one program
+		// Loads the shaders from the given context.
+		// Existing program is destroyed
 		virtual bool Load(const std::string& vertex, const std::string& fragment);
 		
 		// Deletes and invalidates this shader

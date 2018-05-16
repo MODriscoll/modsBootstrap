@@ -2,6 +2,9 @@
 
 #include "Input\Input.h"
 
+#include <functional>
+#include <vector>
+
 struct GLFWwindow;
 
 namespace mods
@@ -30,7 +33,9 @@ namespace mods
 		// Height of the window
 		float Height;
 
-		// TODO: MORE OPTIONS
+		// TODO: MORE OPTIONS http://www.glfw.org/docs/latest/window_guide.html
+		
+		// OTHER OPTIONS LIKE - Update if not focused
 	};
 
 	// A wrapper for a glfw window.
@@ -38,8 +43,15 @@ namespace mods
 	{
 	public:
 
-		Window(const WindowContext& context);
+		Window();
 		virtual ~Window();
+
+	public:
+
+		// Creates a new GLFW window assigned to this window.
+		// No new window is created if a window already exists
+		bool Initialize(const WindowContext& context);
+
 
 	public:
 
@@ -49,12 +61,16 @@ namespace mods
 		// Get input associated with this window
 		Input* GetInput() const { return m_Input; }
 
-	private:
+	protected:
 
 		// The glfw window
 		GLFWwindow* m_Window;
 
 		// Input for this window
 		Input* m_Input;
+
+	private:
+
+		// TODO: Callbacks
 	};
 }
