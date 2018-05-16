@@ -23,6 +23,7 @@
     <ClCompile Include="Source\glad.c" />
     <ClCompile Include="Source\Input\Input.cpp" />
     <ClCompile Include="Source\Rendering\Shader\Shader.cpp" />
+    <ClCompile Include="Source\Rendering\Texture\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\Camera\Camera.h" />

@@ -4,6 +4,7 @@
 
 namespace mods
 {
+	// Remove
 	constexpr unsigned int InvalidShader = 0;
 	constexpr unsigned int InvalidProgram = 0;
 

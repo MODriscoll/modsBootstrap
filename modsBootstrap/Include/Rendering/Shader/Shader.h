@@ -10,39 +10,12 @@
 
 namespace mods
 {
-	// Context for a new shader to create
-	struct ShaderContext final
-	{
-		friend class Shader;
-
-	private:
-
-		struct Data
-		{
-			// Type of shader this is
-			eShaderType Type;
-
-			// Path to shaders source
-			std::string Path;
-		};
-
-	public:
-
-		// Adds a new shader to create
-		void AddShader(const std::string& path, eShaderType type);
-
-	private:
-
-		// All shaders to link into a shader program
-		std::vector<Data> m_Shaders;
-	};
-
 	// Wraps the handle to a shader program
 	class Shader
 	{
 	public:
 
-		Shader();
+		Shader(const std::string& vertex, const std::string& fragment);
 		Shader(const Shader& rhs) = delete;
 		Shader(Shader&& rhs);
 
@@ -53,12 +26,11 @@ namespace mods
 
 	public:
 
-		// Loads and compiles a new shader program.
-		// This function expects the file paths for the shaders scripts
-		virtual bool Create(const std::string& vertex, const std::string& fragment);
+		// Loads the shaders scripts from the given path and compiles them into one program
+		virtual bool Load(const std::string& vertex, const std::string& fragment);
 		
-		// Deletes program and invalidates this shader
-		virtual void Clear();
+		// Deletes and invalidates this shader
+		virtual void Unload();
 
 		// Binds this shader for use
 		virtual void Bind();

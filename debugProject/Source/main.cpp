@@ -2,6 +2,8 @@
 
 #include <IncludeGLFW.h>
 
+#include <Rendering\Texture\Texture.h>
+
 #include <iostream>
 
 using int8 = char;
@@ -121,8 +123,10 @@ struct mdVertexBuffer
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32) * indicessize, indices, GL_STATIC_DRAW);
 
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)0);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)(sizeof(float) * 3));
 		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
 
 		// Unbind vertex array for buffers
 		glBindVertexArray(0);
@@ -287,27 +291,27 @@ int main()
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 	float vertices[] = {
-		0.5f,  0.5f, 0.0f,  // top right
-		0.5f, -0.5f, 0.0f,  // bottom right
-		-0.5f, -0.5f, 0.0f,  // bottom left
-		-0.5f,  0.5f, 0.0f   // top left 
+		0.5f,  0.5f, 0.0f,  1.f, 1.f, // top right
+		0.5f, -0.5f, 0.0f,  1.f, 0.f, // bottom right
+		-0.5f, -0.5f, 0.0f, 0.f, 0.f,  // bottom left
+		-0.5f,  0.5f, 0.0f, 0.f, 1.f // top left 
 	};
 	uint32 indices[] = {  // note that we start from 0!
 		0, 1, 3,   // first triangle
 		1, 2, 3    // second triangle
 	};
 
-	mdVertexBuffer box(vertices, 12, indices, 6);
-	mods::mdShader shader;
-	shader.Create("Shaders/Vertex.vert", "Shaders/Fragment.frag");
+	mdVertexBuffer box(vertices, 20, indices, 6);
+	mods::Shader shader("Shaders/Vertex.vert", "Shaders/Fragment.frag");
+	mods::Texture texture("Textures/Container.jpg");
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	glfwSetKeyCallback(window, on_key_press);
-	glfwSetCursorPosCallback(window, on_mouse_move);
-	glfwSetMouseButtonCallback(window, on_mouse_press);
-	glfwSetCursorEnterCallback(window, on_mouse_enter);
-	glfwSetScrollCallback(window, on_mouse_scroll);
+	//glfwSetKeyCallback(window, on_key_press);
+	//glfwSetCursorPosCallback(window, on_mouse_move);
+	//glfwSetMouseButtonCallback(window, on_mouse_press);
+	//glfwSetCursorEnterCallback(window, on_mouse_enter);
+	//glfwSetScrollCallback(window, on_mouse_scroll);
 
 	// Game loop, keep looping while window is active
 	while (!glfwWindowShouldClose(window))
@@ -317,9 +321,12 @@ int main()
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		shader.Bind();
+		texture.Bind();
+		shader.SetUniformValue("u_texture", 0);
 		box.Bind();
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		box.Bind();
+		texture.Unbind();
 		shader.Unbind();
 
 		glfwSwapBuffers(window);

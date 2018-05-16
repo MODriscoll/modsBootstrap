@@ -9,10 +9,10 @@
 
 namespace mods
 {
-	Shader::Shader()
+	Shader::Shader(const std::string& vertex, const std::string& fragment)
 		: m_Program(InvalidProgram)
 	{
-
+		Load(vertex, fragment);
 	}
 
 	Shader::Shader(Shader&& rhs)
@@ -31,7 +31,7 @@ namespace mods
 
 	Shader::~Shader()
 	{
-		Clear();
+		Unload();
 	}
 
 	Shader& Shader::operator=(Shader&& rhs)
@@ -50,10 +50,10 @@ namespace mods
 		return *this;
 	}
 
-	bool Shader::Create(const std::string& vertex, const std::string& fragment)
+	bool Shader::Load(const std::string& vertex, const std::string& fragment)
 	{
 		// Clear any existing program
-		Clear();
+		Unload();
 
 		// Load the scripts from the files
 		std::string vsource, fsource;
@@ -74,7 +74,7 @@ namespace mods
 		return CreateProgram(shaders, 2, m_Program);
 	}
 
-	void Shader::Clear()
+	void Shader::Unload()
 	{
 		if (!IsValid())
 			return;
