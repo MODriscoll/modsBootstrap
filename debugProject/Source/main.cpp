@@ -18,12 +18,6 @@ void framebuffer_size_callback(GLFWwindow* window, int32 width, int32 height)
 	glViewport(0, 0, width, height);
 }
 
-// Process input
-void processInput(GLFWwindow* window)
-{
-
-}
-
 void on_key_press(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	std::cout << "(on_key_press) Key " << glfwGetKeyName(key, scancode) << " has been ";
@@ -318,8 +312,6 @@ int main()
 	// Game loop, keep looping while window is active
 	while (!glfwWindowShouldClose(window))
 	{
-		processInput(window);
-
 		// need to clear screen otherwise previous frames will still be visible
 		glClearColor(0.2f, 0.3f, 0.3f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT);

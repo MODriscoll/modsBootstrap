@@ -156,7 +156,7 @@ namespace mods
 		return static_cast<int>(lhs) < static_cast<int>(rhs);
 	}
 
-	enum class mdInputEvent : int
+	enum class mdInputAction : int
 	{
 		Release			= 0,
 		Press			= 1,
@@ -165,12 +165,12 @@ namespace mods
 		Axis			= 3
 	};
 
-	inline bool operator == (mdInputEvent lhs, int rhs)
+	inline bool operator == (mdInputAction lhs, int rhs)
 	{
 		return static_cast<int>(lhs) == rhs;
 	}
 
-	enum class mdInputMod : int
+	enum class mdInputMods : int
 	{
 		Shift			= 0x0001,
 		Control			= 0x0002,
@@ -180,24 +180,24 @@ namespace mods
 		None			= 0x0000
 	};
 
-	inline bool operator == (mdInputMod lhs, int rhs)
+	inline bool operator == (mdInputMods lhs, int rhs)
 	{
 		return lhs == rhs;
 	}
-	inline int operator | (mdInputMod lhs, int rhs)
+	inline int operator | (mdInputMods lhs, int rhs)
 	{
 		return static_cast<int>(lhs) | rhs;
 	}
-	inline int operator & (mdInputMod lhs, int rhs)
+	inline int operator & (mdInputMods lhs, int rhs)
 	{
 		return static_cast<int>(lhs) & rhs;
 	}
-	inline mdInputMod operator | (mdInputMod lhs, mdInputMod rhs)
+	inline mdInputMods operator | (mdInputMods lhs, mdInputMods rhs)
 	{
-		return static_cast<mdInputMod>(static_cast<int>(lhs) | static_cast<int>(rhs));
+		return static_cast<mdInputMods>(static_cast<int>(lhs) | static_cast<int>(rhs));
 	}
-	inline mdInputMod operator & (mdInputMod lhs, mdInputMod rhs)
+	inline mdInputMods operator & (mdInputMods lhs, mdInputMods rhs)
 	{
-		return static_cast<mdInputMod>(static_cast<int>(lhs) & static_cast<int>(rhs));
+		return static_cast<mdInputMods>(static_cast<int>(lhs) & static_cast<int>(rhs));
 	}
 }
