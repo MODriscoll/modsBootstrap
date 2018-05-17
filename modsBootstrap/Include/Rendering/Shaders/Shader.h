@@ -15,8 +15,8 @@ namespace mods
 
 	enum class eShaderType : uint32
 	{
-		Vertex			= 0x83B1,
-		TessControl		= 0x8E88,
+		Vertex			= 0x8B31, 
+		TessControl		= 0x8E88, 
 		TessEvaluation	= 0x8E87,
 		Geometry		= 0x8DD9,
 		Fragment		= 0x8B30
