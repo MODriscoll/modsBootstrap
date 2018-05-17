@@ -45,8 +45,8 @@ namespace mods
 
 		// Creates a new window of the specified type.
 		// If the window creation failed, a null value is returned
-		template <typename Type>
-		Type* CreateNewWindow(const WindowContext& context, bool focus = true);
+		//template <typename Type>
+		//Type* CreateNewWindow(const WindowContext& context, bool focus = true);
 
 	protected:
 
@@ -82,11 +82,11 @@ namespace mods
 		float m_DeltaTime;
 	};
 
-	template<typename Type>
-	inline Type* Application::CreateNewWindow(const WindowContext& context, bool focus)
-	{
-		static_assert(std::is_base_of<Window, Type>::value, "Type must be a window");
+	//template<typename Type>
+	//inline Type* Application::CreateNewWindow(const WindowContext& context, bool focus)
+	//{
+	//	static_assert(std::is_base_of<Window, Type>::value, "Type must be a window");
 
-		return NULL;
-	}
+	//	return NULL;
+	//}
 }

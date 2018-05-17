@@ -1,20 +1,24 @@
 #pragma once
 
+#include "Types.h"
 #include "Input\Input.h"
 
 #include <functional>
+#include <memory>
 #include <vector>
 
 struct GLFWwindow;
 
 namespace mods
 {
-	// Context for the creation of a new window
-	struct WindowContext
+	class Window;
+
+	// Context for the construction of a new window
+	struct WindowConstructor
 	{
 	public:
 
-		WindowContext()
+		WindowConstructor()
 			: Name("MyWindow")
 			, Width(1280.f)
 			, Height(720.f)
@@ -43,15 +47,16 @@ namespace mods
 	{
 	public:
 
-		Window();
+		Window(const WindowConstructor& constructor);
 		virtual ~Window();
 
 	public:
 
-		// Creates a new GLFW window assigned to this window.
-		// No new window is created if a window already exists
-		bool Initialize(const WindowContext& context);
+		// Called once per frame
+		virtual void Tick(float DeltaTime) = 0;
 
+		// Called to draw to the windows buffer
+		virtual void Draw() = 0;
 
 	public:
 

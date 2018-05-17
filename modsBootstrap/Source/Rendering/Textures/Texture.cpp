@@ -1,4 +1,4 @@
-#include "Rendering\Texture\Texture.h"
+#include "Rendering\Textures\Texture.h"
 
 #include "IncludeGLFW.h"
 

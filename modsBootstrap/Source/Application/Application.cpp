@@ -4,8 +4,6 @@
 
 namespace mods
 {
-	static Application* app = nullptr;
-
 	Application::Application()
 		: m_FocusedWindow(nullptr)
 	{
@@ -23,8 +21,6 @@ namespace mods
 			auto now = high_resolution_clock::now();
 			auto delta = duration_cast<milliseconds>(now - m_FrameStart);
 			m_FrameStart = now;
-
-			m_DeltaTime = delta.count();
 		}
 
 		return false;

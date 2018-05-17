@@ -1,8 +1,8 @@
-#include <Rendering\Shader\Shader.h>
+#include <Rendering\Shaders\Shader.h>
 
 #include <IncludeGLFW.h>
 
-#include <Rendering\Texture\Texture.h>
+#include <Rendering\Textures\Texture.h>
 
 #include <iostream>
 
@@ -302,7 +302,15 @@ int main()
 	};
 
 	mdVertexBuffer box(vertices, 20, indices, 6);
-	mods::Shader shader("Shaders/Vertex.vert", "Shaders/Fragment.frag");
+	//mods::Shader shader("Shaders/Vertex.vert", "Shaders/Fragment.frag");
+
+	using namespace mods;
+
+	ShaderProgramConstructor constructor;
+	constructor.LoadShader(VertexShaderSource("Shaders/Vertex.vert"));
+	constructor.LoadShader(FragmentShaderSource("Shaders/Fragment.frag"));
+	std::shared_ptr<ShaderProgram> shader = constructor.Construct();
+
 	mods::Texture texture("Textures/Container.jpg");
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -320,14 +328,14 @@ int main()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		shader.Bind();
+		shader->Bind();
 		texture.Bind();
-		shader.SetUniformValue("u_texture", 0);
+		shader->SetUniformValue("u_texture", 0);
 		box.Bind();
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		box.Bind();
 		texture.Unbind();
-		shader.Unbind();
+		shader->Unbind();
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
