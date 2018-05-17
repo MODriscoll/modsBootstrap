@@ -1,8 +1,7 @@
 #include "Rendering\Textures\Texture.h"
 
 #include "IncludeGLFW.h"
-
-#include <stb\stb_image.h>
+#include "Rendering\Textures\TextureUtility.h"
 
 #include <iostream>
 
@@ -71,18 +70,12 @@ namespace mods
 		// or have debug texture class that saves out
 		// texture and options to a unique file in which to load
 
-		// TODO: optional
-		stbi_set_flip_vertically_on_load(1);
-
 		// Load the image from the file
-		int width, height, channels;
-		unsigned char* pixels = stbi_load(path.c_str(), &width, &height, &channels, STBI_default);
-
 		// Abort if we failed to load texture
-		if (!pixels)
+		utility::TextureData data;
+		if (!utility::LoadTextureFromSource(path.c_str(), data))
 		{
 			std::cout << "Error: Failed to open texture source at path: " << path.c_str() << std::endl;
-			stbi_image_free(pixels);
 			return false;
 		}
 
@@ -97,21 +90,21 @@ namespace mods
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-		// TODO: get internal format and format (look into glTexImage2D)
 		// Generate the texture
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, pixels);
+		glTexImage2D(GL_TEXTURE_2D, 0, data.InternalFormat, data.Width, 
+			data.Height, 0, data.Format, GL_UNSIGNED_BYTE, data.Pixels);
 		glGenerateMipmap(GL_TEXTURE_2D);
 
 		glBindTexture(GL_TEXTURE_2D, 0);
 
-		m_Pixels = pixels;
-		m_Width = width;
-		m_Height = height;
-		m_Channels = channels;
+		m_Pixels = data.Pixels;
+		m_Width = data.Width;
+		m_Height = data.Height;
+		m_Channels = data.Format;
 
 		// TODO: options to keep pixels, for now
 		{
-			stbi_image_free(m_Pixels);
+			utility::DestroyTexture(m_Pixels);
 			m_Pixels = nullptr;
 		}
 
@@ -128,7 +121,7 @@ namespace mods
 
 		// Destroy local pixels if existing
 		if (m_Pixels)
-			stbi_image_free(m_Pixels);
+			utility::DestroyTexture(m_Pixels);
 
 		m_Handle = 0;
 		m_Pixels = nullptr;

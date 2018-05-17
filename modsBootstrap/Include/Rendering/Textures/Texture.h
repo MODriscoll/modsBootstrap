@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Types.h"
+
 #include <string>
 
 namespace mods
@@ -46,25 +48,25 @@ namespace mods
 
 		inline bool IsValid() const { return m_Handle != 0; }
 
-		inline int GetWidth() const { return m_Width; }
-		inline int GetHeight() const { return m_Height; }
+		inline int32 GetWidth() const { return m_Width; }
+		inline int32 GetHeight() const { return m_Height; }
 
 		// Get the pixels of this texture.
 		// This value can be null
-		inline const unsigned char* GetPixels() const { return m_Pixels; }
+		inline const byte* GetPixels() const { return m_Pixels; }
 
 	private:
 
 		// Handle to the texture
-		unsigned int m_Handle;
+		uint32 m_Handle;
 
 		// Pixels of the loaded texture
-		unsigned char* m_Pixels;
+		byte* m_Pixels;
 
 		// Width and height of the texture
-		int m_Width, m_Height;
+		int32 m_Width, m_Height;
 
 		// Color channels of the texture
-		int m_Channels;
+		int32 m_Channels;
 	};
 }
