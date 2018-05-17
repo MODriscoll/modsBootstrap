@@ -39,7 +39,7 @@ namespace mods
 		bool Unload();
 
 		// Binds this texture for use at the given slot
-		void Bind(unsigned int slot = 0);
+		void Bind(uint32 slot = 0);
 
 		// Unbinds this texture from use
 		void Unbind();

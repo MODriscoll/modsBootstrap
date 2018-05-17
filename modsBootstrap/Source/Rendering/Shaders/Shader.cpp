@@ -69,7 +69,7 @@ namespace mods
 		glLinkProgram(program);
 
 		// Handle potential errors
-		int success;
+		int32 success;
 		glGetProgramiv(program, GL_LINK_STATUS, &success);
 		if (!success)
 		{
@@ -128,7 +128,7 @@ namespace mods
 		glCompileShader(shader);
 
 		// Handle any potential errors
-		int success;
+		int32 success;
 		glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 		if (!success)
 		{
@@ -214,45 +214,45 @@ namespace mods
 
 	void ShaderProgram::SetUniformValue(const std::string& name, bool value)
 	{
-		SetUniformValue(name, (int)value);
+		SetUniformValue(name, (int32)value);
 	}
 
-	void ShaderProgram::SetUniformValue(const std::string& name, int value)
+	void ShaderProgram::SetUniformValue(const std::string& name, int32 value)
 	{
-		int location;
+		int32 location;
 		if (GetUniformLocation(name, location))
 			glUniform1i(location, value);
 	}
 
 	void ShaderProgram::SetUniformValue(const std::string& name, float value)
 	{
-		int location;
+		int32 location;
 		if (GetUniformLocation(name, location))
 			glUniform1f(location, value);
 	}
 
 	void ShaderProgram::SetUniformValue(const std::string& name, const glm::vec2& value)
 	{
-		int location;
+		int32 location;
 		if (GetUniformLocation(name, location))
 			glUniform2fv(location, 1, glm::value_ptr(value));
 	}
 
 	void ShaderProgram::SetUniformValue(const std::string& name, const glm::vec3& value)
 	{
-		int location;
+		int32 location;
 		if (GetUniformLocation(name, location))
 			glUniform3fv(location, 1, glm::value_ptr(value));
 	}
 
 	void ShaderProgram::SetUniformValue(const std::string& name, const glm::mat4& value, bool transpose)
 	{
-		int location;
+		int32 location;
 		if (GetUniformLocation(name, location))
 			glUniformMatrix4fv(location, 1, transpose, glm::value_ptr(value));
 	}
 
-	bool ShaderProgram::GetUniformLocation(const std::string & name, int32 & location)
+	bool ShaderProgram::GetUniformLocation(const std::string& name, int32& location)
 	{
 		location = -1;
 
@@ -268,7 +268,7 @@ namespace mods
 		location = glGetUniformLocation(m_Program, name.c_str());
 		if (location == -1)
 		{
-			std::cout << "Error: Location of uniform " << name << " was not found." << std::endl;
+			//std::cout << "Error: Location of uniform " << name << " was not found." << std::endl;
 			return false;
 		}
 

@@ -7,6 +7,8 @@
 
 namespace mods
 {
+	// TODO: TextureConstructor
+
 	Texture::Texture(const std::string& path)
 		: m_Handle(0)
 		, m_Pixels(nullptr)
@@ -132,7 +134,7 @@ namespace mods
 		return true;
 	}
 
-	void Texture::Bind(unsigned int slot)
+	void Texture::Bind(uint32 slot)
 	{
 	#if _DEBUG
 		if (!IsValid())
