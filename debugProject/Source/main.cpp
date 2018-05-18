@@ -5,6 +5,7 @@
 #include <Camera\Camera.h>
 #include <Rendering\Textures\Texture.h>
 #include <Rendering\Meshes\Model.h>
+#include <Rendering\Textures\Cubemap.h>
 
 #include <glm\ext.hpp>
 
@@ -430,6 +431,66 @@ int main()
 			1, 2, 3    // second triangle
 		};
 
+		float skyboxVertices[] = {
+			// positions          
+			-1.0f,  1.0f, -1.0f,
+			-1.0f, -1.0f, -1.0f,
+			1.0f, -1.0f, -1.0f,
+			1.0f, -1.0f, -1.0f,
+			1.0f,  1.0f, -1.0f,
+			-1.0f,  1.0f, -1.0f,
+
+			-1.0f, -1.0f,  1.0f,
+			-1.0f, -1.0f, -1.0f,
+			-1.0f,  1.0f, -1.0f,
+			-1.0f,  1.0f, -1.0f,
+			-1.0f,  1.0f,  1.0f,
+			-1.0f, -1.0f,  1.0f,
+
+			1.0f, -1.0f, -1.0f,
+			1.0f, -1.0f,  1.0f,
+			1.0f,  1.0f,  1.0f,
+			1.0f,  1.0f,  1.0f,
+			1.0f,  1.0f, -1.0f,
+			1.0f, -1.0f, -1.0f,
+
+			-1.0f, -1.0f,  1.0f,
+			-1.0f,  1.0f,  1.0f,
+			1.0f,  1.0f,  1.0f,
+			1.0f,  1.0f,  1.0f,
+			1.0f, -1.0f,  1.0f,
+			-1.0f, -1.0f,  1.0f,
+
+			-1.0f,  1.0f, -1.0f,
+			1.0f,  1.0f, -1.0f,
+			1.0f,  1.0f,  1.0f,
+			1.0f,  1.0f,  1.0f,
+			-1.0f,  1.0f,  1.0f,
+			-1.0f,  1.0f, -1.0f,
+
+			-1.0f, -1.0f, -1.0f,
+			-1.0f, -1.0f,  1.0f,
+			1.0f, -1.0f, -1.0f,
+			1.0f, -1.0f, -1.0f,
+			-1.0f, -1.0f,  1.0f,
+			1.0f, -1.0f,  1.0f
+		};
+
+		unsigned int skyboxvao;
+		glGenVertexArrays(1, &skyboxvao);
+		glBindVertexArray(skyboxvao);
+
+		unsigned int skyboxvbo;
+		glGenBuffers(1, &skyboxvbo);
+		glBindBuffer(GL_ARRAY_BUFFER, skyboxvbo);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 108, skyboxVertices, GL_STATIC_DRAW);
+
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);
+		glEnableVertexAttribArray(0);
+
+		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
 		glEnable(GL_DEPTH_TEST);
 
 		//mdVertexBuffer box(vertices, 180, indices, 6);
@@ -461,9 +522,25 @@ int main()
 		ShaderProgramConstructor modelshaderconstructor;
 		modelshaderconstructor.LoadShader(VertexShaderSource("Resources/Shaders/ModelVertex.vert"));
 		modelshaderconstructor.LoadShader(FragmentShaderSource("Resources/Shaders/ModelFragment.frag"));
-		std::shared_ptr<ShaderProgram> modelshader = constructor.Construct();
+		std::shared_ptr<ShaderProgram> modelshader = modelshaderconstructor.Construct();
+
+		ShaderProgramConstructor skyboxshaderconstructor;
+		skyboxshaderconstructor.LoadShader(VertexShaderSource("Resources/Shaders/SkyboxVertex.vert"));
+		skyboxshaderconstructor.LoadShader(FragmentShaderSource("Resources/Shaders/SkyboxFragment.frag"));
+		std::shared_ptr<ShaderProgram> skyboxshader = skyboxshaderconstructor.Construct();
 
 		mods::Texture texture("Resources/Textures/Container.jpg");
+
+		std::array<std::string, 6> skyboxpaths =
+		{
+			"Resources/Textures/hw_crater/craterlake_rt.tga",
+			"Resources/Textures/hw_crater/craterlake_lf.tga",
+			"Resources/Textures/hw_crater/craterlake_up.tga",
+			"Resources/Textures/hw_crater/craterlake_dn.tga",
+			"Resources/Textures/hw_crater/craterlake_bk.tga",
+			"Resources/Textures/hw_crater/craterlake_ft.tga"
+		};
+		mods::Cubemap skybox(skyboxpaths);
 
 		mods::Model nanosuit("Resources/Models/Nanosuit/nanosuit.obj");
 
@@ -477,6 +554,9 @@ int main()
 
 		FlyCamera.Position = glm::vec3(3.f);
 		FlyCamera.LookAt(glm::vec3(0.f));
+
+		//glEnable(GL_SCISSOR_TEST);
+		//glScissor(240, 100, 800, 500);
 
 		deltaTime = 0.f;
 		lastTime = (float)glfwGetTime();
@@ -520,6 +600,8 @@ int main()
 			texture.Unbind();
 			shader->Unbind();
 
+			//glScissor(240, 100, 800, 500);
+
 			modelshader->Bind();
 			modelshader->SetUniformValue("model", glm::mat4(1.f));
 			modelshader->SetUniformValue("projection", FlyCamera.GetProjectionMatrix());
@@ -528,9 +610,30 @@ int main()
 			nanosuit.Draw(*modelshader);
 			modelshader->Unbind();
 
+			//glScissor(0, 0, 1280, 720);
+
+			glm::mat4 view = FlyCamera.GetViewMatrix();
+			view[3] = glm::vec4(0.f, 0.f, 0.f, 1.f);	// No position for sky box view projection
+
+			glDepthFunc(GL_LEQUAL);
+			skyboxshader->Bind();
+			skybox.Bind();
+			skyboxshader->SetUniformValue("skybox", 0);
+			skyboxshader->SetUniformValue("projection", FlyCamera.GetProjectionMatrix());
+			skyboxshader->SetUniformValue("view", view);
+			glBindVertexArray(skyboxvao);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+			glBindVertexArray(0);
+			skybox.Unbind();
+			skyboxshader->Unbind();
+			glDepthFunc(GL_LESS);
+
 			glfwSwapBuffers(window);
 			glfwPollEvents();
 		}
+
+		glDeleteVertexArrays(1, &skyboxvao);
+		glDeleteBuffers(1, &skyboxvbo);
 
 		glDeleteVertexArrays(1, &vao);
 		glDeleteBuffers(1, &vbo);

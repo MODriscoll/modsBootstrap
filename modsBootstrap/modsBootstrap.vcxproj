@@ -25,6 +25,7 @@
     <ClCompile Include="Source\Rendering\Meshes\Model.cpp" />
     <ClCompile Include="Source\Rendering\Meshes\MeshUtility.cpp" />
     <ClCompile Include="Source\Rendering\Shaders\Shader.cpp" />
+    <ClCompile Include="Source\Rendering\Textures\Cubemap.cpp" />
     <ClCompile Include="Source\Rendering\Textures\Texture.cpp" />
     <ClCompile Include="Source\Rendering\Textures\TextureUtility.cpp" />
   </ItemGroup>
@@ -36,6 +37,7 @@
     <ClInclude Include="Include\Rendering\Meshes\MeshUtility.h" />
     <ClInclude Include="Include\Rendering\Meshes\Model.h" />
     <ClInclude Include="Include\Rendering\Shaders\Shader.h" />
+    <ClInclude Include="Include\Rendering\Textures\Cubemap.h" />
     <ClInclude Include="Include\Rendering\Textures\Texture.h" />
     <ClInclude Include="Include\Rendering\Textures\TextureUtility.h" />
     <ClInclude Include="Include\Types.h" />
