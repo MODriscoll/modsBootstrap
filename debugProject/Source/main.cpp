@@ -212,10 +212,10 @@ struct mdVertexBuffer
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(uint32) * indicessize, indices, GL_STATIC_DRAW);
 
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)0);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)(sizeof(float) * 3));
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (void*)0);
+		//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)(sizeof(float) * 3));
 		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
+		//glEnableVertexAttribArray(1);
 
 		// Unbind vertex array for buffers
 		glBindVertexArray(0);
@@ -512,6 +512,20 @@ int main()
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+		float quad[] = {
+			-0.99f, -0.99f, 0.0f,
+			0.99f, -0.99f, 0.0f,
+			-0.99f, 0.99f, 0.0f,
+			0.99f, 0.99f, 0.0f
+		};
+		uint32 quadindices[] =
+		{
+			0, 1, 2,
+			1, 3, 2
+		};
+
+		mdVertexBuffer quadbuf(quad, 12, quadindices, 6);
+
 		using namespace mods;
 
 		ShaderProgramConstructor constructor;
@@ -528,6 +542,16 @@ int main()
 		skyboxshaderconstructor.LoadShader(VertexShaderSource("Resources/Shaders/SkyboxVertex.vert"));
 		skyboxshaderconstructor.LoadShader(FragmentShaderSource("Resources/Shaders/SkyboxFragment.frag"));
 		std::shared_ptr<ShaderProgram> skyboxshader = skyboxshaderconstructor.Construct();
+
+		ShaderProgramConstructor billboardconstructor;
+		billboardconstructor.LoadShader(VertexShaderSource("Resources/Shaders/BillboardVertex.vert"));
+		billboardconstructor.LoadShader(FragmentShaderSource("Resources/Shaders/BillboardFragment.frag"));
+		std::shared_ptr<ShaderProgram> billboardshader = billboardconstructor.Construct();
+
+		billboardshader->Bind();
+		billboardshader->SetUniformValue("position", glm::vec3(2.f, 3.f, 2.f));
+		billboardshader->SetUniformValue("size", glm::vec2(0.35f, 0.1f));
+		billboardshader->Unbind();
 
 		mods::Texture texture("Resources/Textures/Container.jpg");
 
@@ -552,8 +576,8 @@ int main()
 		glfwSetCursorEnterCallback(window, on_mouse_enter);
 		glfwSetScrollCallback(window, on_mouse_scroll);
 
-		FlyCamera.Position = glm::vec3(3.f);
-		FlyCamera.LookAt(glm::vec3(0.f));
+		FlyCamera.Position = glm::vec3(3.f, 4.f, 3.f);
+		FlyCamera.LookAt(glm::vec3(2.f, 3.f, 2.f));
 
 		//glEnable(GL_SCISSOR_TEST);
 		//glScissor(240, 100, 800, 500);
@@ -609,6 +633,14 @@ int main()
 
 			nanosuit.Draw(*modelshader);
 			modelshader->Unbind();
+
+			billboardshader->Bind();
+			billboardshader->SetUniformValue("projection", FlyCamera.GetProjectionMatrix());
+			billboardshader->SetUniformValue("view", FlyCamera.GetViewMatrix());
+			quadbuf.Bind();
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+			quadbuf.Unbind();
+			billboardshader->Unbind();
 
 			//glScissor(0, 0, 1280, 720);
 

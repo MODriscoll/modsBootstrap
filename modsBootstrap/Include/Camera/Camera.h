@@ -16,6 +16,8 @@ namespace mods
 	// Camera that only contains a position and rotation.
 	// Perspective and orthographic variables are not in a union to
 	// allow for the easy transition between different projection modes
+	// TODO: implement a rotator class similar to ue4 FRotator
+	// it should be able handle limiting view
 	class Camera
 	{
 	public:
