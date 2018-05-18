@@ -16,6 +16,8 @@ namespace mods
 
 	//};
 
+	// TODO: update to make it possible to derive from
+	// derived type can be a import texture 
 	class Texture
 	{
 	public:

@@ -62,6 +62,9 @@ namespace mods
 
 	bool Texture::Load(const std::string& path)
 	{
+		if (IsValid())
+			Unload();
+
 		// TODO: add texture load options
 		// or have debug texture class that saves out
 		// texture and options to a unique file in which to load
