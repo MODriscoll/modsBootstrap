@@ -20,18 +20,12 @@ namespace mods
 	}
 
 	Texture::Texture(Texture&& rhs)
+		: m_Handle(rhs.m_Handle)
+		, m_Pixels(rhs.m_Pixels)
+		, m_Width(rhs.m_Width)
+		, m_Height(rhs.m_Height)
+		, m_Channels(rhs.m_Channels)
 	{
-		if (IsValid())
-			Unload();
-
-		// Extract contents from other texture
-		m_Handle = rhs.m_Handle;
-		m_Pixels = rhs.m_Pixels;
-		m_Width = rhs.m_Width;
-		m_Height = rhs.m_Height;
-		m_Channels = rhs.m_Channels;
-
-		// Nullify other textures references
 		rhs.m_Handle = 0;
 		rhs.m_Pixels = nullptr;
 		rhs.m_Width = 0;
