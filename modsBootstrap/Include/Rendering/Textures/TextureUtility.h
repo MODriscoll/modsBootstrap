@@ -48,5 +48,9 @@ namespace mods
 
 		// Destroys a texture
 		void DestroyTexture(byte* pixels);
+
+		// TODO: replace, have a struct to pass that takes in loading options
+		// TODO: add a generate texture handle here too
+		void SetFlip(bool flip);
 	}
 }

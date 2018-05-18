@@ -65,6 +65,9 @@ namespace mods
 		if (IsValid())
 			Unload();
 
+		// TODO: remove
+		detail::SetFlip(true);
+
 		// TODO: add texture load options
 		// or have debug texture class that saves out
 		// texture and options to a unique file in which to load
@@ -132,7 +135,7 @@ namespace mods
 	{
 	#if _DEBUG
 		if (!IsValid())
-			std::cout << "Warning: Texture bound to slot " << slot << " is not valid." << std::endl;
+			std::cout << "Warning: Texture bound to slot " << slot << " is not valid" << std::endl;
 	#endif
 
 		glActiveTexture(GL_TEXTURE0 + slot);

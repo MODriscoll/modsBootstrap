@@ -92,11 +92,12 @@ namespace mods
 			program.SetUniformValue(("material." + number).c_str(), i);
 			glBindTexture(GL_TEXTURE_2D, m_Textures[i].Handle);
 		}
-		glActiveTexture(GL_TEXTURE0);
-
+		
 		glBindVertexArray(m_VAO);
 		glDrawElements(GL_TRIANGLES, m_Indices.size(), GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
+
+		glActiveTexture(GL_TEXTURE0);
 	}
 
 	void Mesh::GenerateHandle()

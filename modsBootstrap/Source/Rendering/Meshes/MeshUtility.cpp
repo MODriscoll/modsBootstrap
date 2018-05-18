@@ -14,6 +14,8 @@ namespace mods
 {
 	namespace detail
 	{
+		// TODO: Comment
+
 		glm::vec2 ToVec2(aiVector3D& vec) { return glm::vec2(vec.x, vec.y); }
 		glm::vec3 ToVec3(aiVector3D& vec) { return glm::vec3(vec.x, vec.y, vec.z); }
 

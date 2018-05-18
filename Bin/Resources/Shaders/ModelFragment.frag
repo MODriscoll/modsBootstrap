@@ -16,6 +16,6 @@ out vec4 FragColor;
 void main()
 {
 	vec4 dif = texture(material.texture_diffuse1, fTexCoords);
-	vec4 spc = vec4(0.f);texture(material.texture_specular1, fTexCoords);
+	vec4 spc = vec4(0.f);//texture(material.texture_specular1, fTexCoords);
 	FragColor = dif + spc;
 }

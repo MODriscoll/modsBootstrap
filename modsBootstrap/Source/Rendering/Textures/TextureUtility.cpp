@@ -10,10 +10,13 @@ namespace mods
 {
 	namespace detail
 	{
+		// TODO: Remove error message from here, it would be easier
+		// to explain where the error has occured if the caller reports the failure.
+		// Maybe have an error value be returned? (do same with MeshUtility
 		bool LoadTextureFromSource(const std::string& path, TextureData& data, bool sRGB, int32 channels)
 		{
 			// TODO: remove this line
-			stbi_set_flip_vertically_on_load(1);
+			//stbi_set_flip_vertically_on_load(1);
 
 			int32 width, height, format;
 			byte* pixels = stbi_load(path.c_str(), &width, &height, &format, channels);
@@ -68,6 +71,11 @@ namespace mods
 		{
 			if (pixels)
 				stbi_image_free(pixels);
+		}
+
+		void SetFlip(bool flip)
+		{
+			stbi_set_flip_vertically_on_load((int32)flip);
 		}
 	}
 }
