@@ -452,11 +452,11 @@ int main()
 	using namespace mods;
 
 	ShaderProgramConstructor constructor;
-	constructor.LoadShader(VertexShaderSource("Shaders/Vertex.vert"));
-	constructor.LoadShader(FragmentShaderSource("Shaders/Fragment.frag"));
+	constructor.LoadShader(VertexShaderSource("Resources/Shaders/Vertex.vert"));
+	constructor.LoadShader(FragmentShaderSource("Resources/Shaders/Fragment.frag"));
 	std::shared_ptr<ShaderProgram> shader = constructor.Construct();
 
-	mods::Texture texture("Textures/Container.jpg");
+	mods::Texture texture("Resources/Textures/Container.jpg");
 
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
