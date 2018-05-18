@@ -1,24 +1,28 @@
 #include "Rendering\Textures\TextureUtility.h"
 
+#include "IncludeGLFW.h"
+
 #include <stb\stb_image.h>
 
-#include "IncludeGLFW.h"
+#include <iostream>
 
 namespace mods
 {
-	namespace utility
+	namespace detail
 	{
-		bool LoadTextureFromSource(const char* path, TextureData& data, bool sRGB, int32 channels)
+		bool LoadTextureFromSource(const std::string& path, TextureData& data, bool sRGB, int32 channels)
 		{
 			// TODO: remove this line
 			stbi_set_flip_vertically_on_load(1);
 
 			int32 width, height, format;
-			byte* pixels = stbi_load(path, &width, &height, &format, channels);
+			byte* pixels = stbi_load(path.c_str(), &width, &height, &format, channels);
 
 			// Image failed to load
 			if (!pixels)
 			{
+				std::cout << "Error: Failed to open texture source at path: " << path << std::endl;
+
 				stbi_image_free(pixels);
 				return false;
 			}

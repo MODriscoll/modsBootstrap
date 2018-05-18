@@ -4,6 +4,7 @@
 
 #include <Camera\Camera.h>
 #include <Rendering\Textures\Texture.h>
+#include <Rendering\Meshes\Model.h>
 
 #include <glm\ext.hpp>
 
@@ -336,194 +337,206 @@ int main()
 	// Initiate glfw
 	if (!glfwInit())
 		return -1;
+	{
 
-	glfwSetErrorCallback(handle_error);
+		glfwSetErrorCallback(handle_error);
 
-	// Initiate glfw window
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		// Initiate glfw window
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 #ifdef _DEBUG
-	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
+		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, 1);
 #endif
 
-	// Create window
-	GLFWwindow* window = glfwCreateWindow(1280, 720, "modsBootstrap", nullptr, nullptr);
-	if (!window)
-	{
-		std::cout << "Failed to create window" << std::endl;
+		// Create window
+		GLFWwindow* window = glfwCreateWindow(1280, 720, "modsBootstrap", nullptr, nullptr);
+		if (!window)
+		{
+			std::cout << "Failed to create window" << std::endl;
 
-		// Must terminate if init was successfull
-		glfwTerminate();
-		return -1;	// GLFW initialize failed
-	}
+			// Must terminate if init was successfull
+			glfwTerminate();
+			return -1;	// GLFW initialize failed
+		}
 
-	glfwMakeContextCurrent(window);
+		glfwMakeContextCurrent(window);
 
-	// Have to initialize glad before gl fuctions can be used
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		std::cout << "Failed to intialize GLAD" << std::endl;
+		// Have to initialize glad before gl fuctions can be used
+		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+		{
+			std::cout << "Failed to intialize GLAD" << std::endl;
 
-		// Must terminate if init was successfull
-		glfwTerminate();
-		return -2;	// Glad failed to find function pointers
-	}
+			// Must terminate if init was successfull
+			glfwTerminate();
+			return -2;	// Glad failed to find function pointers
+		}
 
-	// Size of the viewport opengl will render
-	glViewport(0, 0, 1280, 720);
+		// Size of the viewport opengl will render
+		glViewport(0, 0, 1280, 720);
 
-	// Callback for when window is resized
-	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+		// Callback for when window is resized
+		glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	// Callback for when an error has occured
-	glfwSetErrorCallback(handle_error);
+		// Callback for when an error has occured
+		glfwSetErrorCallback(handle_error);
 
-	float vertices[] = {
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-		0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+		float vertices[] = {
+			-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+			0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+			0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+			0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+			-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+			-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+			-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+			0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+			0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+			0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+			-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+			-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
 
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+			-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+			-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+			-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+			-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+			-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+			-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
 
-		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+			0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+			0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+			0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+			0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+			0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+			0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
 
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+			-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+			0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+			0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+			0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+			-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+			-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
 
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
-	};
-	uint32 indices[] = {  // note that we start from 0!
-		0, 1, 3,   // first triangle
-		1, 2, 3    // second triangle
-	};
+			-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+			0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+			0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+			0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+			-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+			-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+		};
+		uint32 indices[] = {  // note that we start from 0!
+			0, 1, 3,   // first triangle
+			1, 2, 3    // second triangle
+		};
 
-	glEnable(GL_DEPTH_TEST);
+		glEnable(GL_DEPTH_TEST);
 
-	//mdVertexBuffer box(vertices, 180, indices, 6);
+		//mdVertexBuffer box(vertices, 180, indices, 6);
 
-	unsigned int vao;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-
-	unsigned int vbo;
-	glGenBuffers(1, &vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 180, vertices, GL_STATIC_DRAW);
-
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)0);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)(sizeof(float) * 3));
-	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-
-	glBindVertexArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	using namespace mods;
-
-	ShaderProgramConstructor constructor;
-	constructor.LoadShader(VertexShaderSource("Resources/Shaders/Vertex.vert"));
-	constructor.LoadShader(FragmentShaderSource("Resources/Shaders/Fragment.frag"));
-	std::shared_ptr<ShaderProgram> shader = constructor.Construct();
-
-	mods::Texture texture("Resources/Textures/Container.jpg");
-
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-	glfwSetKeyCallback(window, on_key_press);
-	glfwSetCursorPosCallback(window, on_mouse_move);
-	glfwSetMouseButtonCallback(window, on_mouse_press);
-	glfwSetCursorEnterCallback(window, on_mouse_enter);
-	glfwSetScrollCallback(window, on_mouse_scroll);
-
-	FlyCamera.Position = glm::vec3(3.f);
-	FlyCamera.LookAt(glm::vec3(0.f));
-
-	deltaTime = 0.f;
-	lastTime = (float)glfwGetTime();
-
-	// Game loop, keep looping while window is active
-	while (!glfwWindowShouldClose(window))
-	{
-		float timeNow = (float)glfwGetTime();
-		deltaTime = timeNow - lastTime;
-		lastTime = timeNow;
-
-		// need to clear screen otherwise previous frames will still be visible
-		glClearColor(0.2f, 0.3f, 0.3f, 1.f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		if (bWIsDown)
-			FlyCamera.Position += FlyCamera.GetHeading() * 5.f * deltaTime;
-		if (bSIsDown)
-			FlyCamera.Position -= FlyCamera.GetHeading() * 5.f * deltaTime;
-
-		glm::vec3 right = glm::normalize(glm::cross(FlyCamera.GetHeading(), glm::vec3(0.f, 1.f, 0.f))) * 5.f * deltaTime;
-		if (bAIsDown)
-			FlyCamera.Position -= right;
-		if (bDIsDown)
-			FlyCamera.Position += right;
-
-		std::cout << "Camera Pos: X= " << FlyCamera.Position.x << ", Y= " << FlyCamera.Position.y << ", Z= " << FlyCamera.Position.z << std::endl;
-		glm::vec3 Rot = FlyCamera.GetRotation();
-		std::cout << "Camera Rot: X= " << Rot.x << ", Y= " << Rot.y << ", Z= " << Rot.z << std::endl;
-
-		glm::mat4 model(1.f);
-		model = glm::scale(model, glm::vec3(2.f));
-
-		glm::mat4 t = FlyCamera.GetProjectionView();
-
-		shader->Bind();
-		texture.Bind();
-		shader->SetUniformValue("u_texture", 0);
-		shader->SetUniformValue("model", model);
-		shader->SetUniformValue("projection", FlyCamera.GetProjectionMatrix());
-		shader->SetUniformValue("view", FlyCamera.GetViewMatrix());
+		unsigned int vao;
+		glGenVertexArrays(1, &vao);
 		glBindVertexArray(vao);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		unsigned int vbo;
+		glGenBuffers(1, &vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 180, vertices, GL_STATIC_DRAW);
+
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)0);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)(sizeof(float) * 3));
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
+
 		glBindVertexArray(0);
-		texture.Unbind();
-		shader->Unbind();
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-		glfwSwapBuffers(window);
-		glfwPollEvents();
+		using namespace mods;
+
+		ShaderProgramConstructor constructor;
+		constructor.LoadShader(VertexShaderSource("Resources/Shaders/Vertex.vert"));
+		constructor.LoadShader(FragmentShaderSource("Resources/Shaders/Fragment.frag"));
+		std::shared_ptr<ShaderProgram> shader = constructor.Construct();
+
+		ShaderProgramConstructor modelshaderconstructor;
+		modelshaderconstructor.LoadShader(VertexShaderSource("Resources/Shaders/ModelVertex.vert"));
+		modelshaderconstructor.LoadShader(FragmentShaderSource("Resources/Shaders/ModelFragment.frag"));
+		std::shared_ptr<ShaderProgram> modelshader = constructor.Construct();
+
+		mods::Texture texture("Resources/Textures/Container.jpg");
+
+		mods::Model nanosuit("Resources/Models/Nanosuit/nanosuit.obj");
+
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+		glfwSetKeyCallback(window, on_key_press);
+		glfwSetCursorPosCallback(window, on_mouse_move);
+		glfwSetMouseButtonCallback(window, on_mouse_press);
+		glfwSetCursorEnterCallback(window, on_mouse_enter);
+		glfwSetScrollCallback(window, on_mouse_scroll);
+
+		FlyCamera.Position = glm::vec3(3.f);
+		FlyCamera.LookAt(glm::vec3(0.f));
+
+		deltaTime = 0.f;
+		lastTime = (float)glfwGetTime();
+
+		// Game loop, keep looping while window is active
+		while (!glfwWindowShouldClose(window))
+		{
+			float timeNow = (float)glfwGetTime();
+			deltaTime = timeNow - lastTime;
+			lastTime = timeNow;
+
+			// need to clear screen otherwise previous frames will still be visible
+			glClearColor(0.2f, 0.3f, 0.3f, 1.f);
+			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+			if (bWIsDown)
+				FlyCamera.Position += FlyCamera.GetHeading() * 5.f * deltaTime;
+			if (bSIsDown)
+				FlyCamera.Position -= FlyCamera.GetHeading() * 5.f * deltaTime;
+
+			glm::vec3 right = glm::normalize(glm::cross(FlyCamera.GetHeading(), glm::vec3(0.f, 1.f, 0.f))) * 5.f * deltaTime;
+			if (bAIsDown)
+				FlyCamera.Position -= right;
+			if (bDIsDown)
+				FlyCamera.Position += right;
+
+			glm::mat4 model(1.f);
+			model = glm::translate(model, glm::vec3(2.f));
+
+			glm::mat4 t = FlyCamera.GetProjectionView();
+
+			shader->Bind();
+			texture.Bind();
+			shader->SetUniformValue("u_texture", 0);
+			shader->SetUniformValue("model", model);
+			shader->SetUniformValue("projection", FlyCamera.GetProjectionMatrix());
+			shader->SetUniformValue("view", FlyCamera.GetViewMatrix());
+			glBindVertexArray(vao);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+			glBindVertexArray(0);
+			texture.Unbind();
+			shader->Unbind();
+
+			modelshader->Bind();
+			modelshader->SetUniformValue("model", glm::mat4(1.f));
+			modelshader->SetUniformValue("projection", FlyCamera.GetProjectionMatrix());
+			modelshader->SetUniformValue("view", FlyCamera.GetViewMatrix());
+
+			nanosuit.Draw(*modelshader);
+			modelshader->Unbind();
+
+			glfwSwapBuffers(window);
+			glfwPollEvents();
+		}
+
+		glDeleteVertexArrays(1, &vao);
+		glDeleteBuffers(1, &vbo);
+
+		glfwDestroyWindow(window);
 	}
-
-	glDeleteVertexArrays(1, &vao);
-	glDeleteBuffers(1, &vbo);
-
-	glfwDestroyWindow(window);
-
 	// Always terminate before exiting
 	glfwTerminate();
 

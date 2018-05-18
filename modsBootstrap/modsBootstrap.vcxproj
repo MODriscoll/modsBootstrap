@@ -22,6 +22,8 @@
     <ClCompile Include="Source\Camera\Camera.cpp" />
     <ClCompile Include="Source\glad.c" />
     <ClCompile Include="Source\Rendering\Meshes\Mesh.cpp" />
+    <ClCompile Include="Source\Rendering\Meshes\Model.cpp" />
+    <ClCompile Include="Source\Rendering\Meshes\MeshUtility.cpp" />
     <ClCompile Include="Source\Rendering\Shaders\Shader.cpp" />
     <ClCompile Include="Source\Rendering\Textures\Texture.cpp" />
     <ClCompile Include="Source\Rendering\Textures\TextureUtility.cpp" />
@@ -31,6 +33,8 @@
     <ClInclude Include="Include\IncludeGLFW.h" />
     <ClInclude Include="Include\Buffers\Buffer.h" />
     <ClInclude Include="Include\Rendering\Meshes\Mesh.h" />
+    <ClInclude Include="Include\Rendering\Meshes\MeshUtility.h" />
+    <ClInclude Include="Include\Rendering\Meshes\Model.h" />
     <ClInclude Include="Include\Rendering\Shaders\Shader.h" />
     <ClInclude Include="Include\Rendering\Textures\Texture.h" />
     <ClInclude Include="Include\Rendering\Textures\TextureUtility.h" />

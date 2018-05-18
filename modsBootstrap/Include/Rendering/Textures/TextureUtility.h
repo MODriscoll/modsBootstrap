@@ -2,9 +2,11 @@
 
 #include "Types.h"
 
+#include <string>
+
 namespace mods
 {
-	namespace utility
+	namespace detail
 	{
 		struct TextureData
 		{
@@ -42,7 +44,7 @@ namespace mods
 		};
 
 		// Loads a texture from the given file path.
-		bool LoadTextureFromSource(const char* path, TextureData& data, bool sRGB = false, int32 channels = 0);
+		bool LoadTextureFromSource(const std::string& path, TextureData& data, bool sRGB = false, int32 channels = 0);
 
 		// Destroys a texture
 		void DestroyTexture(byte* pixels);

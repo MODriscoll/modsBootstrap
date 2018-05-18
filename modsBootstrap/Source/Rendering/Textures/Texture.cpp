@@ -74,12 +74,9 @@ namespace mods
 
 		// Load the image from the file
 		// Abort if we failed to load texture
-		utility::TextureData data;
-		if (!utility::LoadTextureFromSource(path.c_str(), data))
-		{
-			std::cout << "Error: Failed to open texture source at path: " << path.c_str() << std::endl;
+		detail::TextureData data;
+		if (!detail::LoadTextureFromSource(path, data))
 			return false;
-		}
 
 		glGenTextures(1, &m_Handle);
 		glBindTexture(GL_TEXTURE_2D, m_Handle);
@@ -106,7 +103,7 @@ namespace mods
 
 		// TODO: options to keep pixels, for now
 		{
-			utility::DestroyTexture(m_Pixels);
+			detail::DestroyTexture(m_Pixels);
 			m_Pixels = nullptr;
 		}
 
@@ -123,7 +120,7 @@ namespace mods
 
 		// Destroy local pixels if existing
 		if (m_Pixels)
-			utility::DestroyTexture(m_Pixels);
+			detail::DestroyTexture(m_Pixels);
 
 		m_Handle = 0;
 		m_Pixels = nullptr;

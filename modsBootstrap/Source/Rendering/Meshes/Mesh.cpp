@@ -15,6 +15,10 @@ namespace mods
 		, m_Indices(indices)
 		, m_Textures(textures)
 	{
+		m_Vertices.shrink_to_fit();
+		m_Indices.shrink_to_fit();
+		m_Textures.shrink_to_fit();
+
 		GenerateHandle();
 	}
 
@@ -37,7 +41,8 @@ namespace mods
 		glDeleteBuffers(1, &m_VBO);
 		glDeleteBuffers(1, &m_IBO);
 
-		// TODO: delete textures
+		for (const MeshTexture& texture : m_Textures)
+			glDeleteTextures(1, &texture.Handle);
 	}
 
 	Mesh& Mesh::operator=(Mesh&& rhs)
@@ -47,7 +52,8 @@ namespace mods
 		glDeleteBuffers(1, &m_VBO);
 		glDeleteBuffers(1, &m_IBO);
 
-		// TODO: delete textures
+		for (const MeshTexture& texture : m_Textures)
+			glDeleteTextures(1, &texture.Handle);
 
 		m_VBO = rhs.m_VBO;
 		m_IBO = rhs.m_IBO;
