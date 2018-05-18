@@ -13,4 +13,7 @@ The input class should handle all input and allow bindings of actions and axes
 Wish List:
 - Game object (Actor) feature
 - A component feature
+- Custom file format that resources such as textures and models are saved out to
+This format will allow for a single path to be provided and will contain the additional
+details related to that asset. Importing options will be available (jpg imports as texture)
 - Update (research) build output and resources location so builds are nicely packed
