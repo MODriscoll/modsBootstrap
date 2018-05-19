@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="Source\Camera\Camera.cpp" />
     <ClCompile Include="Source\glad.c" />
+    <ClCompile Include="Source\Rendering\Fonts\Font.cpp" />
     <ClCompile Include="Source\Rendering\Meshes\Mesh.cpp" />
     <ClCompile Include="Source\Rendering\Meshes\Model.cpp" />
     <ClCompile Include="Source\Rendering\Meshes\MeshUtility.cpp" />
@@ -33,6 +34,7 @@
     <ClInclude Include="Include\Camera\Camera.h" />
     <ClInclude Include="Include\IncludeGLFW.h" />
     <ClInclude Include="Include\Buffers\Buffer.h" />
+    <ClInclude Include="Include\Rendering\Fonts\Font.h" />
     <ClInclude Include="Include\Rendering\Meshes\Mesh.h" />
     <ClInclude Include="Include\Rendering\Meshes\MeshUtility.h" />
     <ClInclude Include="Include\Rendering\Meshes\Model.h" />
@@ -99,7 +101,7 @@
     <OutDir>$(SolutionDir)Libraries\</OutDir>
     <IntDir>$(SolutionDir)Intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)_d</TargetName>
-    <IncludePath>$(SolutionDir)Dependencies\ASSIMP\;$(SolutionDir)Dependencies\STB\;$(SolutionDir)Dependencies\GLM\;$(SolutionDir)Dependencies\GLFW\;$(SolutionDir)Dependencies\GLAD\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Dependencies\FREETYPE\;$(SolutionDir)Dependencies\ASSIMP\;$(SolutionDir)Dependencies\STB\;$(SolutionDir)Dependencies\GLM\;$(SolutionDir)Dependencies\GLFW\;$(SolutionDir)Dependencies\GLAD\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Libraries\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -107,21 +109,21 @@
     <OutDir>$(SolutionDir)Libraries\</OutDir>
     <IntDir>$(SolutionDir)Intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)_d</TargetName>
-    <IncludePath>$(SolutionDir)Dependencies\ASSIMP\;$(SolutionDir)Dependencies\STB\;$(SolutionDir)Dependencies\GLM\;$(SolutionDir)Dependencies\GLFW\;$(SolutionDir)Dependencies\GLAD\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Dependencies\FREETYPE\;$(SolutionDir)Dependencies\ASSIMP\;$(SolutionDir)Dependencies\STB\;$(SolutionDir)Dependencies\GLM\;$(SolutionDir)Dependencies\GLFW\;$(SolutionDir)Dependencies\GLAD\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Libraries\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)Libraries\</OutDir>
     <IntDir>$(SolutionDir)Intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Dependencies\ASSIMP\;$(SolutionDir)Dependencies\STB\;$(SolutionDir)Dependencies\GLM\;$(SolutionDir)Dependencies\GLFW\;$(SolutionDir)Dependencies\GLAD\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Dependencies\FREETYPE\;$(SolutionDir)Dependencies\ASSIMP\;$(SolutionDir)Dependencies\STB\;$(SolutionDir)Dependencies\GLM\;$(SolutionDir)Dependencies\GLFW\;$(SolutionDir)Dependencies\GLAD\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Libraries\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)Libraries\</OutDir>
     <IntDir>$(SolutionDir)Intermediate\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Dependencies\ASSIMP\;$(SolutionDir)Dependencies\STB\;$(SolutionDir)Dependencies\GLM\;$(SolutionDir)Dependencies\GLFW\;$(SolutionDir)Dependencies\GLAD\;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Dependencies\FREETYPE\;$(SolutionDir)Dependencies\ASSIMP\;$(SolutionDir)Dependencies\STB\;$(SolutionDir)Dependencies\GLM\;$(SolutionDir)Dependencies\GLFW\;$(SolutionDir)Dependencies\GLAD\;$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)Libraries\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -140,7 +142,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>assimp-vc140-mt.lib;opengl32.lib;glfw3.lib</AdditionalDependencies>
+      <AdditionalDependencies>freetype.lib;assimp-vc140-mt.lib;opengl32.lib;glfw3.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -159,7 +161,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>assimp-vc140-mt.lib;opengl32.lib;glfw3.lib</AdditionalDependencies>
+      <AdditionalDependencies>freetype.lib;assimp-vc140-mt.lib;opengl32.lib;glfw3.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -182,7 +184,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>assimp-vc140-mt.lib;opengl32.lib;glfw3.lib</AdditionalDependencies>
+      <AdditionalDependencies>freetype.lib;assimp-vc140-mt.lib;opengl32.lib;glfw3.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -205,7 +207,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>assimp-vc140-mt.lib;opengl32.lib;glfw3.lib</AdditionalDependencies>
+      <AdditionalDependencies>freetype.lib;assimp-vc140-mt.lib;opengl32.lib;glfw3.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

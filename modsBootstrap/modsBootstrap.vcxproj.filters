@@ -42,6 +42,9 @@
     <ClCompile Include="Source\Rendering\Textures\Cubemap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Rendering\Fonts\Font.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\IncludeGLFW.h">
@@ -75,6 +78,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Rendering\Textures\Cubemap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Rendering\Fonts\Font.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
