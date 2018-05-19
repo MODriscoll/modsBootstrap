@@ -192,6 +192,7 @@ namespace mods
 		void SetUniformValue(const std::string& name, float value);
 		void SetUniformValue(const std::string& name, const glm::vec2& value);
 		void SetUniformValue(const std::string& name, const glm::vec3& value);
+		void SetUniformValue(const std::string& name, const glm::vec4& value);
 		void SetUniformValue(const std::string& name, const glm::mat4& value, bool transpose = false);
 
 	private:

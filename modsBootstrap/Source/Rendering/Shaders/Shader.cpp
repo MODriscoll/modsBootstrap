@@ -245,6 +245,13 @@ namespace mods
 			glUniform3fv(location, 1, glm::value_ptr(value));
 	}
 
+	void ShaderProgram::SetUniformValue(const std::string& name, const glm::vec4& value)
+	{
+		int32 location;
+		if (GetUniformLocation(name, location))
+			glUniform4fv(location, 1, glm::value_ptr(value));
+	}
+
 	void ShaderProgram::SetUniformValue(const std::string& name, const glm::mat4& value, bool transpose)
 	{
 		int32 location;
