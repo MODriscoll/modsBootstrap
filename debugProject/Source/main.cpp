@@ -597,6 +597,9 @@ int main()
 
 		deltaTime = 0.f;
 		lastTime = (float)glfwGetTime();
+
+		FlyCamera.SetOrthographicWidth(1280.f);
+		FlyCamera.SetOrthographicHeight(720.f);
 		
 		float frametime = 0.f;
 
@@ -691,7 +694,7 @@ int main()
 
 			glEnable(GL_BLEND);
 			fontshader->Bind();
-			fontshader->SetUniformValue("projection", glm::ortho(0.f, 800.f, 0.f, 600.f));
+			fontshader->SetUniformValue("projection", FlyCamera.GetProjectionMatrix(eProjectionMode::Orthographic));
 			consolas.Draw(*fontshader, std::string("FPS: ") + std::to_string(fps), glm::vec2(10.f), glm::vec4(1.f));
 			fontshader->Unbind();
 			glDisable(GL_BLEND);

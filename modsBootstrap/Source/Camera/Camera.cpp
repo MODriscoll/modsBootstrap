@@ -45,7 +45,7 @@ namespace mods
 	glm::mat4 Camera::GetProjectionMatrix(eProjectionMode mode) const
 	{
 		if (mode == eProjectionMode::Orthographic)
-			return glm::ortho(0.f, m_OrthographicWidth, 0.f, m_OrthographicHeight, m_NearClippingPlane, m_FarClippingPlane);
+			return glm::ortho(0.f, m_OrthographicWidth, 0.f, m_OrthographicHeight);
 		else
 			return glm::perspective(glm::radians(m_FieldOfView), m_AspectRatio, m_NearClippingPlane, m_FarClippingPlane);
 	}
