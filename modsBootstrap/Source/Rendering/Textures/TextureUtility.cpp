@@ -36,7 +36,10 @@ namespace mods
 			data.Channels = format;
 
 			// TODO: Check if correct
-			switch (format)
+			// Change variable we are checking based on channels requested.
+			// stbi_load seems to return the format for the actual image, ignoring the channels actually loaded. 
+			int32 check = (channels != 0) ? channels : format;
+			switch (check)
 			{
 				case STBI_grey:
 				{
