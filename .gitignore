@@ -331,3 +331,8 @@ ASALocalRun/
 
 # To ignore debugProject build
 *.exe
+
+# Not sure of source
+# might be freetype
+Bin/debugProject_d.lib
+Bin/debugProject_d.exp
