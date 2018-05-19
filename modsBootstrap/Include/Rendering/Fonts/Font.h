@@ -40,6 +40,9 @@ namespace mods
 		uint32 Offset;
 	};
 
+	// TODO: update to work using utf-8 strings, look
+	// up better methods for rendering fonts, as this is very basic
+	// To render a font correctly, blending must be enabled
 	class Font
 	{
 	public:
@@ -64,10 +67,11 @@ namespace mods
 
 		// Draws the given text to screen
 		void Draw(
+			ShaderProgram& shader,
 			const std::string& text,
-			const glm::vec2& position,
+			glm::vec2 position,
 			const glm::vec4& color,
-			float scale = 1.f);
+			float scale = 1.f) const;
 
 	public:
 
@@ -76,6 +80,9 @@ namespace mods
 		inline uint32 GetSize() const { return m_Size; }
 
 	private:
+
+		// Handle to quad vertex array object
+		uint32 m_VBO, m_VAO;
 
 		// All glyphs of this font
 		std::map<byte, Glyph> m_Glyphs;

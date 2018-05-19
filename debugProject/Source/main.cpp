@@ -6,6 +6,7 @@
 #include <Rendering\Textures\Texture.h>
 #include <Rendering\Meshes\Model.h>
 #include <Rendering\Textures\Cubemap.h>
+#include <Rendering\Fonts\Font.h>
 
 #include <glm\ext.hpp>
 
@@ -28,6 +29,8 @@ float lastTime;
 void framebuffer_size_callback(GLFWwindow* window, int32 width, int32 height)
 {
 	glViewport(0, 0, width, height);
+	FlyCamera.SetOrthographicWidth((float)width);
+	FlyCamera.SetOrthographicHeight((float)height);
 }
 
 bool bWIsDown = false;
@@ -492,6 +495,9 @@ int main()
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 		glEnable(GL_DEPTH_TEST);
+		
+		//glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		//mdVertexBuffer box(vertices, 180, indices, 6);
 
@@ -548,6 +554,11 @@ int main()
 		billboardconstructor.LoadShader(FragmentShaderSource("Resources/Shaders/BillboardFragment.frag"));
 		std::shared_ptr<ShaderProgram> billboardshader = billboardconstructor.Construct();
 
+		ShaderProgramConstructor fontconstructor;
+		fontconstructor.LoadShader(VertexShaderSource("Resources/Shaders/FontVertex.vert"));
+		fontconstructor.LoadShader(FragmentShaderSource("Resources/Shaders/FontFragment.frag"));
+		std::shared_ptr<ShaderProgram> fontshader = fontconstructor.Construct();
+
 		billboardshader->Bind();
 		billboardshader->SetUniformValue("position", glm::vec3(2.f, 3.f, 2.f));
 		billboardshader->SetUniformValue("size", glm::vec2(0.35f, 0.1f));
@@ -568,6 +579,8 @@ int main()
 
 		mods::Model nanosuit("Resources/Models/Nanosuit/nanosuit.obj");
 
+		mods::Font consolas("Resources/Fonts/consolas.ttf");
+
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 		glfwSetKeyCallback(window, on_key_press);
@@ -584,6 +597,11 @@ int main()
 
 		deltaTime = 0.f;
 		lastTime = (float)glfwGetTime();
+		
+		float frametime = 0.f;
+
+		int32 fps = 0;
+		int32 frames = 0;
 
 		// Game loop, keep looping while window is active
 		while (!glfwWindowShouldClose(window))
@@ -591,6 +609,17 @@ int main()
 			float timeNow = (float)glfwGetTime();
 			deltaTime = timeNow - lastTime;
 			lastTime = timeNow;
+
+			++frames;
+
+			frametime += deltaTime;
+			if (frametime >= 1.f)
+			{
+				fps = frames;
+				frames = 0;
+
+				frametime = glm::mod(frametime, 1.f);
+			}
 
 			// need to clear screen otherwise previous frames will still be visible
 			glClearColor(0.2f, 0.3f, 0.3f, 1.f);
@@ -659,6 +688,13 @@ int main()
 			skybox.Unbind();
 			skyboxshader->Unbind();
 			glDepthFunc(GL_LESS);
+
+			glEnable(GL_BLEND);
+			fontshader->Bind();
+			fontshader->SetUniformValue("projection", glm::ortho(0.f, 800.f, 0.f, 600.f));
+			consolas.Draw(*fontshader, std::string("FPS: ") + std::to_string(fps), glm::vec2(10.f), glm::vec4(1.f));
+			fontshader->Unbind();
+			glDisable(GL_BLEND);
 
 			glfwSwapBuffers(window);
 			glfwPollEvents();
