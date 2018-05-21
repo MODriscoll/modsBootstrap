@@ -11,6 +11,7 @@ The input class should handle all input and allow bindings of actions and axes
 - Base class for buffers, it should handle the binding and unbinding for the buffers
 - Update font class to work with unicode (utf-8) so it supports multiple languages.
 Should also be much more efficient in rendering (try signed distance fields)
+- Improve commenting and documentation
 
 Wish List:
 - Game object (Actor) feature
