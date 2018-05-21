@@ -666,6 +666,8 @@ int main()
 			nanosuit.Draw(*modelshader);
 			modelshader->Unbind();
 
+			//glScissor(0, 0, 1280, 720);
+
 			billboardshader->Bind();
 			billboardshader->SetUniformValue("projection", FlyCamera.GetProjectionMatrix());
 			billboardshader->SetUniformValue("view", FlyCamera.GetViewMatrix());
@@ -673,8 +675,6 @@ int main()
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 			quadbuf.Unbind();
 			billboardshader->Unbind();
-
-			//glScissor(0, 0, 1280, 720);
 
 			glm::mat4 view = FlyCamera.GetViewMatrix();
 			view[3] = glm::vec4(0.f, 0.f, 0.f, 1.f);	// No position for sky box view projection

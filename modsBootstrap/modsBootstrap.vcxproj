@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Source\Application\Application.cpp" />
+    <ClCompile Include="Source\Application\Input.cpp" />
     <ClCompile Include="Source\Camera\Camera.cpp" />
     <ClCompile Include="Source\glad.c" />
     <ClCompile Include="Source\Rendering\Fonts\Font.cpp" />
@@ -31,6 +33,8 @@
     <ClCompile Include="Source\Rendering\Textures\TextureUtility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Include\Application\Application.h" />
+    <ClInclude Include="Include\Application\Input.h" />
     <ClInclude Include="Include\Camera\Camera.h" />
     <ClInclude Include="Include\IncludeGLFW.h" />
     <ClInclude Include="Include\Buffers\Buffer.h" />
