@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Types.h"
-
 #include "Mesh.h"
 
 #include <string>
@@ -13,15 +11,11 @@ namespace mods
 {
 	namespace detail
 	{
+		// TODO: update mesh to be more derive friendly
+		// TODO: make skeleton inherit from mesh
+
 		struct ModelData
 		{
-		public:
-
-			ModelData()
-			{
-
-			}
-
 		public:
 
 			// Meshes of the model
