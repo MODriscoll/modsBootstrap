@@ -42,6 +42,7 @@
     <ClInclude Include="Include\IncludeGLFW.h" />
     <ClInclude Include="Include\Buffers\Buffer.h" />
     <ClInclude Include="Include\Rendering\Fonts\Font.h" />
+    <ClInclude Include="Include\Rendering\Materials\Material.h" />
     <ClInclude Include="Include\Rendering\Meshes\Mesh.h" />
     <ClInclude Include="Include\Rendering\Meshes\MeshUtility.h" />
     <ClInclude Include="Include\Rendering\Meshes\Model.h" />
