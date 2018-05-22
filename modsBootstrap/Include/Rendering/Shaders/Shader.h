@@ -186,6 +186,10 @@ namespace mods
 
 	public:
 
+		inline bool IsValid() const { return m_Program != 0; }
+
+	public:
+
 		// Sets the uniform with the given name to the given value
 		void SetUniformValue(const std::string& name, bool value);
 		void SetUniformValue(const std::string& name, int32 value);

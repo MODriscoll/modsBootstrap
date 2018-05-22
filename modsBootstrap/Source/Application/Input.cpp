@@ -132,7 +132,7 @@ namespace mods
 		// Update status of polled keys
 		{
 			for (eInputKey key : m_PolledKeys)
-				m_Keys[key] << 2;
+				m_Keys[key] <<= 2;
 
 			m_PolledKeys.clear();
 		}
@@ -180,7 +180,7 @@ namespace mods
 		return (float)input.m_MouseY;
 	}
 
-	float Input::GetMousePosition(float& x, float& y)
+	void Input::GetMousePosition(float& x, float& y)
 	{
 		Input& input = Instance();
 		x = (float)input.m_MouseX;
@@ -199,7 +199,7 @@ namespace mods
 		return (float)(input.m_MouseY - input.m_OldMouseY);
 	}
 
-	float Input::GetMouseDelta(float& x, float& y)
+	void Input::GetMouseDelta(float& x, float& y)
 	{
 		Input& input = Instance();
 		x = (float)(input.m_MouseX - input.m_OldMouseX);

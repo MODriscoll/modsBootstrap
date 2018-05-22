@@ -5,6 +5,9 @@
 
 #include <glm\common.hpp>
 
+#include <cassert>
+#include <iostream>
+
 namespace mods
 {
 	Application::Application()
@@ -17,7 +20,7 @@ namespace mods
 
 	bool Application::Run(int32 width, int32 height, const char* title)
 	{
-		// Initialize openGL
+		// Initialize base application
 		if (!Initialize(width, height, title))
 			return false;
 
@@ -36,7 +39,7 @@ namespace mods
 			double deltatime = 0.f;
 			double frametime = 0.f;
 
-			int32 frames;
+			int32 frames = 0;
 
 			while (!glfwWindowShouldClose(m_Window))
 			{
@@ -63,7 +66,7 @@ namespace mods
 					{
 						m_FPS = frames;
 						frames = 0;
-						frametime = glm::mod(frametime, 1.0);
+						frametime -= -1.0;
 					}
 				}
 
@@ -80,8 +83,43 @@ namespace mods
 			}
 		}
 		
+		// Shutdown the application
+		bool bSuccess = Shutdown();
 
-		return false;
+		// Clean up base application
+		bSuccess = bSuccess && Cleanup();
+
+		return bSuccess;
+	}
+
+	int32 Application::GetWindowWidth() const
+	{
+		int32 width, height;
+		glfwGetWindowSize(m_Window, &width, &height);
+		return width;
+	}
+
+	int32 Application::GetWindowHeight() const
+	{
+		int32 width, height;
+		glfwGetWindowSize(m_Window, &width, &height);
+		return height;
+	}
+
+	void Application::GetWindowsSize(int32& width, int32& height) const
+	{
+		glfwGetWindowSize(m_Window, &width, &height);
+	}
+
+	float Application::GetExecutuinTime() const
+	{
+		double now = glfwGetTime();
+		return (float)now - m_AppStart;
+	}
+
+	void Application::Stop()
+	{
+		glfwSetWindowShouldClose(m_Window, 1);
 	}
 
 	bool Application::Initialize(int32 width, int32 height, const char* title)
@@ -129,5 +167,18 @@ namespace mods
 		glfwDestroyWindow(m_Window);
 
 		glfwTerminate();
+
+		return true;
+	}
+
+	void Application::HandleGLError(int32 error, const char* message)
+	{
+		std::cout << "[OpenGL] Error: Code=" << error << " Message: " << message << std::endl;
+		assert(false);
+	}
+
+	void Application::HandleFramebufferResize(GLFWwindow* window, int32 width, int32 height)
+	{
+		glViewport(0, 0, width, height);
 	}
 }

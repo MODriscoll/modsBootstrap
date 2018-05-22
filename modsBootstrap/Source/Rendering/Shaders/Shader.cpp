@@ -179,20 +179,23 @@ namespace mods
 	}
 
 	ShaderProgram::ShaderProgram(ShaderProgram&& rhs)
-		: m_Program(rhs.m_Program), m_Uniforms(std::move(rhs.m_Uniforms))
+		: m_Program(rhs.m_Program)
+		, m_Uniforms(std::move(rhs.m_Uniforms))
 	{
 		rhs.m_Program = 0;
 	}
 
 	ShaderProgram::~ShaderProgram()
 	{
-		glDeleteProgram(m_Program);
+		if (IsValid())
+			glDeleteProgram(m_Program);
 	}
 
 	ShaderProgram& ShaderProgram::operator=(ShaderProgram&& rhs)
 	{
 		// Need to delete the existing program
-		glDeleteProgram(m_Program);
+		if (IsValid())
+			glDeleteProgram(m_Program);
 
 		m_Program = rhs.m_Program;
 		m_Uniforms = std::move(rhs.m_Uniforms);

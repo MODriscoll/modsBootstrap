@@ -668,13 +668,13 @@ int main()
 
 			//glScissor(0, 0, 1280, 720);
 
-			billboardshader->Bind();
+			/*billboardshader->Bind();
 			billboardshader->SetUniformValue("projection", FlyCamera.GetProjectionMatrix());
 			billboardshader->SetUniformValue("view", FlyCamera.GetViewMatrix());
 			quadbuf.Bind();
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 			quadbuf.Unbind();
-			billboardshader->Unbind();
+			billboardshader->Unbind();*/
 
 			glm::mat4 view = FlyCamera.GetViewMatrix();
 			view[3] = glm::vec4(0.f, 0.f, 0.f, 1.f);	// No position for sky box view projection

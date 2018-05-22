@@ -25,12 +25,12 @@ namespace mods
 	public:
 
 		// Get windows size
-		float GetWindowWidth() const;
-		float GetWindowHeight() const;
-		float GetWindowsSize(float& width, float& height) const;
+		int32 GetWindowWidth() const;
+		int32 GetWindowHeight() const;
+		void GetWindowsSize(int32& width, int32& height) const;
 
 		// Get time when application first started
-		float GetStartTime() const;
+		inline float GetStartTime() const { return m_AppStart; }
 
 		// Get how long this application has been running for
 		float GetExecutuinTime() const;
@@ -43,12 +43,12 @@ namespace mods
 		// Called before the game loop starts.
 		// Returns if startup was successfull
 		// virtual Result Startup() = 0
-		virtual bool Startup() = 0;
+		virtual bool Startup() { return true; }
 
 		// Called after the game loop has finished.
 		// Returns if shutdown was successfull
 		// virtual Result Shutdown() = 0
-		virtual bool Shutdown() = 0;
+		virtual bool Shutdown() { return true; }
 		
 		// Called once per frame, should update the application
 		virtual void Tick(float deltaTime) = 0;

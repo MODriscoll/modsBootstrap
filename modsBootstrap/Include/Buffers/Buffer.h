@@ -24,4 +24,30 @@ namespace mods
 		DynamicRead		= 0x88E9,
 		DynamicCopy		= 0x88EA
 	};
+
+	//template <eBufferType type, eBufferUsagePattern pattern>
+	//struct Buffer
+	//{
+	//public:
+
+	//	using Type = type;
+	//	using Patten = pattern;
+
+	//public:
+
+	//	Buffer();
+	//	virtual ~Buffer();
+
+	//protected:
+
+	//	// Handle to this buffer
+	//	uint32 m_Handle;
+
+	//};
+
+	//template <eBufferUsagePattern pattern>
+	//using VertexBuffer = Buffer<eBufferType::Array, pattern>;
+
+	//template <eBufferUsagePattern pattern>
+	//using IndexBuffer = Buffer<eBufferType::ElementArray, pattern>;
 }

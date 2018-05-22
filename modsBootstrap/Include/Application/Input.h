@@ -236,12 +236,12 @@ namespace mods
 		// Get mouse position
 		static float GetMouseX();
 		static float GetMouseY();
-		static float GetMousePosition(float& x, float& y);
+		static void GetMousePosition(float& x, float& y);
 
 		// Get mouse delta 
 		static float GetDeltaX();
 		static float GetDeltaY();
-		static float GetMouseDelta(float& x, float& y);
+		static void GetMouseDelta(float& x, float& y);
 
 		// Get the mouse scroll
 		static float GetMouseScroll();
