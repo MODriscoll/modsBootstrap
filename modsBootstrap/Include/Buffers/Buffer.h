@@ -7,7 +7,8 @@ namespace mods
 	enum class eBufferType : uint32
 	{
 		Array			= 0x8892,
-		ElementArray	= 0x8893
+		ElementArray	= 0x8893,
+		Uniform			= 0x8A11
 	};
 
 	enum class eBufferUsagePattern : uint32
@@ -24,30 +25,4 @@ namespace mods
 		DynamicRead		= 0x88E9,
 		DynamicCopy		= 0x88EA
 	};
-
-	//template <eBufferType type, eBufferUsagePattern pattern>
-	//struct Buffer
-	//{
-	//public:
-
-	//	using Type = type;
-	//	using Patten = pattern;
-
-	//public:
-
-	//	Buffer();
-	//	virtual ~Buffer();
-
-	//protected:
-
-	//	// Handle to this buffer
-	//	uint32 m_Handle;
-
-	//};
-
-	//template <eBufferUsagePattern pattern>
-	//using VertexBuffer = Buffer<eBufferType::Array, pattern>;
-
-	//template <eBufferUsagePattern pattern>
-	//using IndexBuffer = Buffer<eBufferType::ElementArray, pattern>;
 }

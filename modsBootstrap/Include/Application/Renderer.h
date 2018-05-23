@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Types.h"
+#include "Buffers\FrameBuffer.h"
+#include "Buffers\UniformBuffer.h"
 
 namespace mods
 {
@@ -17,9 +18,23 @@ namespace mods
 
 	enum eRenderStage : byte
 	{
+		None					= 0,
 		GeometryPass			= 1 << 0,
 		LightingPass			= 1 << 1,
 		PostProcessPass			= 1 << 2
+	};
+
+	// Uniforms relating to the camera
+	struct CameraUniform : public UniformBuffer
+	{
+	public:
+
+		CameraUniform();
+
+	public:
+
+		// Sets uniform variables for the camera
+		void SetUniforms(const Camera& camera);
 	};
 
 	// First iteration of renderer
@@ -40,35 +55,32 @@ namespace mods
 
 	public:
 
+		// Called to prepare for the next frame
+		void StartFrame();
+
 		// Called to prepare the geometry pass 
 		void StartGeometryPass();
 
 		// Called to start lighting pass
 		void StartLightingPass();
 
+		// Called to start post process pass
+		void StartPostProcessPass();
+
+		// Called to end the current frame
+		void EndFrame();
 
 	public:
 
 
-
-
 	protected:
 
-		// Handle to the gbuffer
-		// Is our deffered frame buffer to render to
-		uint32 m_GBuffer;
-
-		// Indivual buffers to draw to
-		// Are textures, so we can read from them
-		uint32 m_GPosition, m_GNormal, m_GAlbedo;
-
-		// Handle to the depth/stencil
-		// Is a render buffer, so we can't read from it
-		// Records 24 bits of depth, 8 bits of stencil
-		uint32 m_DSBuffer;
+		// Geometry step frame buffer
+		FrameBuffer m_GBuffer;
 
 	private:
 
 		// What stage of the render pass we are at
+		eRenderStage m_Stage;
 	};
 }

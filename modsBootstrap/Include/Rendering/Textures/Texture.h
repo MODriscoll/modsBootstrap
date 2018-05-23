@@ -37,6 +37,8 @@ namespace mods
 
 		inline bool IsValid() const { return m_Handle != 0; }
 
+		inline uint32 GetHandle() const { return m_Handle; }
+
 	protected:
 
 		// Gets this textures opengl type

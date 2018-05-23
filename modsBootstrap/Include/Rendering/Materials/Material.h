@@ -18,6 +18,16 @@ namespace mods
 		Count
 	};
 
+	enum class eMaterialTypes : byte
+	{
+		Float,
+		Int32,
+		Texture2D,
+		Cubemap,
+
+		Count
+	};
+
 	// First iteration of material
 	class Material
 	{
@@ -40,6 +50,8 @@ namespace mods
 		Texture* m_EmmisionMap;
 		Texture* m_NormalMap;
 
-		float m_Shininess
+		float m_Shininess;
+		float m_Opacity;
+		float m_Roughness;
 	};
 }
