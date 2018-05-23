@@ -1,28 +1,17 @@
 #pragma once
 
-#include "Types.h"
+#include "TextureTypes.h"
 
 #include <string>
 
 namespace mods
 {
-	//enum class eTextureChannels : int
-	//{
-
-	//};
-
-	//enum class eTextureWrapping : int
-	//{
-
-	//};
-
-	// TODO: update to make it possible to derive from
-	// derived type can be a import texture 
+	// Base class for types that wrap an opengl texture
 	class Texture
 	{
 	public:
 
-		Texture(const std::string& path);
+		Texture();
 		Texture(const Texture& rhs) = delete;
 		Texture(Texture&& rhs);
 
@@ -33,12 +22,10 @@ namespace mods
 
 	public:
 
-		// Loads a new texture from the given path.
-		// Existing texture is destroyed
-		bool Load(const std::string& path);
+		// Destroys the existing texture if any
+		virtual bool Destroy();
 
-		// Destroys and invalidates this texture
-		bool Unload();
+	public:
 
 		// Binds this texture for use at the given slot
 		void Bind(uint32 slot = 0);
@@ -50,25 +37,14 @@ namespace mods
 
 		inline bool IsValid() const { return m_Handle != 0; }
 
-		inline int32 GetWidth() const { return m_Width; }
-		inline int32 GetHeight() const { return m_Height; }
+	protected:
 
-		// Get the pixels of this texture.
-		// This value can be null
-		inline const byte* GetPixels() const { return m_Pixels; }
-
-	private:
+		// Gets this textures opengl type
+		virtual uint32 GetTextureType() const = 0;
+		
+	protected:
 
 		// Handle to the texture
 		uint32 m_Handle;
-
-		// Pixels of the loaded texture
-		byte* m_Pixels;
-
-		// Width and height of the texture
-		int32 m_Width, m_Height;
-
-		// Color channels of the texture
-		int32 m_Channels;
 	};
 }

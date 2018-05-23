@@ -10,62 +10,29 @@ namespace mods
 {
 	namespace detail
 	{
-		// TODO: Remove error message from here, it would be easier
-		// to explain where the error has occured if the caller reports the failure.
-		// Maybe have an error value be returned? (do same with MeshUtility
-		bool LoadTextureFromSource(const std::string& path, TextureData& data, bool sRGB, int32 channels)
+		bool LoadTextureFromSource(
+			const std::string& path,
+			TextureData& data,
+			eTextureChannels channels,
+			bool sRGB)
 		{
-			// TODO: remove this line
-			//stbi_set_flip_vertically_on_load(1);
-
 			int32 width, height, format;
-			byte* pixels = stbi_load(path.c_str(), &width, &height, &format, channels);
+			byte* pixels = stbi_load(path.c_str(), &width, &height, &format, (int32)channels);
 
 			// Image failed to load
 			if (!pixels)
-			{
-				std::cout << "Error: Failed to open texture source at path: " << path << std::endl;
-
-				stbi_image_free(pixels);
 				return false;
-			}
 
 			data.Pixels = pixels;
 			data.Width = width;
 			data.Height = height;
 			data.Channels = format;
 
-			// TODO: Check if correct
-			// Change variable we are checking based on channels requested.
-			// stbi_load seems to return the format for the actual image, ignoring the channels actually loaded. 
-			int32 check = (channels != 0) ? channels : format;
-			switch (check)
-			{
-				case STBI_grey:
-				{
-					data.InternalFormat = sRGB ? GL_SRGB8 : GL_RED;
-					data.Format = GL_RED;
-					break;
-				}
-				case STBI_grey_alpha:
-				{
-					data.InternalFormat = sRGB ? GL_SRGB8_ALPHA8 : GL_RG;
-					data.Format = GL_RG;
-					break;
-				}
-				case STBI_rgb:
-				{
-					data.InternalFormat = sRGB ? GL_SRGB : GL_RGB;
-					data.Format = GL_RGB;
-					break;
-				}
-				case STBI_rgb_alpha:
-				{
-					data.InternalFormat = sRGB ? GL_SRGB_ALPHA : GL_RGBA;
-					data.Format = GL_RGBA;
-					break;
-				}
-			}
+			// Update channels based of channels requested
+			if (channels == eTextureChannels::Default)
+				channels = (eTextureChannels)format;
+
+			GetTextureFormats(channels, data.Format, data.InternalFormat, sRGB);
 
 			return true;
 		}
@@ -74,6 +41,46 @@ namespace mods
 		{
 			if (pixels)
 				stbi_image_free(pixels);
+		}
+
+		void GetTextureFormats(eTextureChannels channels, int32& format, int32& intern, bool sRGB)
+		{
+			switch (channels)
+			{
+				case eTextureChannels::Red:
+				{
+					intern = sRGB ? GL_SRGB8 : GL_RED;
+					format = GL_RED;
+					break;
+				}
+
+				case eTextureChannels::RedAlpha:
+				{
+					intern = sRGB ? GL_SRGB8_ALPHA8 : GL_RG;
+					format = GL_RG;
+					break;
+				}
+
+				case eTextureChannels::RGB:
+				{
+					intern = sRGB ? GL_SRGB : GL_RGB;
+					format = GL_RGB;
+					break;
+				}
+
+				case eTextureChannels::RGBAlpha:
+				{
+					intern = sRGB ? GL_SRGB_ALPHA : GL_RGBA;
+					format = GL_RGBA;
+					break;
+				}
+
+				default:
+				{
+					assert(false);
+				}
+			}
+
 		}
 
 		void SetFlip(bool flip)

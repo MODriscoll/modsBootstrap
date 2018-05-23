@@ -3,7 +3,7 @@
 #include <IncludeGLFW.h>
 
 #include <Camera\Camera.h>
-#include <Rendering\Textures\Texture.h>
+#include <Rendering\Textures\Texture2D.h>
 #include <Rendering\Meshes\Model.h>
 #include <Rendering\Textures\Cubemap.h>
 #include <Rendering\Fonts\Font.h>
@@ -564,7 +564,7 @@ int main()
 		billboardshader->SetUniformValue("size", glm::vec2(0.35f, 0.1f));
 		billboardshader->Unbind();
 
-		mods::Texture texture("Resources/Textures/Container.jpg");
+		mods::Texture2D texture("Resources/Textures/Container.jpg");
 
 		std::array<std::string, 6> skyboxpaths =
 		{

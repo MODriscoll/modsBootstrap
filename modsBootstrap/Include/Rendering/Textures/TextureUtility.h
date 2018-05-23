@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Types.h"
+#include "TextureTypes.h"
 
 #include <string>
 
@@ -44,10 +44,21 @@ namespace mods
 		};
 
 		// Loads a texture from the given file path.
-		bool LoadTextureFromSource(const std::string& path, TextureData& data, bool sRGB = false, int32 channels = 0);
+		bool LoadTextureFromSource(
+			const std::string& path, 
+			TextureData& data, 
+			eTextureChannels channels = eTextureChannels::Default, 
+			bool sRGB = false);
 
 		// Destroys a texture
 		void DestroyTexture(byte* pixels);
+
+		// Get the formatting for a texture based on its channels
+		void GetTextureFormats(
+			eTextureChannels channels, 
+			int32& format, 
+			int32& intern, 
+			bool sRGB = false);
 
 		// TODO: replace, have a struct to pass that takes in loading options
 		// TODO: add a generate texture handle here too
