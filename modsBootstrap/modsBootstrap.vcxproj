@@ -29,6 +29,8 @@
     <ClCompile Include="Source\Rendering\Fonts\Font.cpp" />
     <ClCompile Include="Source\Rendering\Lighting\DirectionalLight.cpp" />
     <ClCompile Include="Source\Rendering\Lighting\Light.cpp" />
+    <ClCompile Include="Source\Rendering\Lighting\PointLight.cpp" />
+    <ClCompile Include="Source\Rendering\Lighting\SpotLight.cpp" />
     <ClCompile Include="Source\Rendering\Meshes\Mesh.cpp" />
     <ClCompile Include="Source\Rendering\Meshes\Model.cpp" />
     <ClCompile Include="Source\Rendering\Meshes\MeshUtility.cpp" />
@@ -51,6 +53,8 @@
     <ClInclude Include="Include\Rendering\Lighting\LightAttenuation.h" />
     <ClInclude Include="Include\Rendering\Lighting\Light.h" />
     <ClInclude Include="Include\Rendering\Lighting\DirectionalLight.h" />
+    <ClInclude Include="Include\Rendering\Lighting\PointLight.h" />
+    <ClInclude Include="Include\Rendering\Lighting\SpotLight.h" />
     <ClInclude Include="Include\Rendering\Materials\Material.h" />
     <ClInclude Include="Include\Rendering\Meshes\Mesh.h" />
     <ClInclude Include="Include\Rendering\Meshes\MeshUtility.h" />
