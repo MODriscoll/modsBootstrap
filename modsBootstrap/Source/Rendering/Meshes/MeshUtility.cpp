@@ -1,7 +1,7 @@
 #include "Rendering\Meshes\MeshUtility.h"
 
 #include "IncludeGLFW.h"
-#include "Rendering\Textures\TextureUtility.h"
+#include "Rendering\Materials\Material.h"
 
 #include <assimp\Importer.hpp>
 #include <assimp\scene.h>
@@ -35,6 +35,12 @@ namespace mods
 			const std::string& directory,
 			std::vector<MeshTexture>& textures,
 			std::unordered_map<std::string, uint32>& table);
+
+		void LoadMapFromMaterial(
+			aiMaterial* from,
+			Material& to,
+			aiTextureType t1,
+			eMaterialMaps t2);
 
 		bool LoadModelFromSource(const std::string& path, ModelData& data, uint32 procflags)
 		{
@@ -77,7 +83,7 @@ namespace mods
 		{
 			std::vector<MeshVertex> vertices;
 			std::vector<uint32> indices;
-			std::vector<MeshTexture> textures;
+			Material material;
 
 			vertices.reserve(mesh.mNumVertices);
 			vertices.reserve(mesh.mNumFaces * 3u);
@@ -184,5 +190,7 @@ namespace mods
 				}
 			}
 		}
+
+		void LoadMapFromMaterial(aiMaterial* from, Material& to, aiTextureType t1, eMaterialMaps t2);
 	}
 }

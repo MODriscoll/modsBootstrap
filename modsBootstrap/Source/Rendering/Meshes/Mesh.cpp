@@ -6,18 +6,19 @@
 
 namespace mods
 {
-	Mesh::Mesh(const std::vector<MeshVertex>& vertices, 
-		const std::vector<uint32>& indices, const std::vector<MeshTexture>& textures)
+	Mesh::Mesh(
+		const std::vector<MeshVertex>& vertices, 
+		const std::vector<uint32>& indices, 
+		Material&& material)
 		: m_VBO(0)
 		, m_IBO(0)
 		, m_VAO(0)
 		, m_Vertices(vertices)
 		, m_Indices(indices)
-		, m_Textures(textures)
+		, m_Material(std::move(material))
 	{
 		m_Vertices.shrink_to_fit();
 		m_Indices.shrink_to_fit();
-		m_Textures.shrink_to_fit();
 
 		GenerateHandle();
 	}
@@ -28,7 +29,7 @@ namespace mods
 		, m_VAO(rhs.m_VAO)
 		, m_Vertices(std::move(rhs.m_Vertices))
 		, m_Indices(std::move(m_Indices))
-		, m_Textures(std::move(rhs.m_Textures))
+		, m_Material(std::move(rhs.m_Material))
 	{
 		rhs.m_VBO = 0;
 		rhs.m_IBO = 0;
@@ -40,9 +41,6 @@ namespace mods
 		glDeleteVertexArrays(1, &m_VAO);
 		glDeleteBuffers(1, &m_VBO);
 		glDeleteBuffers(1, &m_IBO);
-
-		for (const MeshTexture& texture : m_Textures)
-			glDeleteTextures(1, &texture.Handle);
 	}
 
 	Mesh& Mesh::operator=(Mesh&& rhs)
@@ -52,15 +50,12 @@ namespace mods
 		glDeleteBuffers(1, &m_VBO);
 		glDeleteBuffers(1, &m_IBO);
 
-		for (const MeshTexture& texture : m_Textures)
-			glDeleteTextures(1, &texture.Handle);
-
 		m_VBO = rhs.m_VBO;
 		m_IBO = rhs.m_IBO;
 		m_VAO = rhs.m_VAO;
 		m_Vertices = std::move(rhs.m_Vertices);
 		m_Indices = std::move(rhs.m_Indices);
-		m_Textures = std::move(rhs.m_Textures);
+		m_Material = std::move(rhs.m_Material);
 
 		rhs.m_VBO = 0;
 		rhs.m_IBO = 0;
@@ -71,27 +66,7 @@ namespace mods
 
 	void Mesh::Draw(ShaderProgram& program) const
 	{
-		// TODO: change once materials have been implemented
-
-		uint32 diffuseNr = 1;
-		uint32 specularNr = 1;
-		for (int32 i = 0; i < (int32)m_Textures.size(); i++)
-		{
-			if (m_Textures[i].Type == eMaterialTextureType::None)
-				continue;
-
-			glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit before binding
-											  // retrieve texture number (the N in diffuse_textureN)
-			std::string number;
-			eMaterialTextureType type = m_Textures[i].Type;
-			if (type == eMaterialTextureType::Diffuse)
-				number = std::string("texture_diffuse") + std::to_string(diffuseNr++);
-			else if (type == eMaterialTextureType::Specular)
-				number = std::string("texture_specular") + std::to_string(specularNr++);
-
-			program.SetUniformValue(("material." + number).c_str(), i);
-			glBindTexture(GL_TEXTURE_2D, m_Textures[i].Handle);
-		}
+		m_Material.Bind(program);
 		
 		glBindVertexArray(m_VAO);
 		glDrawElements(GL_TRIANGLES, m_Indices.size(), GL_UNSIGNED_INT, 0);

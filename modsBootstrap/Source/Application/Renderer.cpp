@@ -2,6 +2,7 @@
 
 #include "IncludeGLFW.h"
 #include "Camera\Camera.h"
+#include "Rendering\Meshes\Model.h"
 
 #include <glm\gtc\type_ptr.hpp>
 
@@ -15,47 +16,69 @@ namespace mods
 
 	// final size			160 bytes
 
-	CameraUniform::CameraUniform()
-		: UniformBuffer(160, 0)
-	{
+	// struct directionallight
+	// vec4 color				(16 bytes)	(offset=0)
+	// float ambientstrength	(4 bytes)	(offset=16)
+	// float diffusestrength	(4 bytes)	(offset=20)
+	// vec3 direction			(16 bytes)	(offset=24)
+	
+	// final size				40 bytes
 
+	// struct pointlight			
+	// vec4 color				(16 bytes)	(offset=0)
+	// float ambientstrength	(4 bytes)	(offset=16)
+	// float diffusestrength	(4 bytes)	(offset=20)
+	// vec3 position			(16 bytes)	(offset=24)
+	// float constant			(4 bytes)	(offset=40)
+	// float linear				(4 bytes)	(offset=44)
+	// float quadratic			(4 bytes)	(offset=48)
+
+	// final size				52 bytes
+
+	// struct spotlight	
+	// vec4 color				(16 bytes)	(offset=0)
+	// float ambientstrength	(4 bytes)	(offset=16)
+	// float diffusestrength	(4 bytes)	(offset=20)
+	// vec3 position			(16 bytes)	(offset=24)
+	// vec3 direction			(16 bytes)	(offset=40)
+	// float innercutoff		(4 bytes)	(offset=56)
+	// float outercutoff		(4 bytes)	(offset=60)
+	// float constant			(4 bytes)	(offset=64)
+	// float linear				(4 bytes)	(offset=68)
+	// float quadratic			(4 bytes)	(offset=72)
+
+	// final size				76 bytes
+
+	// Light Uniform							binding = 1
+	// directionallight dirlights[4]			(160 bytes)	(offset=0)
+	// pointlight pntlights[10]					(520 bytes) (offset=160)
+	// spotlight sptlights[10]					(760 bytes) (offset=680)
+
+	// final size								1440 bytes
+
+	// Game Uniform			binding = 2
+	// float time			(4 bytes)	(offset=0)
+	
+	// final size			4 bytes
+
+	void Renderer::DrawMesh(const Mesh& mesh, const glm::mat4x4& transform)
+	{
+		m_GShader.Bind();
+		m_GShader.SetUniformValue("model", transform);
+		mesh.Draw(m_GShader);
+		m_GShader.Unbind();
 	}
 
-	void CameraUniform::SetUniforms(const Camera& camera)
+	void Renderer::DrawModel(const Model& model, const glm::mat4x4& transform)
 	{
-		struct CameraData
-		{
-		public:
+		m_GShader.Bind();
+		m_GShader.SetUniformValue("model", transform);
+		model.Draw(m_GShader);
+		m_GShader.Unbind();
+	}
 
-			CameraData(const Camera& camera)
-				: Projection(camera.GetProjectionMatrix())
-				, View(camera.GetViewMatrix())
-				, Position(camera.Position, 1.f)
-				, Heading(camera.GetHeading(), 0.f)
-			{
-
-			}
-
-			
-		public:
-
-			union
-			{
-				struct
-				{
-					glm::mat4 Projection;
-					glm::mat4 View;
-					glm::vec4 Position;
-					glm::vec4 Heading;
-				};
-
-				// Pointer to raw values
-				float Raw[40];
-			};
-		};
-
-		CameraData data(camera);
-		Fill(0, m_Size, data.Raw);
+	void Renderer::AddLight(const Light& light)
+	{
 	}
 
 	Renderer::Renderer()
@@ -74,10 +97,15 @@ namespace mods
 		types.push_back(eTextureBufferTypes::RGBA); // albedo (diffuse (rgb) + specular (a))
 
 		m_GBuffer.Create(width, height, types);
+
+		m_GShader.Load("Resources/Shaders/vGShader.vert", "Resources/Shaders/fGShader.frag");
+		m_LShader.Load("Resources/Shaders/vLShader.vert", "Resources/Shaders/fLShader.frag");
+		m_PShader.Load("Resources/Shaders/vPShader.vert", "Resources/Shaders/fPShader.frag");
 	}
 
 	void Renderer::Cleanup()
 	{
+		
 	}
 
 	void Renderer::StartFrame()

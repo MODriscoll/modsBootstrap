@@ -28,15 +28,16 @@ namespace mods
 	public:
 
 		// Binds this texture for use at the given slot
-		void Bind(uint32 slot = 0);
+		void Bind(uint32 slot = 0) const;
 
 		// Unbinds this texture from use
-		void Unbind();
+		void Unbind() const;
 
 	public:
 
 		inline bool IsValid() const { return m_Handle != 0; }
 
+		// Used by FrameBuffer, will move to a 2d texture specifically for the framebuffer
 		inline uint32 GetHandle() const { return m_Handle; }
 
 	protected:

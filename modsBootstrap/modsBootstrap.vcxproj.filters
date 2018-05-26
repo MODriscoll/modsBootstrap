@@ -75,6 +75,12 @@
     <ClCompile Include="Source\Rendering\Lighting\SpotLight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Rendering\Shaders\ShaderUtility.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Rendering\Materials\Material.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\IncludeGLFW.h">
@@ -150,6 +156,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Rendering\Lighting\SpotLight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Rendering\Shaders\ShaderUtility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

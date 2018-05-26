@@ -7,12 +7,12 @@
 
 namespace mods
 {
-	UniformBuffer::UniformBuffer(int32 size, int32 binding, void* data)
+	UniformBuffer::UniformBuffer(uint32 size, int32 binding, void* data)
 		: m_Handle(0)
 		, m_Size(size)
 		, m_Binding(binding)
 	{
-		Create(size);
+		Create(size, data);
 	}
 
 	UniformBuffer::UniformBuffer(UniformBuffer&& rhs)
@@ -65,7 +65,7 @@ namespace mods
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
 	}
 
-	void UniformBuffer::Create(int32 size, void* data)
+	void UniformBuffer::Create(uint32 size, void* data)
 	{
 		// 4 bytes is size of smallest value
 		assert(size >= 4);

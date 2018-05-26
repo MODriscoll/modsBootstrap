@@ -31,10 +31,12 @@
     <ClCompile Include="Source\Rendering\Lighting\Light.cpp" />
     <ClCompile Include="Source\Rendering\Lighting\PointLight.cpp" />
     <ClCompile Include="Source\Rendering\Lighting\SpotLight.cpp" />
+    <ClCompile Include="Source\Rendering\Materials\Material.cpp" />
     <ClCompile Include="Source\Rendering\Meshes\Mesh.cpp" />
     <ClCompile Include="Source\Rendering\Meshes\Model.cpp" />
     <ClCompile Include="Source\Rendering\Meshes\MeshUtility.cpp" />
     <ClCompile Include="Source\Rendering\Shaders\Shader.cpp" />
+    <ClCompile Include="Source\Rendering\Shaders\ShaderUtility.cpp" />
     <ClCompile Include="Source\Rendering\Textures\Cubemap.cpp" />
     <ClCompile Include="Source\Rendering\Textures\Texture.cpp" />
     <ClCompile Include="Source\Rendering\Textures\Texture2D.cpp" />
@@ -60,6 +62,7 @@
     <ClInclude Include="Include\Rendering\Meshes\MeshUtility.h" />
     <ClInclude Include="Include\Rendering\Meshes\Model.h" />
     <ClInclude Include="Include\Rendering\Shaders\Shader.h" />
+    <ClInclude Include="Include\Rendering\Shaders\ShaderUtility.h" />
     <ClInclude Include="Include\Rendering\Textures\Cubemap.h" />
     <ClInclude Include="Include\Rendering\Textures\Texture.h" />
     <ClInclude Include="Include\Rendering\Textures\Texture2D.h" />

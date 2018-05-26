@@ -2,17 +2,18 @@
 
 #include "Buffers\FrameBuffer.h"
 #include "Buffers\UniformBuffer.h"
+#include "Rendering\Shaders\Shader.h"
 
 namespace mods
 {
 	class Camera;
 
-	class ShaderProgram;
-
 	class Font;
 	class Mesh;
 	class Model;
 	class Texture;
+
+	class Light;
 
 	class Material;
 
@@ -24,61 +25,70 @@ namespace mods
 		PostProcessPass			= 1 << 2
 	};
 
-	// Uniforms relating to the camera
-	struct CameraUniform : public UniformBuffer
-	{
-	public:
-
-		CameraUniform();
-
-	public:
-
-		// Sets uniform variables for the camera
-		void SetUniforms(const Camera& camera);
-	};
-
 	// First iteration of renderer
 	class Renderer
 	{
+		friend class Application;
+
 	public:
+
+		// Draws a mesh
+		virtual void DrawMesh(const Mesh& mesh, const glm::mat4x4& transform);
+
+		// Draws a model
+		virtual void DrawModel(const Model& model, const glm::mat4x4& transform);
+
+	public:
+
+		// Adds a light to render
+		virtual void AddLight(const Light& light);
+
+	private:
 
 		Renderer();
 		virtual ~Renderer();
 
-	public:
-
 		// Initializes this renderer
-		void Initialize(int32 width, int32 height);
+		virtual void Initialize(int32 width, int32 height);
 
 		// Cleans up this renderer
-		void Cleanup();
+		virtual void Cleanup();
 
-	public:
+	protected:
 
-		// Called to prepare for the next frame
-		void StartFrame();
+		// Starts new frame of rendering
+		virtual void StartFrame();
 
-		// Called to prepare the geometry pass 
-		void StartGeometryPass();
+		// Called to start the geometry pass
+		virtual void StartGeometryPass();
 
-		// Called to start lighting pass
-		void StartLightingPass();
+		// Called to start the lighting pass
+		virtual void StartLightingPass();
 
-		// Called to start post process pass
-		void StartPostProcessPass();
+		// Called to start the post processing pass
+		virtual void StartPostProcessPass();
 
-		// Called to end the current frame
-		void EndFrame();
-
-	public:
-
+		// Ends the frame of rendering
+		virtual void EndFrame();
 
 	protected:
 
 		// Geometry step frame buffer
 		FrameBuffer m_GBuffer;
 
+		// Shader for drawing geometry
+		ShaderProgram m_GShader;
+
+		// Shader for applying lighting
+		ShaderProgram m_LShader;
+
+		// Shader for post processing the frame
+		ShaderProgram m_PShader;
+
 	private:
+
+		// All lights to draw
+		std::vector<const Light*> m_Lights;
 
 		// What stage of the render pass we are at
 		eRenderStage m_Stage;

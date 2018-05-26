@@ -9,7 +9,7 @@ namespace mods
 	{
 	public:
 
-		UniformBuffer(int32 size, int32 binding, void* data = nullptr);
+		UniformBuffer(uint32 size, int32 binding, void* data = nullptr);
 		UniformBuffer(const UniformBuffer& rhs) = delete;
 		UniformBuffer(UniformBuffer&& rhs);
 
@@ -32,7 +32,7 @@ namespace mods
 	private:
 
 		// Creates a new buffer of given size
-		void Create(int32 size, void* data);
+		void Create(uint32 size, void* data);
 
 		// Destroys the existing buffer if any
 		void Destroy();
@@ -43,7 +43,7 @@ namespace mods
 		uint32 m_Handle;
 
 		// The size of the buffer
-		int32 m_Size;
+		uint32 m_Size;
 
 		// The binding of the uniform
 		int32 m_Binding;

@@ -165,10 +165,7 @@ namespace mods
 		glm::vec2 position, const glm::vec4& color, float scale) const
 	{
 		if (!IsValid())
-		{
-			std::cout << "Warning: Font is not valid, unable to draw text:\n" << text << std::endl;
 			return;
-		}
 		
 		shader.SetUniformValue("textcolor", color);
 

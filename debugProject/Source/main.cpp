@@ -534,35 +534,16 @@ int main()
 
 		using namespace mods;
 
-		ShaderProgramConstructor constructor;
-		constructor.LoadShader(VertexShaderSource("Resources/Shaders/Vertex.vert"));
-		constructor.LoadShader(FragmentShaderSource("Resources/Shaders/Fragment.frag"));
-		std::shared_ptr<ShaderProgram> shader = constructor.Construct();
+		ShaderProgram shader("Resources/Shaders/Vertex.vert", "Resources/Shaders/Fragment.frag");
+		ShaderProgram modelshader("Resources/Shaders/ModelVertex.vert", "Resources/Shaders/ModelFragment.frag");
+		ShaderProgram skyboxshader("Resources/Shaders/SkyboxVertex.vert", "Resources/Shaders/SkyboxFragment.frag");
+		ShaderProgram billboardshader("Resources/Shaders/BillboardVertex.vert", "Resources/Shaders/BillboardFragment.frag");
+		ShaderProgram fontshader("Resources/Shaders/FontVertex.vert", "Resources/Shaders/FontFragment.frag");
 
-		ShaderProgramConstructor modelshaderconstructor;
-		modelshaderconstructor.LoadShader(VertexShaderSource("Resources/Shaders/ModelVertex.vert"));
-		modelshaderconstructor.LoadShader(FragmentShaderSource("Resources/Shaders/ModelFragment.frag"));
-		std::shared_ptr<ShaderProgram> modelshader = modelshaderconstructor.Construct();
-
-		ShaderProgramConstructor skyboxshaderconstructor;
-		skyboxshaderconstructor.LoadShader(VertexShaderSource("Resources/Shaders/SkyboxVertex.vert"));
-		skyboxshaderconstructor.LoadShader(FragmentShaderSource("Resources/Shaders/SkyboxFragment.frag"));
-		std::shared_ptr<ShaderProgram> skyboxshader = skyboxshaderconstructor.Construct();
-
-		ShaderProgramConstructor billboardconstructor;
-		billboardconstructor.LoadShader(VertexShaderSource("Resources/Shaders/BillboardVertex.vert"));
-		billboardconstructor.LoadShader(FragmentShaderSource("Resources/Shaders/BillboardFragment.frag"));
-		std::shared_ptr<ShaderProgram> billboardshader = billboardconstructor.Construct();
-
-		ShaderProgramConstructor fontconstructor;
-		fontconstructor.LoadShader(VertexShaderSource("Resources/Shaders/FontVertex.vert"));
-		fontconstructor.LoadShader(FragmentShaderSource("Resources/Shaders/FontFragment.frag"));
-		std::shared_ptr<ShaderProgram> fontshader = fontconstructor.Construct();
-
-		billboardshader->Bind();
-		billboardshader->SetUniformValue("position", glm::vec3(2.f, 3.f, 2.f));
-		billboardshader->SetUniformValue("size", glm::vec2(0.35f, 0.1f));
-		billboardshader->Unbind();
+		billboardshader.Bind();
+		billboardshader.SetUniformValue("position", glm::vec3(2.f, 3.f, 2.f));
+		billboardshader.SetUniformValue("size", glm::vec2(0.35f, 0.1f));
+		billboardshader.Unbind();
 
 		mods::Texture2D texture("Resources/Textures/Container.jpg");
 
@@ -644,59 +625,59 @@ int main()
 
 			glm::mat4 t = FlyCamera.GetProjectionView();
 
-			shader->Bind();
+			shader.Bind();
 			texture.Bind();
-			shader->SetUniformValue("u_texture", 0);
-			shader->SetUniformValue("model", model);
-			shader->SetUniformValue("projection", FlyCamera.GetProjectionMatrix());
-			shader->SetUniformValue("view", FlyCamera.GetViewMatrix());
+			shader.SetUniformValue("u_texture", 0);
+			shader.SetUniformValue("model", model);
+			shader.SetUniformValue("projection", FlyCamera.GetProjectionMatrix());
+			shader.SetUniformValue("view", FlyCamera.GetViewMatrix());
 			glBindVertexArray(vao);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 			glBindVertexArray(0);
 			texture.Unbind();
-			shader->Unbind();
+			shader.Unbind();
 
 			//glScissor(240, 100, 800, 500);
 
-			modelshader->Bind();
-			modelshader->SetUniformValue("model", glm::mat4(1.f));
-			modelshader->SetUniformValue("projection", FlyCamera.GetProjectionMatrix());
-			modelshader->SetUniformValue("view", FlyCamera.GetViewMatrix());
+			modelshader.Bind();
+			modelshader.SetUniformValue("model", glm::mat4(1.f));
+			modelshader.SetUniformValue("projection", FlyCamera.GetProjectionMatrix());
+			modelshader.SetUniformValue("view", FlyCamera.GetViewMatrix());
 
-			nanosuit.Draw(*modelshader);
-			modelshader->Unbind();
+			nanosuit.Draw(modelshader);
+			modelshader.Unbind();
 
 			//glScissor(0, 0, 1280, 720);
 
-			/*billboardshader->Bind();
-			billboardshader->SetUniformValue("projection", FlyCamera.GetProjectionMatrix());
-			billboardshader->SetUniformValue("view", FlyCamera.GetViewMatrix());
+			/*billboardshader.Bind();
+			billboardshader.SetUniformValue("projection", FlyCamera.GetProjectionMatrix());
+			billboardshader.SetUniformValue("view", FlyCamera.GetViewMatrix());
 			quadbuf.Bind();
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 			quadbuf.Unbind();
-			billboardshader->Unbind();*/
+			billboardshader.Unbind();*/
 
 			glm::mat4 view = FlyCamera.GetViewMatrix();
 			view[3] = glm::vec4(0.f, 0.f, 0.f, 1.f);	// No position for sky box view projection
 
 			glDepthFunc(GL_LEQUAL);
-			skyboxshader->Bind();
+			skyboxshader.Bind();
 			skybox.Bind();
-			skyboxshader->SetUniformValue("skybox", 0);
-			skyboxshader->SetUniformValue("projection", FlyCamera.GetProjectionMatrix());
-			skyboxshader->SetUniformValue("view", view);
+			skyboxshader.SetUniformValue("skybox", 0);
+			skyboxshader.SetUniformValue("projection", FlyCamera.GetProjectionMatrix());
+			skyboxshader.SetUniformValue("view", view);
 			glBindVertexArray(skyboxvao);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 			glBindVertexArray(0);
 			skybox.Unbind();
-			skyboxshader->Unbind();
+			skyboxshader.Unbind();
 			glDepthFunc(GL_LESS);
 
 			glEnable(GL_BLEND);
-			fontshader->Bind();
-			fontshader->SetUniformValue("projection", FlyCamera.GetProjectionMatrix(eProjectionMode::Orthographic));
-			consolas.Draw(*fontshader, std::string("FPS: ") + std::to_string(fps), glm::vec2(10.f), glm::vec4(1.f));
-			fontshader->Unbind();
+			fontshader.Bind();
+			fontshader.SetUniformValue("projection", FlyCamera.GetProjectionMatrix(eProjectionMode::Orthographic));
+			consolas.Draw(fontshader, std::string("FPS: ") + std::to_string(fps), glm::vec2(10.f), glm::vec4(1.f));
+			fontshader.Unbind();
 			glDisable(GL_BLEND);
 
 			glfwSwapBuffers(window);

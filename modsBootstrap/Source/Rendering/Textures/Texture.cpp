@@ -45,18 +45,13 @@ namespace mods
 		return true;
 	}
 
-	void Texture::Bind(uint32 slot)
+	void Texture::Bind(uint32 slot) const
 	{
-	#if _DEBUG
-		if (!IsValid())
-			std::cout << "Warning: Texture bound to slot " << slot << " is not valid" << std::endl;
-	#endif
-
 		glActiveTexture(GL_TEXTURE0 + slot);
 		glBindTexture(GetTextureType(), m_Handle);
 	}
 
-	void Texture::Unbind()
+	void Texture::Unbind() const
 	{
 		glBindTexture(GetTextureType(), 0);
 	}
