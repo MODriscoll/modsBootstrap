@@ -191,6 +191,9 @@ namespace mods
 			}
 		}
 
-		void LoadMapFromMaterial(aiMaterial* from, Material& to, aiTextureType t1, eMaterialMaps t2);
+		void LoadMapFromMaterial(aiMaterial* from, Material& to, aiTextureType t1, eMaterialMaps t2)
+		{
+
+		}
 	}
 }

@@ -4,6 +4,8 @@
 
 #include "Rendering\Textures\Texture2D.h"
 
+#include <vector>
+
 namespace mods
 {
 	class ShaderProgram;
@@ -15,16 +17,6 @@ namespace mods
 		Specular,
 		Emmision,
 		Normal,
-
-		Count
-	};
-
-	enum class eMaterialTypes : byte
-	{
-		Float,
-		Int32,
-		Texture2D,
-		Cubemap,
 
 		Count
 	};
@@ -65,6 +57,13 @@ namespace mods
 		// be used for multiple maps. current implementation
 		// requires a unique texture for each map, meaning duplicates
 		Texture2D m_Maps[(byte)eMaterialMaps::Count];
+
+		// Program associated with this material
+		ShaderProgram* m_Program;
+
+		// Texture assoc
+		std::vector<Texture2D> m_Maps;
+		std::vector<std::pair<int32, std::string>> m_MapKeys;
 
 		// Surface properties of this material
 		float m_Shininess;

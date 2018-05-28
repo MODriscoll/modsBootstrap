@@ -53,8 +53,11 @@ namespace mods
 	// directionallight dirlights[4]			(160 bytes)	(offset=0)
 	// pointlight pntlights[10]					(520 bytes) (offset=160)
 	// spotlight sptlights[10]					(760 bytes) (offset=680)
+	// int dircount								(4 bytes)	(offset=1440)
+	// int pntcount								(4 bytes)	(offset=1444)
+	// int sptcount								(4 bytes)	(offset=1448)
 
-	// final size								1440 bytes
+	// final size								1452 bytes
 
 	// Game Uniform			binding = 2
 	// float time			(4 bytes)	(offset=0)
