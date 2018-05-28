@@ -9,13 +9,13 @@ namespace mods
 	Mesh::Mesh(
 		const std::vector<MeshVertex>& vertices, 
 		const std::vector<uint32>& indices, 
-		Material&& material)
+		const Material& material)
 		: m_VBO(0)
 		, m_IBO(0)
 		, m_VAO(0)
 		, m_Vertices(vertices)
 		, m_Indices(indices)
-		, m_Material(std::move(material))
+		, m_Material(material)
 	{
 		m_Vertices.shrink_to_fit();
 		m_Indices.shrink_to_fit();

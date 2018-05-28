@@ -48,7 +48,7 @@ namespace mods
 		Mesh(
 			const std::vector<MeshVertex>& vertices, 
 			const std::vector<uint32>& indices, 
-			Material&& material);
+			const Material& material);
 
 	public:
 

@@ -4,6 +4,7 @@
 
 #include "Rendering\Textures\Texture2D.h"
 
+#include <memory>
 #include <vector>
 
 namespace mods
@@ -27,47 +28,41 @@ namespace mods
 	// hold the names and types of those paramters
 	class Material
 	{
+		struct MapPair
+		{
+			MapPair(eMaterialMaps type, const std::shared_ptr<Texture2D>& map)
+				: Type(type)
+				, Map(map)
+			{
+
+			}
+
+			eMaterialMaps Type;
+			std::shared_ptr<Texture2D> Map;
+		};
+
 	public:
 
 		Material();
-		Material(const Material& rhs) = delete;
-		Material(Material&& rhs) = default;
-
-		~Material() = default;
-
-		Material& operator = (const Material& rhs) = delete;
-		Material& operator = (Material&& rhs) = default;
 
 	public:
 
-		// Sets the map according to its types
-		// By calling this function you give up ownership of the texture
-		void SetMap(eMaterialMaps type, Texture2D&& map);
+		// Adds a new map to this material
+		void AddMap(eMaterialMaps type, const std::shared_ptr<Texture2D>& map);
 
 	public:
 
 		// Binds this material for use in the given program
 		// Assumes the given shader is already active
-		void Bind(const ShaderProgram& program) const;
+		void Bind(ShaderProgram& program) const;
 
 	private:
 
-		// Texture maps of this material
-		// TODO: update, since one texture could
-		// be used for multiple maps. current implementation
-		// requires a unique texture for each map, meaning duplicates
-		Texture2D m_Maps[(byte)eMaterialMaps::Count];
-
-		// Program associated with this material
-		ShaderProgram* m_Program;
-
-		// Texture assoc
-		std::vector<Texture2D> m_Maps;
-		std::vector<std::pair<int32, std::string>> m_MapKeys;
+		std::vector<MapPair> m_Maps;
 
 		// Surface properties of this material
-		float m_Shininess;
-		float m_Opacity;
+		float m_Albedo;
 		float m_Roughness;
+		float m_Fresnal;
 	};
 }
