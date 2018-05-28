@@ -6,7 +6,7 @@
 
 namespace mods
 {
-	IntParameter::IntParameter(int value)
+	IntParameter::IntParameter(int32 value)
 		: Value(value)
 	{
 
@@ -15,10 +15,5 @@ namespace mods
 	void IntParameter::Bind(uint32 unit) const
 	{
 		glUniform1i(m_Location, Value);
-	}
-
-	bool IntParameter::IsValid() const
-	{
-		return !glm::isnan(Value) && MaterialParameter::IsValid();
 	}
 }

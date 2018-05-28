@@ -46,7 +46,7 @@ namespace mods
 		return *this;
 	}
 
-	void UniformBuffer::Fill(uint32 start, uint32 amount, void* data)
+	void UniformBuffer::Fill(uint32 start, uint32 amount, void* data) const
 	{
 		assert(IsValid());
 		assert(start >= 0 && start < m_Size);

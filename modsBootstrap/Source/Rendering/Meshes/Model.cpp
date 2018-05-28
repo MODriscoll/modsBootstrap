@@ -18,7 +18,7 @@ namespace mods
 	void Model::LoadModel(const std::string& path)
 	{
 		detail::ModelData data;
-		if (detail::LoadModelFromSource(path, data, aiProcess_Triangulate | aiProcess_FlipUVs))
+		if (detail::LoadModelFromSource(path, data, aiProcess_Triangulate))
 		{
 			m_Meshes = std::move(data.Meshes);
 			m_Directory = path;

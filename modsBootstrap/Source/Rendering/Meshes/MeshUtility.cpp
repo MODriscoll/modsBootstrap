@@ -27,15 +27,7 @@ namespace mods
 			const std::string& directory, 
 			std::vector<Mesh>& meshes);
 
-		//// Loads the textures for the given type from the material
-		//// Only loads a texture if it doesn't exist
-		//template <aiTextureType aiType, eMaterialTextureType modType>
-		//void LoadTexturesFromMaterial(
-		//	aiMaterial* material,
-		//	const std::string& directory,
-		//	std::vector<MeshTexture>& textures,
-		//	std::unordered_map<std::string, uint32>& table);
-
+		// Loads the maps for a given type from the given material
 		void LoadMapFromMaterial(
 			aiMaterial* from,
 			Material& to,
@@ -59,8 +51,10 @@ namespace mods
 				return false;
 			}
 
+			// Store directory as we will need it for material maps
 			std::string directory = path.substr(0, path.find_last_of('/'));
 
+			// Reserve what we need before we start
 			data.Meshes.reserve(scene->mNumMeshes);
 
 			aiMesh** meshes = scene->mMeshes;
@@ -88,9 +82,9 @@ namespace mods
 			std::vector<uint32> indices;
 			Material material;
 
+			// Reserve what we need before we start
 			vertices.reserve(mesh.mNumVertices);
 			vertices.reserve(mesh.mNumFaces * 3u);
-
 
 			// Convert all the meshes vertices
 			for (uint32 i = 0; i < mesh.mNumVertices; ++i)
@@ -113,21 +107,17 @@ namespace mods
 				indices.insert(indices.cend(), face.mIndices, face.mIndices + face.mNumIndices);
 			}
 
-			// TODO: update once materials have been implemented
+			// Convert the material
 			if (scene->HasMaterials())
 			{
 				aiMaterial* mat = scene->mMaterials[mesh.mMaterialIndex];
 
+				// Prevent loading multiple of the same textures
 				std::vector<std::shared_ptr<Texture2D>> maps;
 				std::unordered_map<std::string, uint32> table;
 
 				LoadMapFromMaterial(mat, material, aiTextureType::aiTextureType_DIFFUSE, eMaterialMaps::Diffuse, directory, maps, table);
 				LoadMapFromMaterial(mat, material, aiTextureType::aiTextureType_SPECULAR, eMaterialMaps::Specular, directory, maps, table);
-
-				/*LoadTexturesFromMaterial<aiTextureType::aiTextureType_DIFFUSE, eMaterialTextureType::Diffuse>
-					(material, directory, textures, table);
-				LoadTexturesFromMaterial<aiTextureType::aiTextureType_SPECULAR, eMaterialTextureType::Specular>
-					(material, directory, textures, table);*/
 			}
 
 			#if _DEBUG
@@ -143,61 +133,6 @@ namespace mods
 			meshes.emplace_back(vertices, indices, material);
 		}
 
-		//template <aiTextureType aiType, eMaterialTextureType modType>
-		//void LoadTexturesFromMaterial(aiMaterial* material, const std::string& directory, 
-		//	std::vector<MeshTexture>& textures, std::unordered_map<std::string, uint32>& table)
-		//{
-		//	uint32 count = material->GetTextureCount(aiType);
-		//	for (uint32 i = 0; i < count; ++i)
-		//	{
-		//		aiString temp;
-		//		material->GetTexture(aiType, i, &temp);
-
-		//		//std::string path(temp.C_Str());
-
-		//		auto it = table.find(temp.C_Str());
-		//		if (it != table.cend())
-		//		{
-		//			textures.push_back(textures[it->second]);
-		//		}
-		//		else
-		//		{
-		//			std::string path(directory);
-		//			path.append("/");
-		//			path.append(temp.C_Str());
-
-		//			TextureData data;				
-		//			if (LoadTextureFromSource(path, data))
-		//			{
-		//				uint32 index = textures.size();
-
-		//				MeshTexture texture;
-
-		//				// TODO: make utility function (with options)
-		//				glGenTextures(1, &texture.Handle);
-		//				glBindTexture(GL_TEXTURE_2D, texture.Handle);
-
-		//				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		//				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		//				
-		//				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		//				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		//				glTexImage2D(GL_TEXTURE_2D, 0, data.InternalFormat, data.Width,
-		//					data.Height, 0, data.Format, GL_UNSIGNED_BYTE, data.Pixels);
-		//				glGenerateMipmap(GL_TEXTURE_2D);
-
-		//				glBindTexture(GL_TEXTURE_2D, 0);
-
-		//				texture.Type = modType;
-
-		//				textures.push_back(texture);
-		//				table[temp.C_Str()] = index;
-		//			}
-		//		}
-		//	}
-		//}
-
 		void LoadMapFromMaterial(aiMaterial* from, Material& to, aiTextureType t1, eMaterialMaps t2, const std::string& directory,
 			std::vector<std::shared_ptr<Texture2D>>& maps, std::unordered_map<std::string, uint32>& table)
 		{
@@ -207,22 +142,28 @@ namespace mods
 				aiString temp;
 				from->GetTexture(t1, i, &temp);
 
-				//std::string path(temp.C_Str());
+				std::string path(temp.C_Str());
 
-				auto it = table.find(temp.C_Str());
+				// Don't need to create a new texture
+				// if it has already been loaded
+				auto it = table.find(path);
 				if (it != table.cend())
 				{
 					to.AddMap(t2, maps[it->second]);
 				}
 				else
 				{
-					std::string path(directory);
-					path.append("/");
-					path.append(temp.C_Str());
+					// Will need to start from root of directory
+					std::string fullpath(directory);
+					fullpath.append("/");
+					fullpath.append(path);
 
-					std::shared_ptr<Texture2D> map = std::make_shared<Texture2D>(path);
+					std::shared_ptr<Texture2D> map = std::make_shared<Texture2D>(fullpath);
 					to.AddMap(t2, map);
-					table[temp.C_Str()] = maps.size();
+
+					// Set index before adding to vector,
+					// so index is not out of range
+					table[path] = maps.size();
 					maps.push_back(map);
 				}
 			}

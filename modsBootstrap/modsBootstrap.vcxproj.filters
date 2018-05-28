@@ -108,6 +108,9 @@
     <ClCompile Include="Source\Rendering\Materials\Parameters\CubemapParameter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Buffers\CameraUniformBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\IncludeGLFW.h">
@@ -216,6 +219,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Rendering\Materials\Parameters\CubemapParameter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Buffers\CameraUniformBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

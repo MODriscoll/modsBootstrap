@@ -17,9 +17,6 @@ namespace mods
 
 	public:
 
-		// Get if the value is not nan
-		virtual bool IsValid() const override;
-
 		inline virtual eMaterialParameterType GetParameterType() const { return eMaterialParameterType::Int; }
 
 	public:

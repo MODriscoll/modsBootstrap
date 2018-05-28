@@ -23,7 +23,7 @@ namespace mods
 		// Fills the buffer with the given data
 		// Start = offset from beggining
 		// Amount = size of data in bytes
-		void Fill(uint32 start, uint32 amount, void* data);
+		void Fill(uint32 start, uint32 amount, void* data) const;
 
 	public:
 

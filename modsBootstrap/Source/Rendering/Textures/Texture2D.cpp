@@ -81,7 +81,7 @@ namespace mods
 
 		m_Width = data.Width;
 		m_Height = data.Height;
-		m_Channels = channels;
+		m_Channels = (eTextureChannels)data.Channels;
 
 		return true;
 	}

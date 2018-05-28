@@ -80,7 +80,6 @@ namespace mods
 					assert(false);
 				}
 			}
-
 		}
 
 		void SetFlip(bool flip)

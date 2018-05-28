@@ -12,7 +12,7 @@ namespace mods
 	// mat4 projection		(64 bytes)	(offset=0)
 	// mat4 view			(64 bytes)	(offset=64)
 	// vec3 position		(16 bytes)	(offset=128)
-	// vec3 view			(16 bytes)	(offset=144)
+	// vec3 heading			(16 bytes)	(offset=144)
 
 	// final size			160 bytes
 
