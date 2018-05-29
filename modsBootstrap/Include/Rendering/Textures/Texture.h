@@ -37,10 +37,7 @@ namespace mods
 
 		inline bool IsValid() const { return m_Handle != 0; }
 
-		// Used by FrameBuffer, will move to a 2d texture specifically for the framebuffer
 		inline uint32 GetHandle() const { return m_Handle; }
-
-	protected:
 
 		// Gets this textures opengl type
 		virtual uint32 GetTextureType() const = 0;

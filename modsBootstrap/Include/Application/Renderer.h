@@ -1,8 +1,13 @@
 #pragma once
 
-#include "Buffers\FrameBuffer.h"
-#include "Buffers\UniformBuffer.h"
 #include "Rendering\Shaders\Shader.h"
+#include "Rendering\Textures\Texture2D.h"
+
+#include "Rendering\Lighting\LightRenderData.h"
+
+#include "Buffers\CameraUniformBuffer.h"
+
+#include <vector>
 
 namespace mods
 {
@@ -17,44 +22,40 @@ namespace mods
 
 	class Material;
 
-	enum eRenderStage : byte
-	{
-		None					= 0,
-		GeometryPass			= 1 << 0,
-		LightingPass			= 1 << 1,
-		PostProcessPass			= 1 << 2
-	};
-
 	// First iteration of renderer
 	class Renderer
 	{
-		friend class Application;
+	public:
+
+		Renderer(int32 width, int32 height);
+		Renderer(const Renderer& rhs) = delete;
+		Renderer(Renderer&& rhs);
+
+		virtual ~Renderer();
+
+		Renderer& operator = (const Renderer& rhs) = delete;
+		Renderer& operator = (Renderer&& rhs);
 
 	public:
 
 		// Draws a mesh
-		virtual void DrawMesh(const Mesh& mesh, const glm::mat4x4& transform);
+		void DrawMesh(const Mesh& mesh, const glm::mat4x4& transform);
 
 		// Draws a model
-		virtual void DrawModel(const Model& model, const glm::mat4x4& transform);
+		void DrawModel(const Model& model, const glm::mat4x4& transform);
 
 	public:
 
 		// Adds a light to render
-		virtual void AddLight(const Light& light);
+		int32 AddLight(const Light& light);
 
-	private:
+		// Removes light at given index
+		void RemoveLight(const Light& light, int32 index);
 
-		Renderer();
-		virtual ~Renderer();
+		// Updates the lights data at the given index
+		bool UpdateLight(const Light& light, int32 index);
 
-		// Initializes this renderer
-		virtual void Initialize(int32 width, int32 height);
-
-		// Cleans up this renderer
-		virtual void Cleanup();
-
-	protected:
+	public:
 
 		// Starts new frame of rendering
 		virtual void StartFrame();
@@ -73,11 +74,41 @@ namespace mods
 
 	protected:
 
-		// Geometry step frame buffer
-		FrameBuffer m_GBuffer;
+		// Initializes framebuffer and shaders
+		virtual bool Initialize(int32 width, int32 height);
 
-		// Shader for drawing geometry
-		ShaderProgram m_GShader;
+		// Cleans up resources
+		virtual bool Cleanup();
+
+	private:
+
+		// Adds a new directional light
+		int32 AddDirectionalLight(const DirectionalLight& light);
+
+		// Adds a new point light
+		int32 AddPointLight(const PointLight& light);
+
+		// Adds a new spot light
+		int32 AddSpotLight(const SpotLight& light);
+
+	protected:
+
+		// Handle to the geometry frame buffer
+		uint32 m_FBO;
+
+		// Handle to the depth and stencil render buffer
+		uint32 m_RBO;
+
+		// Texture containing position data
+		Texture2D m_PosBuffer;
+
+		// Texture containing normals
+		Texture2D m_NorBuffer;
+
+		// Texture containing diffuse and specular
+		Texture2D m_AlbBuffer;
+
+	protected:
 
 		// Shader for applying lighting
 		ShaderProgram m_LShader;
@@ -85,12 +116,24 @@ namespace mods
 		// Shader for post processing the frame
 		ShaderProgram m_PShader;
 
-	private:
+	protected:
 
-		// All lights to draw
-		std::vector<const Light*> m_Lights;
+		// All directional lights in the scene
+		std::vector<DirectionalLightData> m_DirLights;
 
-		// What stage of the render pass we are at
-		eRenderStage m_Stage;
+		// Count of the amount of directional lights
+		int32 m_DirCount;
+
+		// All point lights in the scene
+		//std::array<PointLightData, 10> m_PntLights;
+
+		// Count of the amount of point lights
+		int32 m_PntCount;
+
+		// All spot lights in the scene
+		//std::array<SpotLightData, 10> m_SptLights;
+
+		// Count of the amount of spot lights
+		int32 m_SptCount;
 	};
 }

@@ -28,8 +28,7 @@ namespace mods
 			data.Height = height;
 			data.Channels = format;
 
-			// Update channels based of channels requested
-			if (channels == eTextureChannels::Default)
+			if (channels == eTextureChannels::Unknown)
 				channels = (eTextureChannels)format;
 
 			GetTextureFormats(channels, data.Format, data.InternalFormat, sRGB);
@@ -43,18 +42,66 @@ namespace mods
 				stbi_image_free(pixels);
 		}
 
-		void GetTextureFormats(eTextureChannels channels, int32& format, int32& intern, bool sRGB)
+		uint32 GetDataFormat(eTextureFormat intern)
+		{
+			switch (intern)
+			{
+				case eTextureFormat::R:
+				case eTextureFormat::R16F:
+				{
+					return GL_R16;
+				};
+
+				case eTextureFormat::RG:
+				case eTextureFormat::RG16F:
+				{
+					return GL_RG;
+				}
+
+				case eTextureFormat::RGB:
+				case eTextureFormat::RGB16F:
+				{
+					return GL_RGB;
+				}
+
+				case eTextureFormat::RGBA:
+				case eTextureFormat::RGBA16F:
+				{
+					return GL_RGBA;
+				}
+
+				default:
+				{
+					assert(false);
+				}
+			}
+		}
+
+		eTextureChannels GetTextureChannels(uint32 format)
+		{
+			switch (format)
+			{
+				case GL_RED: { return eTextureChannels::R; }
+				case GL_RG: { return eTextureChannels::RG; }
+				case GL_RGB: { return eTextureChannels::RGB; }
+				case GL_RGBA: { return eTextureChannels::RGBA; }
+			}
+
+			return eTextureChannels::Unknown;
+		}
+
+		void GetTextureFormats(eTextureChannels channels, uint32& format, int32& intern, bool sRGB)
 		{
 			switch (channels)
 			{
-				case eTextureChannels::Red:
+				case eTextureChannels::R:
 				{
 					intern = sRGB ? GL_SRGB8 : GL_RED;
 					format = GL_RED;
 					break;
 				}
 
-				case eTextureChannels::RedAlpha:
+				case eTextureChannels::RG:
 				{
 					intern = sRGB ? GL_SRGB8_ALPHA8 : GL_RG;
 					format = GL_RG;
@@ -68,7 +115,7 @@ namespace mods
 					break;
 				}
 
-				case eTextureChannels::RGBAlpha:
+				case eTextureChannels::RGBA:
 				{
 					intern = sRGB ? GL_SRGB_ALPHA : GL_RGBA;
 					format = GL_RGBA;

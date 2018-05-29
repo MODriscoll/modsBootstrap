@@ -26,7 +26,7 @@ namespace mods
 		// Creates a new cubemap texture from the given paths
 		bool Load(const std::array<std::string, 6>& paths);
 
-	protected:
+	public:
 
 		virtual uint32 GetTextureType() const override;
 	};

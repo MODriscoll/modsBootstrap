@@ -30,6 +30,7 @@
     <ClCompile Include="Source\Rendering\Fonts\Font.cpp" />
     <ClCompile Include="Source\Rendering\Lighting\DirectionalLight.cpp" />
     <ClCompile Include="Source\Rendering\Lighting\Light.cpp" />
+    <ClCompile Include="Source\Rendering\Lighting\LightRenderData.cpp" />
     <ClCompile Include="Source\Rendering\Lighting\PointLight.cpp" />
     <ClCompile Include="Source\Rendering\Lighting\SpotLight.cpp" />
     <ClCompile Include="Source\Rendering\Materials\Material.cpp" />
@@ -47,6 +48,7 @@
     <ClCompile Include="Source\Rendering\Meshes\MeshUtility.cpp" />
     <ClCompile Include="Source\Rendering\Shaders\Shader.cpp" />
     <ClCompile Include="Source\Rendering\Shaders\ShaderUtility.cpp" />
+    <ClCompile Include="Source\Rendering\Targets\RenderTarget.cpp" />
     <ClCompile Include="Source\Rendering\Textures\Cubemap.cpp" />
     <ClCompile Include="Source\Rendering\Textures\Texture.cpp" />
     <ClCompile Include="Source\Rendering\Textures\Texture2D.cpp" />
@@ -66,6 +68,7 @@
     <ClInclude Include="Include\Rendering\Lighting\LightAttenuation.h" />
     <ClInclude Include="Include\Rendering\Lighting\Light.h" />
     <ClInclude Include="Include\Rendering\Lighting\DirectionalLight.h" />
+    <ClInclude Include="Include\Rendering\Lighting\LightRenderData.h" />
     <ClInclude Include="Include\Rendering\Lighting\PointLight.h" />
     <ClInclude Include="Include\Rendering\Lighting\SpotLight.h" />
     <ClInclude Include="Include\Rendering\Materials\Material.h" />
@@ -84,6 +87,7 @@
     <ClInclude Include="Include\Rendering\Meshes\Model.h" />
     <ClInclude Include="Include\Rendering\Shaders\Shader.h" />
     <ClInclude Include="Include\Rendering\Shaders\ShaderUtility.h" />
+    <ClInclude Include="Include\Rendering\Targets\RenderTarget.h" />
     <ClInclude Include="Include\Rendering\Textures\Cubemap.h" />
     <ClInclude Include="Include\Rendering\Textures\Texture.h" />
     <ClInclude Include="Include\Rendering\Textures\Texture2D.h" />

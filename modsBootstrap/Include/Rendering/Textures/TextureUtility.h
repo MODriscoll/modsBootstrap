@@ -37,7 +37,7 @@ namespace mods
 			int32 Channels;
 
 			// Format of image
-			int32 Format;
+			uint32 Format;
 
 			// Interal format of image
 			int32 InternalFormat;
@@ -47,18 +47,24 @@ namespace mods
 		bool LoadTextureFromSource(
 			const std::string& path, 
 			TextureData& data, 
-			eTextureChannels channels = eTextureChannels::Default, 
-			bool sRGB = false);
+			eTextureChannels channels, 
+			bool sRGB);
 
 		// Destroys a texture
 		void DestroyTexture(byte* pixels);
 
+		// Gets the data format associated with the internal format of a texture
+		uint32 GetDataFormat(eTextureFormat intern);
+
+		// Get the amount of channels based on the format of a texture
+		eTextureChannels GetTextureChannels(uint32 format);
+
 		// Get the formatting for a texture based on its channels
 		void GetTextureFormats(
 			eTextureChannels channels, 
-			int32& format, 
+			uint32& format, 
 			int32& intern, 
-			bool sRGB = false);
+			bool sRGB);
 
 		// TODO: replace, have a struct to pass that takes in loading options
 		// TODO: add a generate texture handle here too

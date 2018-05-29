@@ -1,10 +1,13 @@
 #include "Application\Renderer.h"
 
 #include "IncludeGLFW.h"
-#include "Camera\Camera.h"
-#include "Rendering\Meshes\Model.h"
+#include "Rendering\Lighting\DirectionalLight.h"
+#include "Rendering\Lighting\SpotLight.h"
 
 #include <glm\gtc\type_ptr.hpp>
+
+#include <cassert>
+#include <iostream>
 
 namespace mods
 {
@@ -64,51 +67,90 @@ namespace mods
 	
 	// final size			4 bytes
 
-	void Renderer::DrawMesh(const Mesh& mesh, const glm::mat4x4& transform)
+	Renderer::Renderer(int32 width, int32 height)
+		: m_FBO(0)
+		, m_RBO(0)
+		, m_DirCount(0)
+		, m_PntCount(0)
+		, m_SptCount(0)
 	{
-		m_GShader.Bind();
-		m_GShader.SetUniformValue("model", transform);
-		mesh.Draw(m_GShader);
-		m_GShader.Unbind();
+		
 	}
 
-	void Renderer::DrawModel(const Model& model, const glm::mat4x4& transform)
+	Renderer::Renderer(Renderer&& rhs)
+		: m_FBO(rhs.m_FBO)
+		, m_RBO(rhs.m_RBO)
+		, m_PosBuffer(std::move(rhs.m_PosBuffer))
+		, m_NorBuffer(std::move(rhs.m_NorBuffer))
+		, m_AlbBuffer(std::move(rhs.m_AlbBuffer))
 	{
-		m_GShader.Bind();
-		m_GShader.SetUniformValue("model", transform);
-		model.Draw(m_GShader);
-		m_GShader.Unbind();
-	}
-
-	void Renderer::AddLight(const Light& light)
-	{
-	}
-
-	Renderer::Renderer()
-	{
+		rhs.m_FBO = 0;
+		rhs.m_RBO = 0;
 	}
 
 	Renderer::~Renderer()
 	{
+		Cleanup();
 	}
 
-	void Renderer::Initialize(int32 width, int32 height)
+	Renderer& Renderer::operator=(Renderer&& rhs)
 	{
-		std::vector<eTextureBufferTypes> types;
-		types.push_back(eTextureBufferTypes::RGB); // position
-		types.push_back(eTextureBufferTypes::RGB); // normals
-		types.push_back(eTextureBufferTypes::RGBA); // albedo (diffuse (rgb) + specular (a))
+		// Clear any existing buffer
+		Cleanup();
 
-		m_GBuffer.Create(width, height, types);
+		m_FBO = rhs.m_FBO;
+		m_RBO = rhs.m_RBO;
+		m_PosBuffer = std::move(rhs.m_PosBuffer);
+		m_NorBuffer = std::move(rhs.m_NorBuffer);
+		m_AlbBuffer = std::move(rhs.m_AlbBuffer);
 
-		m_GShader.Load("Resources/Shaders/vGShader.vert", "Resources/Shaders/fGShader.frag");
-		m_LShader.Load("Resources/Shaders/vLShader.vert", "Resources/Shaders/fLShader.frag");
-		m_PShader.Load("Resources/Shaders/vPShader.vert", "Resources/Shaders/fPShader.frag");
+		rhs.m_FBO = 0;
+		rhs.m_RBO = 0;
+
+		return *this;
 	}
 
-	void Renderer::Cleanup()
+	void Renderer::DrawMesh(const Mesh& mesh, const glm::mat4x4& transform)
 	{
 		
+	}
+
+	void Renderer::DrawModel(const Model& model, const glm::mat4x4& transform)
+	{
+		
+	}
+
+	int32 Renderer::AddLight(const Light& light)
+	{
+		switch (light.GetLightType())
+		{
+			case eLightType::Directional:
+			{
+
+			}
+
+			case eLightType::Point:
+			{
+
+			}
+
+			case eLightType::Spot:
+			{
+
+			}
+
+			default:
+			{
+				assert(false);
+			}
+		}
+
+		return -1;
+	}
+
+	bool Renderer::UpdateLight(const Light& light, int32 index)
+	{
+		return true;
 	}
 
 	void Renderer::StartFrame()
@@ -129,5 +171,94 @@ namespace mods
 
 	void Renderer::EndFrame()
 	{
+	}
+
+	bool Renderer::Initialize(int32 width, int32 height)
+	{
+		assert(width >= 0 && height >= 0);
+
+		// Generate geometry buffer
+		glGenFramebuffers(1, &m_FBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
+
+		// Generate textures to write geometry data to
+		// TODO: make it so the internal format size (float16, float32 can be set for textures)
+		m_PosBuffer.Create(width, height, eTextureChannels::RGB);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_PosBuffer.GetHandle(), 0);
+
+		m_NorBuffer.Create(width, height, eTextureChannels::RGB);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, m_NorBuffer.GetHandle(), 0);
+
+		// Diffuse stored in RGB, specular in alpha
+		m_AlbBuffer.Create(width, height, eTextureChannels::RGBA);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, m_AlbBuffer.GetHandle(), 0);
+
+		uint32 buffers[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+
+		// Set the textures as the draw buffers
+		glDrawBuffers(3, buffers);
+
+		// Generate the depth and stencil buffer
+		glGenRenderbuffers(1, &m_RBO);
+		glBindRenderbuffer(GL_RENDERBUFFER, m_RBO);
+
+		// Generate buffer to store both depth and stencil values
+		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_RBO);
+
+		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		{
+			std::cout << "Error: Failed to generate frame buffer" << std::endl;
+
+			Cleanup();
+
+			return false;
+		}
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		return true;
+	}
+
+	bool Renderer::Cleanup()
+	{
+		if (m_FBO != 0)
+		{
+			glDeleteFramebuffers(1, &m_FBO);
+			glDeleteRenderbuffers(1, &m_RBO);
+
+			m_PosBuffer.Destroy();
+			m_NorBuffer.Destroy();
+			m_AlbBuffer.Destroy();
+		}
+
+		return true;
+	}
+
+	int32 Renderer::AddDirectionalLight(const DirectionalLight& light)
+	{
+		if (m_DirCount >= m_DirLights.size())
+			return -1;
+
+		m_DirLights[m_DirCount] = DirectionalLightData(light);
+		return m_DirCount++;
+	}
+
+	int32 Renderer::AddPointLight(const PointLight& light)
+	{
+		//if (m_PntCount >= m_PntLights.size())
+		//	return -1;
+
+		//m_PntLights[m_PntCount] = PointLightData(light);
+		return m_PntCount++;
+	}
+
+	int32 Renderer::AddSpotLight(const SpotLight& light)
+	{
+		//if (m_SptCount >= m_SptLights.size())
+		//	return -1;
+
+		//m_SptLights[m_SptCount] = SpotLightData(light);
+		return m_SptCount++;
 	}
 }

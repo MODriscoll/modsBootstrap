@@ -31,7 +31,7 @@ namespace mods
 	{
 		rhs.m_Width = 0;
 		rhs.m_Height = 0;
-		rhs.m_Channels = eTextureChannels::Default;
+		rhs.m_Channels = eTextureChannels::Unknown;
 	}
 
 	Texture2D& Texture2D::operator=(Texture2D&& rhs)
@@ -44,7 +44,7 @@ namespace mods
 
 		rhs.m_Width = 0;
 		rhs.m_Height = 0;
-		rhs.m_Channels = eTextureChannels::Default;
+		rhs.m_Channels = eTextureChannels::Unknown;
 
 		return *this;
 	}
@@ -86,10 +86,10 @@ namespace mods
 		return true;
 	}
 
-	void Texture2D::Create(int32 width, int32 height, eTextureChannels channels, byte* pixels, bool sRGB)
+	bool Texture2D::Create(int32 width, int32 height, eTextureFormat format, byte* pixels)
 	{
-		int32 form, intern;
-		detail::GetTextureFormats(channels, form, intern, sRGB);
+		uint32 form = detail::GetDataFormat(format);
+		int32 intern = (int32)format;
 
 		// Destroy potential existing texture
 		Destroy();
@@ -108,7 +108,9 @@ namespace mods
 
 		m_Width = width;
 		m_Height = height;
-		m_Channels = channels;
+		m_Channels = detail::GetTextureChannels(form);
+
+		return true;
 	}
 
 	uint32 Texture2D::GetTextureType() const

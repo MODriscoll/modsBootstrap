@@ -4,16 +4,28 @@
 
 namespace mods
 {
-	enum class eTextureChannels : byte
+	enum class eTextureChannels : int8
 	{
-		// Channels depend on texture
-		Default		= 0,
+		Unknown		= 0,
 
-		Red			= 1,
-		RedAlpha	= 2,
+		R			= 1,
+		RG			= 2,
 		RGB			= 3,
-		RGBAlpha	= 4,
+		RGBA		= 4,
 
 		Count		= 4,
+	};
+
+	enum class eTextureFormat : int32
+	{
+		R16F			= 0x822D,
+		RG16F			= 0x822F,
+		RGB16F			= 0x881B,
+		RGBA16F			= 0x881A,
+
+		R				= 0x1903,
+		RG				= 0x8227,
+		RGB				= 0x1907,
+		RGBA			= 0x1908
 	};
 }
