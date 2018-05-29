@@ -626,7 +626,7 @@ int main()
 			glm::mat4 t = FlyCamera.GetProjectionView();
 
 			shader.Bind();
-			texture.Bind();
+			texture.Bind(0);
 			shader.SetUniformValue("u_texture", 0);
 			shader.SetUniformValue("model", model);
 			shader.SetUniformValue("projection", FlyCamera.GetProjectionMatrix());

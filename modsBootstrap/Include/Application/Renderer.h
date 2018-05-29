@@ -5,7 +5,10 @@
 
 #include "Rendering\Lighting\LightRenderData.h"
 
+#include "Rendering\Targets\RenderTarget.h"
+
 #include "Buffers\CameraUniformBuffer.h"
+#include "Buffers\LightUniformBuffer.h"
 
 #include <vector>
 
@@ -25,37 +28,33 @@ namespace mods
 	// First iteration of renderer
 	class Renderer
 	{
-	public:
+		friend class Application;
 
-		Renderer(int32 width, int32 height);
-		Renderer(const Renderer& rhs) = delete;
-		Renderer(Renderer&& rhs);
+	private:
 
+		Renderer(uint32 width, uint32 height);
 		virtual ~Renderer();
 
-		Renderer& operator = (const Renderer& rhs) = delete;
-		Renderer& operator = (Renderer&& rhs);
+	public:
+
+		// Set the uniform data for the camera
+		// Should be called before frame starts
+		static void SetCamera(const Camera& camera);
 
 	public:
 
 		// Draws a mesh
-		void DrawMesh(const Mesh& mesh, const glm::mat4x4& transform);
+		static void DrawMesh(const Mesh& mesh, ShaderProgram& program, const glm::mat4x4& transform);
 
 		// Draws a model
-		void DrawModel(const Model& model, const glm::mat4x4& transform);
+		static void DrawModel(const Model& model, ShaderProgram& program, const glm::mat4x4& transform);
 
 	public:
 
 		// Adds a light to render
-		int32 AddLight(const Light& light);
+		static int32 AddLight(const Light& light);
 
-		// Removes light at given index
-		void RemoveLight(const Light& light, int32 index);
-
-		// Updates the lights data at the given index
-		bool UpdateLight(const Light& light, int32 index);
-
-	public:
+	protected:
 
 		// Starts new frame of rendering
 		virtual void StartFrame();
@@ -80,33 +79,21 @@ namespace mods
 		// Cleans up resources
 		virtual bool Cleanup();
 
-	private:
+	protected:
 
-		// Adds a new directional light
-		int32 AddDirectionalLight(const DirectionalLight& light);
+		// Singleton instance
+		static Renderer* m_Singleton;
 
-		// Adds a new point light
-		int32 AddPointLight(const PointLight& light);
-
-		// Adds a new spot light
-		int32 AddSpotLight(const SpotLight& light);
+		static void Create(int32 width, int32 height);
+		static void Destroy();
 
 	protected:
 
-		// Handle to the geometry frame buffer
-		uint32 m_FBO;
+		// Target to draw geometry phase to
+		RenderTarget m_GTarget;
 
-		// Handle to the depth and stencil render buffer
-		uint32 m_RBO;
-
-		// Texture containing position data
-		Texture2D m_PosBuffer;
-
-		// Texture containing normals
-		Texture2D m_NorBuffer;
-
-		// Texture containing diffuse and specular
-		Texture2D m_AlbBuffer;
+		// Index to various textures of the geometry target
+		int32 m_PosIdx, m_NorIdx, m_AlbIdx;
 
 	protected:
 
@@ -118,22 +105,15 @@ namespace mods
 
 	protected:
 
-		// All directional lights in the scene
-		std::vector<DirectionalLightData> m_DirLights;
+		// Camera uniform buffer
+		CameraUniforms m_CameraUniform;
 
-		// Count of the amount of directional lights
-		int32 m_DirCount;
+		// Lights uniform buffer
+		LightUniforms m_LightUniform;
 
-		// All point lights in the scene
-		//std::array<PointLightData, 10> m_PntLights;
+	private:
 
-		// Count of the amount of point lights
-		int32 m_PntCount;
-
-		// All spot lights in the scene
-		//std::array<SpotLightData, 10> m_SptLights;
-
-		// Count of the amount of spot lights
-		int32 m_SptCount;
+		// TODO: make vertex array object
+		uint32 m_VAO, m_VBO, m_IBO;
 	};
 }

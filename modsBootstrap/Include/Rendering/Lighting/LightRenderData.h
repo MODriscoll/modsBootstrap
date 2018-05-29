@@ -15,6 +15,7 @@ namespace mods
 	{
 	public:
 
+		DirectionalLightData() = default;
 		DirectionalLightData(const DirectionalLight& light);
 
 	public:
@@ -36,6 +37,7 @@ namespace mods
 	{
 	public:
 
+		PointLightData() = default;
 		PointLightData(const PointLight& light);
 
 	public:
@@ -66,6 +68,7 @@ namespace mods
 	{
 	public:
 
+		SpotLightData() = default;
 		SpotLightData(const SpotLight& light);
 
 	public:

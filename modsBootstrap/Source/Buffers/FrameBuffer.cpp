@@ -72,7 +72,7 @@ namespace mods
 		for (int32 i = 0; i < types.size(); ++i)
 		{
 			Texture2D tex;
-			tex.Create(width, height, (eTextureChannels)types[i]);
+			//tex.Create(width, height, (eTextureFormatstypes[i]);
 
 			attachments.push_back(GL_COLOR_ATTACHMENT0 + i);
 			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, tex.GetHandle(), 0);

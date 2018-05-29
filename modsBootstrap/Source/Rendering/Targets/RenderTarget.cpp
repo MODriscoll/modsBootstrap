@@ -72,7 +72,7 @@ namespace mods
 		// Capture size before returning, so we
 		// have the index of the last texture
 		int32 index = m_Textures.size();
-		m_Textures.push_back(target);
+		m_Textures.push_back(std::move(target));
 		return index;
 	}
 

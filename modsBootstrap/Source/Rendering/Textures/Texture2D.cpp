@@ -10,7 +10,7 @@ namespace mods
 	Texture2D::Texture2D()
 		: m_Width(0)
 		, m_Height(0)
-		, m_Channels(eTextureChannels::Default)
+		, m_Channels(eTextureChannels::Unknown)
 	{
 
 	}
@@ -18,7 +18,7 @@ namespace mods
 	Texture2D::Texture2D(const std::string& path, eTextureChannels channels, bool sRGB)
 		: m_Width(0)
 		, m_Height(0)
-		, m_Channels(eTextureChannels::Default)
+		, m_Channels(eTextureChannels::Unknown)
 	{
 		Load(path, channels, sRGB);
 	}

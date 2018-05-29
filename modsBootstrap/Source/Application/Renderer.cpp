@@ -4,7 +4,10 @@
 #include "Rendering\Lighting\DirectionalLight.h"
 #include "Rendering\Lighting\SpotLight.h"
 
+#include "Rendering\Meshes\Model.h"
+
 #include <glm\gtc\type_ptr.hpp>
+#include <glm\gtc\matrix_inverse.hpp>
 
 #include <cassert>
 #include <iostream>
@@ -67,25 +70,10 @@ namespace mods
 	
 	// final size			4 bytes
 
-	Renderer::Renderer(int32 width, int32 height)
-		: m_FBO(0)
-		, m_RBO(0)
-		, m_DirCount(0)
-		, m_PntCount(0)
-		, m_SptCount(0)
+	Renderer::Renderer(uint32 width, uint32 height)
+		: m_GTarget(width, height)
 	{
 		
-	}
-
-	Renderer::Renderer(Renderer&& rhs)
-		: m_FBO(rhs.m_FBO)
-		, m_RBO(rhs.m_RBO)
-		, m_PosBuffer(std::move(rhs.m_PosBuffer))
-		, m_NorBuffer(std::move(rhs.m_NorBuffer))
-		, m_AlbBuffer(std::move(rhs.m_AlbBuffer))
-	{
-		rhs.m_FBO = 0;
-		rhs.m_RBO = 0;
 	}
 
 	Renderer::~Renderer()
@@ -93,31 +81,31 @@ namespace mods
 		Cleanup();
 	}
 
-	Renderer& Renderer::operator=(Renderer&& rhs)
+	void Renderer::SetCamera(const Camera& camera)
 	{
-		// Clear any existing buffer
-		Cleanup();
-
-		m_FBO = rhs.m_FBO;
-		m_RBO = rhs.m_RBO;
-		m_PosBuffer = std::move(rhs.m_PosBuffer);
-		m_NorBuffer = std::move(rhs.m_NorBuffer);
-		m_AlbBuffer = std::move(rhs.m_AlbBuffer);
-
-		rhs.m_FBO = 0;
-		rhs.m_RBO = 0;
-
-		return *this;
+		m_Singleton->m_CameraUniform.UpdateBuffer(camera);
 	}
 
-	void Renderer::DrawMesh(const Mesh& mesh, const glm::mat4x4& transform)
+	void Renderer::DrawMesh(const Mesh& mesh, ShaderProgram& program, const glm::mat4x4& transform)
 	{
-		
+		program.Bind();
+
+		glm::mat3x3 normal = glm::inverseTranspose(transform);
+		program.SetUniformValue("model", transform);
+		program.SetUniformValue("normal", normal);
+
+		mesh.Draw(program);
 	}
 
-	void Renderer::DrawModel(const Model& model, const glm::mat4x4& transform)
+	void Renderer::DrawModel(const Model& model, ShaderProgram& program, const glm::mat4x4& transform)
 	{
-		
+		program.Bind();
+
+		glm::mat3x3 normal = glm::inverseTranspose(transform);
+		program.SetUniformValue("model", transform);
+		program.SetUniformValue("normal", normal);
+
+		model.Draw(program);
 	}
 
 	int32 Renderer::AddLight(const Light& light)
@@ -126,17 +114,20 @@ namespace mods
 		{
 			case eLightType::Directional:
 			{
-
+				const DirectionalLight& dirlight = static_cast<const DirectionalLight&>(light);
+				m_Singleton->m_LightUniform.AddDirectionalLight(DirectionalLightData(dirlight));
 			}
 
 			case eLightType::Point:
 			{
-
+				const PointLight& pntlight = static_cast<const PointLight&>(light);
+				m_Singleton->m_LightUniform.AddPointLight(PointLightData(pntlight));
 			}
 
 			case eLightType::Spot:
 			{
-
+				const SpotLight& sptlight = static_cast<const SpotLight&>(light);
+				m_Singleton->m_LightUniform.AddSpotLight(SpotLightData(sptlight));
 			}
 
 			default:
@@ -148,117 +139,129 @@ namespace mods
 		return -1;
 	}
 
-	bool Renderer::UpdateLight(const Light& light, int32 index)
-	{
-		return true;
-	}
-
 	void Renderer::StartFrame()
 	{
 	}
 
 	void Renderer::StartGeometryPass()
 	{
+		m_GTarget.Bind();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+		glEnable(GL_DEPTH_TEST);
+		glEnable(GL_STENCIL_TEST);
 	}
 
 	void Renderer::StartLightingPass()
 	{
+		m_GTarget.Unbind();
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_STENCIL_TEST);
+
+		m_LShader.Bind();
+		m_GTarget.GetTarget(m_PosIdx).Bind(m_PosIdx);
+		m_GTarget.GetTarget(m_NorIdx).Bind(m_NorIdx);
+		m_GTarget.GetTarget(m_AlbIdx).Bind(m_AlbIdx);
+
+		glBindVertexArray(m_VAO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0);
+		glBindVertexArray(0);
 	}
 
 	void Renderer::StartPostProcessPass()
 	{
+		// Make function in render target
+		{
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, m_GTarget.GetHandle());
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+
+			// TODO: need to track size of viewport
+			// Copy the depth and stencil values to be potenially used for post processing
+			glBlitFramebuffer(0, 0, m_GTarget.GetWidth(), m_GTarget.GetHeight(), 0, 0, m_GTarget.GetWidth(), m_GTarget.GetHeight(), GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
+
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		}
+
+		m_PShader.Bind();
+
+		glBindVertexArray(m_VAO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0);
+		glBindVertexArray(0);
+
+		m_PShader.Unbind();
 	}
 
 	void Renderer::EndFrame()
 	{
+		
 	}
 
 	bool Renderer::Initialize(int32 width, int32 height)
 	{
 		assert(width >= 0 && height >= 0);
 
-		// Generate geometry buffer
-		glGenFramebuffers(1, &m_FBO);
-		glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
+		glFrontFace(GL_CCW);
 
-		// Generate textures to write geometry data to
-		// TODO: make it so the internal format size (float16, float32 can be set for textures)
-		m_PosBuffer.Create(width, height, eTextureChannels::RGB);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_PosBuffer.GetHandle(), 0);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-		m_NorBuffer.Create(width, height, eTextureChannels::RGB);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, m_NorBuffer.GetHandle(), 0);
-
-		// Diffuse stored in RGB, specular in alpha
-		m_AlbBuffer.Create(width, height, eTextureChannels::RGBA);
-		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, m_AlbBuffer.GetHandle(), 0);
-
-		uint32 buffers[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-
-		// Set the textures as the draw buffers
-		glDrawBuffers(3, buffers);
-
-		// Generate the depth and stencil buffer
-		glGenRenderbuffers(1, &m_RBO);
-		glBindRenderbuffer(GL_RENDERBUFFER, m_RBO);
-
-		// Generate buffer to store both depth and stencil values
-		glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
-		glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, m_RBO);
-
-		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+		float vertices[16] =
 		{
-			std::cout << "Error: Failed to generate frame buffer" << std::endl;
+			-1.f, -1.f,		0.f, 0.f,
+			1.f, -1.f,		1.f, 0.f,
+			1.f, 1.f,		1.f, 1.f,
+			-1.f, 1.f,		0.f, 1.f
+		};
+		byte indices[6] =
+		{
+			0, 2, 1,
+			0, 3, 2
+		};
 
-			Cleanup();
+		glGenVertexArrays(1, &m_VAO);
+		glBindVertexArray(m_VAO);
 
-			return false;
-		}
+		glGenBuffers(1, &m_VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 16, vertices, GL_STATIC_DRAW);
 
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glGenBuffers(1, &m_IBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(byte) * 6, indices, GL_STATIC_DRAW);
+		
 
-		return true;
+		m_PosIdx = m_GTarget.AttachTarget(eTextureFormat::RGB16F);
+		m_NorIdx = m_GTarget.AttachTarget(eTextureFormat::RGB16F);
+		m_AlbIdx = m_GTarget.AttachTarget(eTextureFormat::RGBA);
+
+		return m_GTarget.Create();
 	}
 
 	bool Renderer::Cleanup()
 	{
-		if (m_FBO != 0)
+		return m_GTarget.Destroy();
+	}
+
+	void Renderer::Create(int32 width, int32 height)
+	{
+		if (!m_Singleton)
 		{
-			glDeleteFramebuffers(1, &m_FBO);
-			glDeleteRenderbuffers(1, &m_RBO);
-
-			m_PosBuffer.Destroy();
-			m_NorBuffer.Destroy();
-			m_AlbBuffer.Destroy();
+			m_Singleton = new Renderer(width, height);
+			m_Singleton->Initialize(width, height);
 		}
-
-		return true;
 	}
 
-	int32 Renderer::AddDirectionalLight(const DirectionalLight& light)
+	void Renderer::Destroy()
 	{
-		if (m_DirCount >= m_DirLights.size())
-			return -1;
-
-		m_DirLights[m_DirCount] = DirectionalLightData(light);
-		return m_DirCount++;
-	}
-
-	int32 Renderer::AddPointLight(const PointLight& light)
-	{
-		//if (m_PntCount >= m_PntLights.size())
-		//	return -1;
-
-		//m_PntLights[m_PntCount] = PointLightData(light);
-		return m_PntCount++;
-	}
-
-	int32 Renderer::AddSpotLight(const SpotLight& light)
-	{
-		//if (m_SptCount >= m_SptLights.size())
-		//	return -1;
-
-		//m_SptLights[m_SptCount] = SpotLightData(light);
-		return m_SptCount++;
+		if (m_Singleton)
+		{
+			m_Singleton->Destroy();
+			delete m_Singleton;
+		}
 	}
 }
