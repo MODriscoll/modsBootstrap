@@ -100,9 +100,6 @@ namespace mods
 		// Shader for applying lighting
 		ShaderProgram m_LShader;
 
-		// Shader for post processing the frame
-		ShaderProgram m_PShader;
-
 	protected:
 
 		// Camera uniform buffer
@@ -115,5 +112,8 @@ namespace mods
 
 		// TODO: make vertex array object
 		uint32 m_VAO, m_VBO, m_IBO;
+
+		// Width and height of the viewport
+		int32 m_Width, m_Height;
 	};
 }

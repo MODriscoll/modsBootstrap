@@ -2,6 +2,13 @@
 
 #include <Application\Application.h>
 
+#include <Rendering\Meshes\Model.h>
+#include <Rendering\Shaders\Shader.h>
+
+#include <Rendering\Lighting\DirectionalLight.h>
+
+#include <Camera\Camera.h>
+
 class DebugApplication : public mods::Application
 {
 public:
@@ -16,4 +23,13 @@ protected:
 	
 	virtual void Tick(float deltaTime) override;
 	virtual void Draw() override;
+
+private:
+
+	mods::Camera m_Camera;
+
+	mods::ShaderProgram m_ModelShader;
+	mods::Model* m_Nanosuit;
+
+	mods::DirectionalLight m_DirLight;
 };

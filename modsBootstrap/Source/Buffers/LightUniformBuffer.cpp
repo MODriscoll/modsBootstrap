@@ -4,6 +4,8 @@
 
 namespace mods
 {
+	// STRUCTS get padded to be the multiplication of a vec4 (vec4 being 16 bytes)
+
 	// struct directionallight
 	// vec4 color				(16 bytes)	(offset=0)
 	// float ambientstrength	(4 bytes)	(offset=16)
@@ -11,6 +13,7 @@ namespace mods
 	// vec3 direction			(16 bytes)	(offset=24)
 
 	// final size				40 bytes
+	// padded size				48 bytes
 
 	// struct pointlight			
 	// vec4 color				(16 bytes)	(offset=0)
@@ -22,6 +25,7 @@ namespace mods
 	// float quadratic			(4 bytes)	(offset=48)
 
 	// final size				52 bytes
+	// padded size				64 bytes
 
 	// struct spotlight	
 	// vec4 color				(16 bytes)	(offset=0)
@@ -36,23 +40,24 @@ namespace mods
 	// float quadratic			(4 bytes)	(offset=72)
 
 	// final size				76 bytes
+	// padded size				80 bytes
 
-	// Light Uniform							binding = 1
-	// directionallight dirlights[4]			(160 bytes)	(offset=0)
-	// pointlight pntlights[10]					(520 bytes) (offset=160)
-	// spotlight sptlights[10]					(760 bytes) (offset=680)
-	// int dircount								(4 bytes)	(offset=1440)
-	// int pntcount								(4 bytes)	(offset=1444)
-	// int sptcount								(4 bytes)	(offset=1448)
+	// Light Uniform							binding = 1 (using padded size)
+	// directionallight dirlights[4]			(192 bytes)	(offset=0)
+	// pointlight pntlights[10]					(640 bytes) (offset=192)
+	// spotlight sptlights[10]					(800 bytes) (offset=832)
+	// int dircount								(4 bytes)	(offset=1632)
+	// int pntcount								(4 bytes)	(offset=1636)
+	// int sptcount								(4 bytes)	(offset=1640)
 
-	// final size								1452 bytes
+	// final size								1644 bytes
 
 	LightUniforms::LightUniforms()
-		: UniformBuffer(1452, 1)
+		: UniformBuffer(1644, 1)
 	{
 		// We start with no lights
 		int32 counts[3] = { 0, 0, 0 };
-		Fill(1440, 12, counts);
+		Fill(1632, 12, counts);
 	}
 
 	int32 LightUniforms::AddDirectionalLight(const DirectionalLightData& data)
@@ -70,14 +75,14 @@ namespace mods
 
 		// Update amount of lights
 		int32 count = index + 1;
-		Fill(1440, 4, &count);
+		Fill(1632, 4, &count);
 
 		return index;
 	}
 
 	int32 LightUniforms::AddPointLight(const PointLightData& data)
 	{
-		if (m_PointLights.size() >= 4)
+		if (m_PointLights.size() >= 10)
 			return -1;
 
 		// Record index
@@ -86,18 +91,18 @@ namespace mods
 		m_PointLights.push_back(data);
 
 		// Fill in the data for this light
-		Fill(160 + sizeof(PointLightData) * index, sizeof(PointLightData), (void*)&data);
+		Fill(192 + sizeof(PointLightData) * index, sizeof(PointLightData), (void*)&data);
 
 		// Update amount of lights
 		int32 count = index + 1;
-		Fill(1444, 4, &count);
+		Fill(1636, 4, &count);
 
 		return index;
 	}
 
 	int32 LightUniforms::AddSpotLight(const SpotLightData& data)
 	{
-		if (m_SpotLights.size() >= 4)
+		if (m_SpotLights.size() >= 10)
 			return -1;
 
 		// Record index
@@ -106,11 +111,11 @@ namespace mods
 		m_SpotLights.push_back(data);
 
 		// Fill in the data for this light
-		Fill(680 + sizeof(SpotLightData) * index, sizeof(SpotLightData), (void*)&data);
+		Fill(832 + sizeof(SpotLightData) * index, sizeof(SpotLightData), (void*)&data);
 
 		// Update amount of lights
 		int32 count = index + 1;
-		Fill(1448, 4, &count);
+		Fill(1640, 4, &count);
 
 		return index;
 	}

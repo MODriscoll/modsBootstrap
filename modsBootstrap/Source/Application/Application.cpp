@@ -2,6 +2,7 @@
 
 #include "IncludeGLFW.h"
 #include "Application\Input.h"
+#include "Application\Renderer.h"
 
 #include <glm\common.hpp>
 
@@ -18,17 +19,17 @@ namespace mods
 
 	}
 
-	bool Application::Run(int32 width, int32 height, const char* title)
+	int32 Application::Run(int32 width, int32 height, const char* title)
 	{
 		// Initialize base application
 		if (!Initialize(width, height, title))
-			return false;
+			return -1;
 
 		// Make sure the app starts successfully
 		if (!Startup())
 		{
 			Cleanup();
-			return false;
+			return -2;
 		}
 
 		m_AppStart = (float)glfwGetTime();
@@ -40,6 +41,8 @@ namespace mods
 			double frametime = 0.f;
 
 			int32 frames = 0;
+
+			Renderer* Render = Renderer::m_Singleton;
 
 			while (!glfwWindowShouldClose(m_Window))
 			{
@@ -73,23 +76,30 @@ namespace mods
 				// Perform tick
 				Tick((float)deltatime);
 
-				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+				Render->StartFrame();
+				Render->StartGeometryPass();
 
-				// Draw frame
+				// Draw geometry for this frame
 				Draw();
+
+				Render->StartLightingPass();
+				Render->StartPostProcessPass();
+				Render->EndFrame();
 
 				// Display new frame to screen
 				glfwSwapBuffers(m_Window);
 			}
 		}
 		
-		// Shutdown the application
-		bool bSuccess = Shutdown();
+		// Be sure to record if an error has happened
+		int32 error = 0;
+		if (!Shutdown())
+			error = 3;
 
-		// Clean up base application
-		bSuccess = bSuccess && Cleanup();
+		if (!Cleanup())
+			error = 4;
 
-		return bSuccess;
+		return error;
 	}
 
 	int32 Application::GetWindowWidth() const
@@ -130,12 +140,9 @@ namespace mods
 
 		glfwSetErrorCallback(HandleGLError);
 
-		// Get pointers to openGL functions
-		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-		{
-			glfwTerminate();
-			return false;
-		}
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 		// Create our window
 		m_Window = glfwCreateWindow(width, height, title, nullptr, nullptr);
@@ -147,6 +154,13 @@ namespace mods
 
 		glfwMakeContextCurrent(m_Window);
 
+		// Get pointers to openGL functions
+		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+		{
+			glfwTerminate();
+			return false;
+		}
+
 		// Initializes data with this window
 		glfwSetWindowUserPointer(m_Window, this);
 		glViewport(0, 0, width, height);
@@ -157,11 +171,15 @@ namespace mods
 		// Initialize input
 		Input::Create();
 
+		// Initialize renderer
+		Renderer::Create(width, height);
+
 		return true;
 	}
 
 	bool Application::Cleanup()
 	{
+		Renderer::Destroy();
 		Input::Destroy();
 
 		glfwDestroyWindow(m_Window);
@@ -180,5 +198,7 @@ namespace mods
 	void Application::HandleFramebufferResize(GLFWwindow* window, int32 width, int32 height)
 	{
 		glViewport(0, 0, width, height);
+		Renderer::m_Singleton->m_Width = width;
+		Renderer::m_Singleton->m_Height = height;
 	}
 }

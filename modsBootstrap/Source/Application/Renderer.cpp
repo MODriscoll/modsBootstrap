@@ -14,6 +14,8 @@
 
 namespace mods
 {
+	Renderer* Renderer::m_Singleton = nullptr;
+
 	// Camera Uniform		binding = 0
 	// mat4 projection		(64 bytes)	(offset=0)
 	// mat4 view			(64 bytes)	(offset=64)
@@ -22,13 +24,16 @@ namespace mods
 
 	// final size			160 bytes
 
+	// STRUCTS get padded to be the multiplication of a vec4 (vec4 being 16 bytes)
+
 	// struct directionallight
 	// vec4 color				(16 bytes)	(offset=0)
 	// float ambientstrength	(4 bytes)	(offset=16)
 	// float diffusestrength	(4 bytes)	(offset=20)
 	// vec3 direction			(16 bytes)	(offset=24)
-	
+
 	// final size				40 bytes
+	// padded size				48 bytes
 
 	// struct pointlight			
 	// vec4 color				(16 bytes)	(offset=0)
@@ -40,6 +45,7 @@ namespace mods
 	// float quadratic			(4 bytes)	(offset=48)
 
 	// final size				52 bytes
+	// padded size				64 bytes
 
 	// struct spotlight	
 	// vec4 color				(16 bytes)	(offset=0)
@@ -54,16 +60,17 @@ namespace mods
 	// float quadratic			(4 bytes)	(offset=72)
 
 	// final size				76 bytes
+	// padded size				80 bytes
 
-	// Light Uniform							binding = 1
-	// directionallight dirlights[4]			(160 bytes)	(offset=0)
-	// pointlight pntlights[10]					(520 bytes) (offset=160)
-	// spotlight sptlights[10]					(760 bytes) (offset=680)
-	// int dircount								(4 bytes)	(offset=1440)
-	// int pntcount								(4 bytes)	(offset=1444)
-	// int sptcount								(4 bytes)	(offset=1448)
+	// Light Uniform							binding = 1 (using padded size)
+	// directionallight dirlights[4]			(192 bytes)	(offset=0)
+	// pointlight pntlights[10]					(640 bytes) (offset=192)
+	// spotlight sptlights[10]					(800 bytes) (offset=832)
+	// int dircount								(4 bytes)	(offset=1632)
+	// int pntcount								(4 bytes)	(offset=1636)
+	// int sptcount								(4 bytes)	(offset=1640)
 
-	// final size								1452 bytes
+	// final size								1644 bytes
 
 	// Game Uniform			binding = 2
 	// float time			(4 bytes)	(offset=0)
@@ -72,6 +79,8 @@ namespace mods
 
 	Renderer::Renderer(uint32 width, uint32 height)
 		: m_GTarget(width, height)
+		, m_Width(width)
+		, m_Height(height)
 	{
 		
 	}
@@ -90,9 +99,9 @@ namespace mods
 	{
 		program.Bind();
 
-		glm::mat3x3 normal = glm::inverseTranspose(transform);
+		glm::mat3 normal = glm::inverseTranspose(transform);
 		program.SetUniformValue("model", transform);
-		program.SetUniformValue("normal", normal);
+		program.SetUniformValue("normat", normal);
 
 		mesh.Draw(program);
 	}
@@ -101,9 +110,9 @@ namespace mods
 	{
 		program.Bind();
 
-		glm::mat3x3 normal = glm::inverseTranspose(transform);
+		glm::mat3 normal = glm::inverseTranspose(transform);
 		program.SetUniformValue("model", transform);
-		program.SetUniformValue("normal", normal);
+		program.SetUniformValue("normat", normal);
 
 		model.Draw(program);
 	}
@@ -115,19 +124,19 @@ namespace mods
 			case eLightType::Directional:
 			{
 				const DirectionalLight& dirlight = static_cast<const DirectionalLight&>(light);
-				m_Singleton->m_LightUniform.AddDirectionalLight(DirectionalLightData(dirlight));
+				return m_Singleton->m_LightUniform.AddDirectionalLight(DirectionalLightData(dirlight));
 			}
 
 			case eLightType::Point:
 			{
 				const PointLight& pntlight = static_cast<const PointLight&>(light);
-				m_Singleton->m_LightUniform.AddPointLight(PointLightData(pntlight));
+				return m_Singleton->m_LightUniform.AddPointLight(PointLightData(pntlight));
 			}
 
 			case eLightType::Spot:
 			{
 				const SpotLight& sptlight = static_cast<const SpotLight&>(light);
-				m_Singleton->m_LightUniform.AddSpotLight(SpotLightData(sptlight));
+				return m_Singleton->m_LightUniform.AddSpotLight(SpotLightData(sptlight));
 			}
 
 			default:
@@ -185,13 +194,13 @@ namespace mods
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 
-		m_PShader.Bind();
+		/*m_PShader.Bind();
 
 		glBindVertexArray(m_VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0);
 		glBindVertexArray(0);
 
-		m_PShader.Unbind();
+		m_PShader.Unbind();*/
 	}
 
 	void Renderer::EndFrame()
@@ -203,12 +212,11 @@ namespace mods
 	{
 		assert(width >= 0 && height >= 0);
 
+		//glEnable(GL_BLEND);
+		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
-		glFrontFace(GL_CCW);
-
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		float vertices[16] =
 		{
@@ -219,8 +227,8 @@ namespace mods
 		};
 		byte indices[6] =
 		{
-			0, 2, 1,
-			0, 3, 2
+			0, 1, 2,
+			0, 2, 3
 		};
 
 		glGenVertexArrays(1, &m_VAO);
@@ -233,13 +241,31 @@ namespace mods
 		glGenBuffers(1, &m_IBO);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(byte) * 6, indices, GL_STATIC_DRAW);
-		
+
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)0);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(sizeof(float) * 2));
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
+
+		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 		m_PosIdx = m_GTarget.AttachTarget(eTextureFormat::RGB16F);
 		m_NorIdx = m_GTarget.AttachTarget(eTextureFormat::RGB16F);
 		m_AlbIdx = m_GTarget.AttachTarget(eTextureFormat::RGBA);
 
-		return m_GTarget.Create();
+		assert(m_GTarget.Create());
+
+		m_LShader.Load("Resources/Shaders/GLight.vert", "Resources/Shaders/GLight.frag");
+
+		m_LShader.Bind();
+		m_LShader.SetUniformValue("target.gPosition", m_PosIdx);
+		m_LShader.SetUniformValue("target.gNormal", m_NorIdx);
+		m_LShader.SetUniformValue("target.gAlbedoSpec", m_AlbIdx);
+		m_LShader.Unbind();
+
+		return true;
 	}
 
 	bool Renderer::Cleanup()
@@ -260,7 +286,7 @@ namespace mods
 	{
 		if (m_Singleton)
 		{
-			m_Singleton->Destroy();
+			m_Singleton->Cleanup();
 			delete m_Singleton;
 		}
 	}

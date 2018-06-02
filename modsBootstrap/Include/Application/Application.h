@@ -19,8 +19,8 @@ namespace mods
 	public:
 
 		// Runs the application.
-		// Returns if execution failed
-		bool Run(int32 width, int32 height, const char* title);
+		// Returns result of execution
+		int32 Run(int32 width, int32 height, const char* title);
 
 	public:
 

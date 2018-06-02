@@ -1,5 +1,10 @@
-#version 400 core
+#version 450 core
 
+layout (location = 0) out vec3 gPosition;
+layout (location = 1) out vec3 gNormal;
+layout (location = 2) out vec4 gAlbedoSpec;
+
+in vec3 fPosition;
 in vec3 fNormal;
 in vec2 fTexCoords;
 
@@ -11,11 +16,10 @@ struct Material
 
 uniform Material material;
 
-out vec4 FragColor;
-
 void main()
 {
-	vec4 dif = texture(material.diffuse1, fTexCoords);
-	vec4 spc = vec4(0.f);//texture(material.specular1, fTexCoords);
-	FragColor = dif + spc;
+	gPosition = fPosition;
+	gNormal = fNormal;
+	gAlbedoSpec.rgb = texture(material.diffuse1, fTexCoords).rgb;
+	gAlbedoSpec.a = texture(material.specular1, fTexCoords).r;
 }

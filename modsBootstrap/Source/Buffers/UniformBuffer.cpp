@@ -71,11 +71,11 @@ namespace mods
 		assert(size >= 4);
 
 		glGenBuffers(1, &m_Handle);
-		glBindBuffer(GL_UNIFORM_BUFFER, m_Handle);
-		
+		glBindBuffer(GL_UNIFORM_BUFFER, m_Handle);		
 		glBufferData(GL_UNIFORM_BUFFER, size, data, GL_DYNAMIC_DRAW);
-
 		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+		glBindBufferBase(GL_UNIFORM_BUFFER, m_Binding, m_Handle);
 	}
 
 	void UniformBuffer::Destroy()
