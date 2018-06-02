@@ -129,8 +129,10 @@ namespace mods
 			return false;
 		}
 
-		glBindFramebuffer(GL_FRAMEBUFFER, m_FBO);
-		glBindRenderbuffer(GL_RENDERBUFFER, m_RBO);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+		return true;
 	}
 
 	bool RenderTarget::Destroy()

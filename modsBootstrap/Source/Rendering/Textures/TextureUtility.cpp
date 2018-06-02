@@ -75,6 +75,8 @@ namespace mods
 					assert(false);
 				}
 			}
+
+			return 0;
 		}
 
 		eTextureChannels GetTextureChannels(uint32 format)
