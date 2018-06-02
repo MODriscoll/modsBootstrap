@@ -107,11 +107,11 @@ namespace mods
 	{
 		if (action == eInputAction::Hold)
 		{
-			m_Keys[key] = (1 << static_cast<byte>(eInputStatus::Down));
+			m_Keys[key] = static_cast<byte>(eInputStatus::Down);
 		}
 		else
 		{
-			m_Keys[key] = (1 << static_cast<byte>(action));
+			m_Keys[key] = static_cast<byte>(action);
 			m_PolledKeys.push_back(key);
 		}
 	}
@@ -127,12 +127,21 @@ namespace mods
 		m_MouseScroll += yoffset;
 	}
 
+	byte Input::GetKeyStatus(eInputKey key)
+	{
+		auto it = m_Keys.find(key);
+		if (it != m_Keys.cend())
+			return it->second;
+		else
+			return m_Keys[key] = static_cast<byte>(eInputStatus::Up);
+	}
+
 	void Input::Poll()
 	{
 		// Update status of polled keys
 		{
 			for (eInputKey key : m_PolledKeys)
-				m_Keys[key] <<= 2;
+				m_Keys[key] += 2;
 
 			m_PolledKeys.clear();
 		}
@@ -147,25 +156,29 @@ namespace mods
 	bool Input::IsKeyDown(eInputKey key)
 	{
 		Input& input = Instance();
-		return input.m_Keys[key] == static_cast<byte>(eInputStatus::IsDown);
+		byte value = input.GetKeyStatus(key);
+		return (value == static_cast<byte>(eInputStatus::Down) || value == static_cast<byte>(eInputStatus::Press));
 	}
 
 	bool Input::IsKeyUp(eInputKey key)
 	{
 		Input& input = Instance();
-		return input.m_Keys[key] == static_cast<byte>(eInputStatus::IsUp);
+		byte value = input.GetKeyStatus(key);
+		return (value == static_cast<byte>(eInputStatus::Up) || value == static_cast<byte>(eInputStatus::Release));
 	}
 
 	bool Input::WasKeyPressed(eInputKey key)
 	{
 		Input& input = Instance();
-		return input.m_Keys[key] == static_cast<byte>(eInputStatus::Press);
+		byte value = input.GetKeyStatus(key);
+		return value == static_cast<byte>(eInputStatus::Press);
 	}
 
 	bool Input::WasKeyReleased(eInputKey key)
 	{
 		Input& input = Instance();
-		return input.m_Keys[key] == static_cast<byte>(eInputStatus::Release);
+		byte value = input.GetKeyStatus(key);
+		return value == static_cast<byte>(eInputStatus::Release);
 	}
 
 	float Input::GetMouseX()

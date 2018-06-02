@@ -151,6 +151,11 @@ namespace mods
 		RightAlt			= 346
 	};
 
+	inline bool operator < (eInputKey lhs, eInputKey rhs)
+	{
+		return (static_cast<int32>(lhs) < static_cast<int32>(rhs));
+	}
+
 	enum class eInputAction : int32
 	{
 		Release				= 0,
@@ -169,11 +174,7 @@ namespace mods
 		Press		= 1,
 
 		Up			= 2,
-		Down		= 3,
-		
-		// Internal types
-		IsUp		= Release | Up,
-		IsDown		= Press | Down
+		Down		= 3
 	};
 
 	struct InputBinding
@@ -287,6 +288,10 @@ namespace mods
 
 		// Handles given mouse scroll
 		void HandleMouseScrollEvent(double yoffset);
+
+		// Get the status of a key
+		// Initializes key if it doesn't exist
+		byte GetKeyStatus(eInputKey key);
 
 	private:
 
