@@ -3,10 +3,15 @@
 layout (location = 0) in vec3 vPosition;
 layout (location = 1) in vec3 vNormal;
 layout (location = 2) in vec2 vTexCoords;
+layout (location = 3) in vec3 vTangent;
+layout (location = 4) in vec3 vBitangent;
 
-out vec3 fPosition;
-out vec3 fNormal;
-out vec2 fTexCoords;
+out vData
+{
+	vec3 position;
+	mat3 tbn;
+	vec2 texcoords;
+} v;
 
 layout (std140, binding = 0) uniform Camera
 {
@@ -21,13 +26,26 @@ uniform mat3 normat;
 
 void main()
 {
+	// Position of vertex in world
 	vec4 world = model * vec4(vPosition, 1.f);
 
-	fPosition = world.xyz;
+	v.position = world.xyz;
 	
-	fNormal = normat * vNormal;
+	// Calculate normal (using gram-schmidt)
+	{
+		vec3 T = normalize(normat * vTangent);
+		vec3 N = normalize(normat * vNormal);
+		
+		// Re-orthogonalize tangent with respect to the normal
+		T = normalize(T - dot(T, N) * N);
+		
+		// Retrieve perpendicular bitangent 
+		vec3 B = cross(N, T);
+		
+		v.tbn = mat3(T, B, N);
+	}
 	
-	fTexCoords = vTexCoords;
+	v.texcoords = vTexCoords;
 	
 	gl_Position = projection * view * world;
 }

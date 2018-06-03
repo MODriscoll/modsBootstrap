@@ -37,10 +37,10 @@ namespace mods
 			std::vector<std::shared_ptr<Texture2D>>& maps,
 			std::unordered_map<std::string, uint32>& table);
 
-		bool LoadModelFromSource(const std::string& path, ModelData& data, uint32 procflags)
+		bool LoadModelFromSource(const std::string& path, ModelData& data, eProcessModel process)
 		{
 			Assimp::Importer importer;
-			const aiScene* scene = importer.ReadFile(path, procflags);
+			const aiScene* scene = importer.ReadFile(path, (uint32)process);
 
 			// Model failed to load
 			if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
@@ -97,6 +97,12 @@ namespace mods
 				if (mesh.HasTextureCoords(0))
 					vertex.TexCoords = ToVec2(mesh.mTextureCoords[0][i]);
 
+				if (mesh.HasTangentsAndBitangents())
+				{
+					vertex.Tangent = ToVec3(mesh.mTangents[i]);
+					vertex.Bitangent = ToVec3(mesh.mBitangents[i]);
+				}
+
 				vertices.emplace_back(std::move(vertex));
 			}
 
@@ -118,6 +124,7 @@ namespace mods
 
 				LoadMapFromMaterial(mat, material, aiTextureType::aiTextureType_DIFFUSE, eMaterialMaps::Diffuse, directory, maps, table);
 				LoadMapFromMaterial(mat, material, aiTextureType::aiTextureType_SPECULAR, eMaterialMaps::Specular, directory, maps, table);
+				LoadMapFromMaterial(mat, material, aiTextureType::aiTextureType_NORMALS, eMaterialMaps::Normal, directory, maps, table);
 			}
 
 			#if _DEBUG

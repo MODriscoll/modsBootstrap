@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Types.h"
+#include "MeshTypes.h"
 
 #include "Rendering\Materials\Material.h"
 
@@ -35,6 +35,12 @@ namespace mods
 
 		// Tex Coords of vertex
 		glm::vec2 TexCoords;
+
+		// Tangent of this vertex
+		glm::vec3 Tangent;
+
+		// Bitangent of this vertex
+		glm::vec3 Bitangent;
 	};
 
 	// TODO: Static mesh and dynamic mesh

@@ -10,7 +10,8 @@ namespace mods
 	{
 	public:
 
-		Model(const std::string& path);
+		Model() = default;
+		Model(const std::string& path, eProcessModel process = eProcessModel::Triangulate);
 		Model(const Model& rhs) = delete;
 		Model(Model&& rhs) = default;
 
@@ -21,13 +22,15 @@ namespace mods
 	
 	public:
 
+		// Loads and generates the meshes from the given file
+		bool Load(const std::string& path, eProcessModel process = eProcessModel::Triangulate);
+
 		// Draw the model using given shader program
 		void Draw(ShaderProgram& program) const;
 
-	private:
+	public:
 
-		// Loads and generates the meshes from the given file
-		void LoadModel(const std::string& path);
+		inline bool IsValid() const { return !m_Meshes.empty(); }
 
 	private:
 

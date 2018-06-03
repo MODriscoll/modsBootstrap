@@ -4,24 +4,24 @@
 
 namespace mods
 {
-	Model::Model(const std::string& path)
+	Model::Model(const std::string& path, eProcessModel process)
 	{
-		LoadModel(path);
+		Load(path, process);
+	}
+
+	bool Model::Load(const std::string& path, eProcessModel process)
+	{
+		detail::ModelData data;
+		if (!detail::LoadModelFromSource(path, data, process))
+			return false;
+		
+		m_Meshes = std::move(data.Meshes);
+		m_Directory = path;
 	}
 
 	void Model::Draw(ShaderProgram& program) const
 	{
 		for (const Mesh& mesh : m_Meshes)
 			mesh.Draw(program);
-	}
-
-	void Model::LoadModel(const std::string& path)
-	{
-		detail::ModelData data;
-		if (detail::LoadModelFromSource(path, data, aiProcess_Triangulate))
-		{
-			m_Meshes = std::move(data.Meshes);
-			m_Directory = path;
-		}
 	}
 }

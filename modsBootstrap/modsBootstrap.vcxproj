@@ -85,6 +85,7 @@
     <ClInclude Include="Include\Rendering\Materials\Parameters\Vec3Parameter.h" />
     <ClInclude Include="Include\Rendering\Materials\Parameters\Vec4Parameter.h" />
     <ClInclude Include="Include\Rendering\Meshes\Mesh.h" />
+    <ClInclude Include="Include\Rendering\Meshes\MeshTypes.h" />
     <ClInclude Include="Include\Rendering\Meshes\MeshUtility.h" />
     <ClInclude Include="Include\Rendering\Meshes\Model.h" />
     <ClInclude Include="Include\Rendering\Shaders\Shader.h" />

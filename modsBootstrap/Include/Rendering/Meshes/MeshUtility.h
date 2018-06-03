@@ -4,9 +4,6 @@
 
 #include <string>
 
-// for now, implement own flags
-#include <assimp\postprocess.h>
-
 namespace mods
 {
 	namespace detail
@@ -24,6 +21,9 @@ namespace mods
 
 		// Loads a model from the given file path
 		// TODO: make enum for proc flags
-		bool LoadModelFromSource(const std::string& path, ModelData& data, uint32 procflags);
+		bool LoadModelFromSource(
+			const std::string& path, 
+			ModelData& data, 
+			eProcessModel process = eProcessModel::Triangulate);
 	}
 }

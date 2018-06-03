@@ -29,7 +29,7 @@ private:
 	mods::Camera m_Camera;
 
 	mods::ShaderProgram m_ModelShader;
-	mods::Model* m_Nanosuit;
+	mods::Model m_Nanosuit;
 
 	mods::SpotLight m_Flashlight;
 	mods::int32 m_FlashlightIndex;

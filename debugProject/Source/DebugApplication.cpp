@@ -8,6 +8,8 @@
 
 #include <glm\ext.hpp>
 
+#include <iostream>
+
 using namespace mods;
 
 DebugApplication::DebugApplication()
@@ -21,7 +23,7 @@ DebugApplication::~DebugApplication()
 bool DebugApplication::Startup()
 {
 	m_ModelShader.Load("Resources/Shaders/ModelVertex.vert", "Resources/Shaders/ModelFragment.frag");
-	m_Nanosuit = new mods::Model("Resources/Models/Nanosuit/nanosuit.obj");
+	m_Nanosuit.Load("Resources/Models/Nanosuit/nanosuit.obj", eProcessModel::Triangulate);
 
 	m_Camera.Position = glm::vec3(10.f);
 	m_Camera.LookAt(glm::vec3(0.f));
@@ -40,7 +42,7 @@ bool DebugApplication::Startup()
 	{
 		mods::PointLight pntlight;
 
-		pntlight.Color = glm::vec3(0.5f, 0.7f, 0.2f);
+		pntlight.Color = glm::vec3(1.f, 0.f, 0.f);
 		pntlight.Position = glm::vec3(3.f, 12.f, 4.f);
 		
 		Renderer::AddLight(pntlight);
@@ -59,8 +61,6 @@ bool DebugApplication::Startup()
 
 bool DebugApplication::Shutdown()
 {
-	delete m_Nanosuit;
-
 	return true;
 }
 
@@ -111,5 +111,5 @@ void DebugApplication::Draw()
 {
 	Renderer::SetCamera(m_Camera);
 
-	Renderer::DrawModel(*m_Nanosuit, m_ModelShader, glm::mat4(1.f));
+	Renderer::DrawModel(m_Nanosuit, m_ModelShader, glm::mat4(1.f));
 }
