@@ -20,19 +20,11 @@ namespace mods
 
 	void SpotLight::SetInnerCutoff(float cutoff)
 	{
-		cutoff = glm::radians(cutoff);
-		m_InnerCutoff = glm::max(0.f, cutoff);
-
-		// Assure outer is larger or equal
-		m_OuterCutoff = glm::max(m_InnerCutoff, m_OuterCutoff);
+		m_InnerCutoff = glm::cos(glm::radians(cutoff));
 	}
 
 	void SpotLight::SetOuterCutoff(float cutoff)
 	{
-		cutoff = glm::radians(cutoff);
-		m_OuterCutoff = glm::max(0.f, cutoff);
-
-		// Assure inter is smaller or equal
-		m_InnerCutoff = glm::min(m_InnerCutoff, m_OuterCutoff);
+		m_OuterCutoff = glm::cos(glm::radians(cutoff));
 	}
 }

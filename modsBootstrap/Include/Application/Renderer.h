@@ -54,6 +54,9 @@ namespace mods
 		// Adds a light to render
 		static int32 AddLight(const Light& light);
 
+		// Updates a light being rendered
+		static void UpdateLight(const Light& light, int32 index);
+
 	protected:
 
 		// Starts new frame of rendering

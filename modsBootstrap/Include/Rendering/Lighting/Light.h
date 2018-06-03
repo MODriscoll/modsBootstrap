@@ -2,7 +2,7 @@
 
 #include "Types.h"
 
-#include <glm\vec4.hpp>
+#include <glm\vec3.hpp>
 
 namespace mods
 {
@@ -43,7 +43,7 @@ namespace mods
 	public:
 
 		// Color of this light
-		glm::vec4 Color;
+		glm::vec3 Color;
 
 	protected:
 

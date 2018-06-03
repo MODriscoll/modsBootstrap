@@ -10,8 +10,8 @@ namespace mods
 
 		LightAttenuation()
 			: Constant(1.f)
-			, Linear(0.09f)
-			, Quadratic(0.032f)
+			, Linear(0.022f)
+			, Quadratic(0.0019f)
 		{
 
 		}

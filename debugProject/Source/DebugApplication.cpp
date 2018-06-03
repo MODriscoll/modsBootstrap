@@ -3,6 +3,7 @@
 #include <Application\Input.h>
 #include <Application\Renderer.h>
 
+#include <Rendering\Lighting\DirectionalLight.h>
 #include <Rendering\Lighting\PointLight.h>
 
 #include <glm\ext.hpp>
@@ -22,14 +23,36 @@ bool DebugApplication::Startup()
 	m_ModelShader.Load("Resources/Shaders/ModelVertex.vert", "Resources/Shaders/ModelFragment.frag");
 	m_Nanosuit = new mods::Model("Resources/Models/Nanosuit/nanosuit.obj");
 
-	//m_DirLight.SetDirection(glm::vec3(0.f, -1.f, 0.f));
-	m_DirLight.SetDirection(glm::vec3(-0.2f, -1.0f, -0.3f));
-	m_DirLight.Color = glm::vec4(1.f, 0.f, 0.f, 1.f);
-
-	m_Camera.Position = glm::vec3(0.f, 5.f, 8.f);
+	m_Camera.Position = glm::vec3(10.f);
 	m_Camera.LookAt(glm::vec3(0.f));
 
-	Renderer::AddLight(m_DirLight);
+	// Simple directional light
+	{
+		mods::DirectionalLight dirlight;
+
+		dirlight.Color.r = 0.f;
+		dirlight.SetDirection(glm::vec3(0.f, -1.f, 0.f));
+
+		Renderer::AddLight(dirlight);
+	}
+
+	// Simple point light
+	{
+		mods::PointLight pntlight;
+
+		pntlight.Color = glm::vec3(0.5f, 0.7f, 0.2f);
+		pntlight.Position = glm::vec3(3.f, 12.f, 4.f);
+		
+		Renderer::AddLight(pntlight);
+	}
+
+	m_Flashlight.Color = glm::vec3(1.f, 1.f, 1.f);
+	m_Flashlight.Position = m_Camera.Position;
+	m_Flashlight.SetDirection(m_Camera.GetHeading());
+	m_Flashlight.SetInnerCutoff(12.5f);
+	m_Flashlight.SetOuterCutoff(17.5f);
+
+	m_FlashlightIndex = Renderer::AddLight(m_Flashlight);
 
 	return true;
 }
@@ -76,7 +99,11 @@ void DebugApplication::Tick(float deltaTime)
 			rot.x = glm::clamp(rot.x + DeltaY, -89.f, 89.f);
 			
 			m_Camera.SetRotation(rot);
-		}
+		}	
+
+		m_Flashlight.Position = m_Camera.Position;
+		m_Flashlight.SetDirection(m_Camera.GetHeading());
+		Renderer::UpdateLight(m_Flashlight, m_FlashlightIndex);
 	}
 }
 

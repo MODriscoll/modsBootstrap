@@ -6,7 +6,7 @@
 namespace mods
 {
 	DirectionalLightData::DirectionalLightData(const DirectionalLight& light)
-		: Color(light.Color)
+		: Color(light.Color, 1.f)
 		, AmbientStrength(light.GetAmbientStrength())
 		, DiffuseStrength(light.GetDiffuseStrength())
 		, Direction(light.GetDirection(), 0.f)
@@ -15,10 +15,10 @@ namespace mods
 	}
 
 	PointLightData::PointLightData(const PointLight& light)
-		: Color(light.Color)
+		: Color(light.Color, 1.f)
 		, AmbientStrength(light.GetAmbientStrength())
 		, DiffuseStrength(light.GetDiffuseStrength())
-		, Position(light.Position, 1.f)
+		, Position(light.Position)
 		, Constant(light.Attenuation.Constant)
 		, Linear(light.Attenuation.Linear)
 		, Quadratic(light.Attenuation.Quadratic)
@@ -27,11 +27,11 @@ namespace mods
 	}
 
 	SpotLightData::SpotLightData(const SpotLight& light)
-		: Color(light.Color)
+		: Color(light.Color, 1.f)
 		, AmbientStrength(light.GetAmbientStrength())
 		, DiffuseStrength(light.GetDiffuseStrength())
 		, Position(light.Position, 1.f)
-		, Direction(light.GetDirection(), 0.f)
+		, Direction(light.GetDirection())
 		, InnerCutoff(light.GetInnerCutoff())
 		, OuterCutoff(light.GetOuterCutoff())
 		, Constant(light.Attenuation.Constant)

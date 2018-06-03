@@ -26,6 +26,15 @@ namespace mods
 		// Adds new spot light to the buffer
 		int32 AddSpotLight(const SpotLightData& data);
 
+		// Updates an existing directional light
+		void UpdateDirectionalLight(const DirectionalLightData& data, int32 index);
+
+		// Updates an existing point light
+		void UpdatePointLight(const PointLightData& data, int32 index);
+
+		// Updates an existing spot light
+		void UpdateSpotLight(const SpotLightData& data, int32 index);
+
 	protected:
 
 		// All directional lights

@@ -25,21 +25,21 @@ layout (std140, binding = 0) uniform Camera
 
 struct DirectionalLight
 {
-	vec4 color;
+	vec3 color;
 	float ambientstrength;
-	float specularstrength;	
+	float diffusestrength;	
 	
 	vec3 direction;
 };
 
 struct PointLight
 {
-	vec4 color;
+	vec3 color;
 	float ambientstrength;
-	float specularstrength;	
+	float diffusestrength;	
 	
 	vec3 position;
-	
+
 	float constant;
 	float linear;
 	float quadratic;
@@ -47,9 +47,9 @@ struct PointLight
 
 struct SpotLight
 {
-	vec4 color;
+	vec3 color;
 	float ambientstrength;
-	float specularstrength;
+	float diffusestrength;
 	
 	vec3 position;
 	vec3 direction;
@@ -86,12 +86,12 @@ vec3 ApplyDirectionalLight(DirectionalLight light, vec3 fNormal, vec3 viewdir)
 	
 	// Diffuse
 	float diff = max(dot(fNormal, lightdir), 0.f);
-	vec3 diffuse = light.color.rgb * diff * texture(target.gAlbedoSpec, fTexCoords).rgb;
+	vec3 diffuse = light.color * diff * texture(target.gAlbedoSpec, fTexCoords).rgb;
 	
 	// Specular
 	vec3 reflectdir = reflect(-lightdir, fNormal);
 	float spec = pow(max(dot(viewdir, reflectdir), 0.f), 32);
-	vec3 specular = light.color.rgb * spec * texture(target.gAlbedoSpec, fTexCoords).a;
+	vec3 specular = light.color * spec * texture(target.gAlbedoSpec, fTexCoords).a;
 	
 	return diffuse + specular;
 }
@@ -103,12 +103,12 @@ vec3 ApplyPointLight(PointLight light, vec3 fPosition, vec3 fNormal, vec3 viewdi
 	
 	// Diffuse
 	float diff = max(dot(fNormal, lightdir), 0.f);
-	vec3 diffuse = light.color.rgb * diff * texture(target.gAlbedoSpec, fTexCoords).rgb;
+	vec3 diffuse = light.color * diff * texture(target.gAlbedoSpec, fTexCoords).rgb;
 	
 	// Specular
 	vec3 reflectdir = reflect(-lightdir, fNormal);
 	float spec = pow(max(dot(viewdir, reflectdir), 0.f), 32);
-	vec3 specular = light.color.rgb * spec * texture(target.gAlbedoSpec, fTexCoords).a;
+	vec3 specular = light.color * spec * texture(target.gAlbedoSpec, fTexCoords).a;
 	
 	// Attenuation
 	float attenuation = GetAttenuation(length(displacement), light.constant, light.linear, light.quadratic);
@@ -126,12 +126,12 @@ vec3 ApplySpotLight(SpotLight light, vec3 fPosition, vec3 fNormal, vec3 viewdir)
 	
 	// Diffuse
 	float diff = max(dot(fNormal, lightdir), 0.f);
-	vec3 diffuse = light.color.rgb * diff * texture(target.gAlbedoSpec, fTexCoords).rgb;
+	vec3 diffuse = light.color * diff * texture(target.gAlbedoSpec, fTexCoords).rgb;
 	
 	// Specular
 	vec3 reflectdir = reflect(-lightdir, fNormal);
 	float spec = pow(max(dot(viewdir, reflectdir), 0.f), 32);
-	vec3 specular = light.color.rgb * spec * texture(target.gAlbedoSpec, fTexCoords).a;
+	vec3 specular = light.color * spec * texture(target.gAlbedoSpec, fTexCoords).a;
 	
 	// Soft edges
 	float theta = dot(lightdir, normalize(-light.direction));

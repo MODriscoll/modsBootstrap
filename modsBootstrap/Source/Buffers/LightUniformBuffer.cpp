@@ -71,7 +71,7 @@ namespace mods
 		m_DirectionalLights.push_back(data);
 
 		// Fill in the data for this light
-		Fill(sizeof(DirectionalLightData) * index, sizeof(DirectionalLightData), (void*)&data);
+		Fill(48 * index, sizeof(DirectionalLightData), (void*)&data);
 
 		// Update amount of lights
 		int32 count = index + 1;
@@ -91,7 +91,7 @@ namespace mods
 		m_PointLights.push_back(data);
 
 		// Fill in the data for this light
-		Fill(192 + sizeof(PointLightData) * index, sizeof(PointLightData), (void*)&data);
+		Fill(192 + (64 * index), sizeof(PointLightData), (void*)&data);
 
 		// Update amount of lights
 		int32 count = index + 1;
@@ -111,12 +111,20 @@ namespace mods
 		m_SpotLights.push_back(data);
 
 		// Fill in the data for this light
-		Fill(832 + sizeof(SpotLightData) * index, sizeof(SpotLightData), (void*)&data);
+		Fill(832 + (80 * index), sizeof(SpotLightData), (void*)&data);
 
 		// Update amount of lights
 		int32 count = index + 1;
 		Fill(1640, 4, &count);
 
 		return index;
+	}
+
+	void LightUniforms::UpdateSpotLight(const SpotLightData& data, int32 index)
+	{
+		m_SpotLights[index] = data;
+
+		// Fill in the data for this light
+		Fill(832 + (80 * index), sizeof(SpotLightData), (void*)&data);
 	}
 }

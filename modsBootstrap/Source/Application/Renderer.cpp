@@ -148,6 +148,34 @@ namespace mods
 		return -1;
 	}
 
+	void Renderer::UpdateLight(const Light& light, int32 index)
+	{
+		switch (light.GetLightType())
+		{
+			case eLightType::Directional:
+			{
+				break;
+			}
+
+			case eLightType::Point:
+			{
+				break;
+			}
+
+			case eLightType::Spot:
+			{
+				const SpotLight& sptlight = static_cast<const SpotLight&>(light);
+				m_Singleton->m_LightUniform.UpdateSpotLight(SpotLightData(sptlight), index);
+				break;
+			}
+
+			default:
+			{
+				assert(false);
+			}
+		}
+	}
+
 	void Renderer::StartFrame()
 	{
 	}
