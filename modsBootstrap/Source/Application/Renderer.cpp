@@ -79,6 +79,7 @@ namespace mods
 
 	Renderer::Renderer(uint32 width, uint32 height)
 		: m_GTarget(width, height)
+		, m_LTarget(width, height)
 		, m_Width(width)
 		, m_Height(height)
 	{
@@ -135,8 +136,9 @@ namespace mods
 
 			case eLightType::Spot:
 			{
-				const SpotLight& sptlight = static_cast<const SpotLight&>(light);
-				return m_Singleton->m_LightUniform.AddSpotLight(SpotLightData(sptlight));
+				//const SpotLight& sptlight = static_cast<const SpotLight&>(light);
+				//return m_Singleton->m_LightUniform.AddSpotLight(SpotLightData(sptlight));
+				return -1;
 			}
 
 			default:
@@ -154,18 +156,22 @@ namespace mods
 		{
 			case eLightType::Directional:
 			{
+				const DirectionalLight& dirlight = static_cast<const DirectionalLight&>(light);
+				m_Singleton->m_LightUniform.UpdateDirectionalLight(DirectionalLightData(dirlight), index);
 				break;
 			}
 
 			case eLightType::Point:
 			{
+				const PointLight& dirlight = static_cast<const PointLight&>(light);
+				m_Singleton->m_LightUniform.UpdatePointLight(PointLightData(dirlight), index);
 				break;
 			}
 
 			case eLightType::Spot:
 			{
-				const SpotLight& sptlight = static_cast<const SpotLight&>(light);
-				m_Singleton->m_LightUniform.UpdateSpotLight(SpotLightData(sptlight), index);
+				//const SpotLight& sptlight = static_cast<const SpotLight&>(light);
+				//m_Singleton->m_LightUniform.UpdateSpotLight(SpotLightData(sptlight), index);
 				break;
 			}
 
@@ -183,44 +189,97 @@ namespace mods
 	void Renderer::StartGeometryPass()
 	{
 		m_GTarget.Bind();
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_STENCIL_TEST);
+
+		glDepthMask(GL_TRUE);
+
+		glDisable(GL_BLEND);
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	}
 
 	void Renderer::StartLightingPass()
 	{
 		m_GTarget.Unbind();
 
+		m_LTarget.Bind();
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		glDisable(GL_DEPTH_TEST);
 		glDisable(GL_STENCIL_TEST);
 
-		m_LShader.Bind();
+		//glEnable(GL_BLEND);
+		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		m_DIRShader.Bind();
 		m_GTarget.GetTarget(m_PosIdx).Bind(m_PosIdx);
 		m_GTarget.GetTarget(m_NorIdx).Bind(m_NorIdx);
-		m_GTarget.GetTarget(m_AlbIdx).Bind(m_AlbIdx);
+		//m_GTarget.GetTarget(m_AlbIdx).Bind(m_AlbIdx);
 
 		glBindVertexArray(m_VAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0);
+		for (int32 i = 0; i < m_LightUniform.GetDirCount(); ++i)
+		{
+			m_DIRShader.SetUniformValue("index", i);
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0);
+		}
+
+		//glBindVertexArray(m_VAO);
+		//glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0, m_LightUniform.GetDirCount());
+
+		m_PNTShader.Bind();
+		m_GTarget.GetTarget(m_PosIdx).Bind(m_PosIdx);
+		m_GTarget.GetTarget(m_NorIdx).Bind(m_NorIdx);
+		//m_GTarget.GetTarget(m_AlbIdx).Bind(m_AlbIdx);
+
+		glBindVertexArray(m_sphereVAO);
+		for (int32 i = 0; i < m_LightUniform.GetPntCount(); ++i)
+		{
+			m_PNTShader.SetUniformValue("index", i);
+			glDrawElements(GL_TRIANGLES, m_sphereIndices, GL_UNSIGNED_INT, 0);
+		}
 		glBindVertexArray(0);
+
+		m_PNTShader.Unbind();
+
+		glDisable(GL_BLEND);
+
+		/*glBindVertexArray(m_VAO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0);
+		glBindVertexArray(0);*/
 	}
 
 	void Renderer::StartPostProcessPass()
 	{
+		m_LTarget.Unbind();
+
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 		// Make function in render target
 		{
-			glBindFramebuffer(GL_READ_FRAMEBUFFER, m_GTarget.GetHandle());
-			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+			//glBindFramebuffer(GL_READ_FRAMEBUFFER, m_GTarget.GetHandle());
+			//glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
-			// TODO: need to track size of viewport
-			// Copy the depth and stencil values to be potenially used for post processing
-			glBlitFramebuffer(0, 0, m_GTarget.GetWidth(), m_GTarget.GetHeight(), 0, 0, m_GTarget.GetWidth(), m_GTarget.GetHeight(), GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
+			//// TODO: need to track size of viewport
+			//// Copy the depth and stencil values to be potenially used for post processing
+			//glBlitFramebuffer(0, 0, m_GTarget.GetWidth(), m_GTarget.GetHeight(), 0, 0, m_GTarget.GetWidth(), m_GTarget.GetHeight(), GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
 
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			//glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
+
+		m_PPShader.Bind();
+		m_GTarget.GetTarget(m_PosIdx).Bind(0);
+		m_GTarget.GetTarget(m_NorIdx).Bind(1);
+		m_GTarget.GetTarget(m_AlbIdx).Bind(2);
+		m_LTarget.GetTarget(m_ColIdx).Bind(3);
+
+		glBindVertexArray(m_VAO);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0);
+		glBindVertexArray(0);
+
+		m_PPShader.Unbind();
 
 		/*m_PShader.Bind();
 
@@ -240,11 +299,8 @@ namespace mods
 	{
 		assert(width >= 0 && height >= 0);
 
-		//glEnable(GL_BLEND);
-		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
+		//glEnable(GL_CULL_FACE);
+		//glCullFace(GL_BACK);
 
 		float vertices[16] =
 		{
@@ -275,30 +331,55 @@ namespace mods
 		glEnableVertexAttribArray(0);
 		glEnableVertexAttribArray(1);
 
-		glBindVertexArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		GenerateSphere();
 
-		m_PosIdx = m_GTarget.AttachTarget(eTextureFormat::RGB16F);
-		m_NorIdx = m_GTarget.AttachTarget(eTextureFormat::RGB16F);
-		m_AlbIdx = m_GTarget.AttachTarget(eTextureFormat::RGBA);
+		m_PosIdx = m_GTarget.AttachTarget(eTextureFormat::RGB16F);		// Position
+		m_NorIdx = m_GTarget.AttachTarget(eTextureFormat::RGB16F);		// Normal
+		m_AlbIdx = m_GTarget.AttachTarget(eTextureFormat::RGBA);		// Albedo + specular
 
 		assert(m_GTarget.Create());
 
-		m_LShader.Load("Resources/Shaders/GLight.vert", "Resources/Shaders/GLight.frag");
+		m_ColIdx = m_LTarget.AttachTarget(eTextureFormat::RGB);
+		
+		assert(m_LTarget.Create());
 
-		m_LShader.Bind();
-		m_LShader.SetUniformValue("target.gPosition", m_PosIdx);
-		m_LShader.SetUniformValue("target.gNormal", m_NorIdx);
-		m_LShader.SetUniformValue("target.gAlbedoSpec", m_AlbIdx);
-		m_LShader.Unbind();
+		m_DIRShader.Load("Resources/Shaders/DirLight.vert", "Resources/Shaders/DirLight.frag");
+		m_PNTShader.Load("Resources/Shaders/PntLight.vert", "Resources/Shaders/PntLight.geom", "Resources/Shaders/PntLight.frag");
+
+		m_DIRShader.Bind();
+		m_DIRShader.SetUniformValue("target.gPosition", m_PosIdx);
+		m_DIRShader.SetUniformValue("target.gNormal", m_NorIdx);
+
+		m_PNTShader.Bind();
+		m_PNTShader.SetUniformValue("target.gPosition", m_PosIdx);
+		m_PNTShader.SetUniformValue("target.gNormal", m_NorIdx);
+	
+		m_PPShader.Load("Resources/Shaders/PostProcess.vert", "Resources/Shaders/PostProcess.frag");
+
+		m_PPShader.Bind();
+		m_PPShader.SetUniformValue("target.gPosition", 0);
+		m_PPShader.SetUniformValue("target.gNormal", 1);
+		m_PPShader.SetUniformValue("target.gAlbedoSpec", 2);
+		m_PPShader.SetUniformValue("target.lColor", 3);
+		m_PPShader.Unbind();		
 
 		return true;
 	}
 
 	bool Renderer::Cleanup()
 	{
-		return m_GTarget.Destroy();
+		m_GTarget.Destroy();
+		m_LTarget.Destroy();
+
+		glDeleteVertexArrays(1, &m_VAO);
+		glDeleteVertexArrays(1, &m_sphereVAO);
+
+		glDeleteBuffers(1, &m_VBO);
+		glDeleteBuffers(1, &m_IBO);
+		glDeleteBuffers(1, &m_sphereVBO);
+		glDeleteBuffers(1, &m_sphereIBO);
+
+		return true;
 	}
 
 	void Renderer::Create(int32 width, int32 height)
@@ -317,5 +398,98 @@ namespace mods
 			m_Singleton->Cleanup();
 			delete m_Singleton;
 		}
+	}
+
+	void Renderer::GenerateSphere()
+	{
+		glGenVertexArrays(1, &m_sphereVAO);
+
+		glGenBuffers(1, &m_sphereVBO);
+		glGenBuffers(1, &m_sphereIBO);
+
+		std::vector<glm::vec3> positions;
+		std::vector<glm::vec2> uv;
+		std::vector<glm::vec3> normals;
+		std::vector<uint32> indices;
+
+		const uint32 X_SEGMENTS = 64;
+		const uint32 Y_SEGMENTS = 64;
+		for (uint32 y = 0; y <= Y_SEGMENTS; ++y)
+		{
+			for (uint32 x = 0; x <= X_SEGMENTS; ++x)
+			{
+				float xSegment = (float)x / (float)X_SEGMENTS;
+				float ySegment = (float)y / (float)Y_SEGMENTS;
+				float xPos = glm::cos(xSegment * 2.0f * glm::pi<float>()) * glm::sin(ySegment * glm::pi<float>());
+				float yPos = glm::cos(ySegment * glm::pi<float>());
+				float zPos = glm::sin(xSegment * 2.0f * glm::pi<float>()) * glm::sin(ySegment * glm::pi<float>());
+
+				positions.push_back(glm::vec3(xPos, yPos, zPos));
+				uv.push_back(glm::vec2(xSegment, ySegment));
+				normals.push_back(glm::vec3(xPos, yPos, zPos));
+			}
+		}
+
+		bool oddRow = false;
+		for (int32 y = 0; y < Y_SEGMENTS; ++y)
+		{
+			if (!oddRow) // even rows: y == 0, y == 2; and so on
+			{
+				for (int32 x = 0; x <= X_SEGMENTS; ++x)
+				{
+					indices.push_back(y       * (X_SEGMENTS + 1) + x);
+					indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
+				}
+			}
+			else
+			{
+				for (int32 x = X_SEGMENTS; x >= 0; --x)
+				{
+					indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
+					indices.push_back(y       * (X_SEGMENTS + 1) + x);
+				}
+			}
+			oddRow = !oddRow;
+		}
+		
+		m_sphereIndices = indices.size();
+
+		std::vector<float> data;
+		for (int32 i = 0; i < (int32)positions.size(); ++i)
+		{
+			data.push_back(positions[i].x);
+			data.push_back(positions[i].y);
+			data.push_back(positions[i].z);
+			if (normals.size() > 0)
+			{
+				data.push_back(normals[i].x);
+				data.push_back(normals[i].y);
+				data.push_back(normals[i].z);
+			}
+			if (uv.size() > 0)
+			{
+				data.push_back(uv[i].x);
+				data.push_back(uv[i].y);
+			}
+		}
+
+		glBindVertexArray(m_sphereVAO);
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_sphereVBO);
+		glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(float), &data[0], GL_STATIC_DRAW);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_sphereIBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32), &indices[0], GL_STATIC_DRAW);
+
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8, (void*)0);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8, (void*)(3 * sizeof(float)));
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8, (void*)(6 * sizeof(float)));
+
+		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 }

@@ -35,6 +35,12 @@ namespace mods
 		// Updates an existing spot light
 		void UpdateSpotLight(const SpotLightData& data, int32 index);
 
+	public:
+
+		inline int32 GetDirCount() const { return (int32)m_DirectionalLights.size(); }
+		inline int32 GetPntCount() const { return (int32)m_PointLights.size(); }
+		inline int32 GetSptCount() const { return (int32)m_SpotLights.size(); }
+
 	protected:
 
 		// All directional lights

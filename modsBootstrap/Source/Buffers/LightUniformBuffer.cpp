@@ -120,6 +120,22 @@ namespace mods
 		return index;
 	}
 
+	void LightUniforms::UpdateDirectionalLight(const DirectionalLightData& data, int32 index)
+	{
+		m_DirectionalLights[index] = data;
+
+		// Fill in the data for this light
+		Fill(48 * index, sizeof(DirectionalLightData), (void*)&data);
+	}
+
+	void LightUniforms::UpdatePointLight(const PointLightData& data, int32 index)
+	{
+		m_PointLights[index] = data;
+
+		// Fill in the data for this light
+		Fill(192 + (64 * index), sizeof(PointLightData), (void*)&data);
+	}
+
 	void LightUniforms::UpdateSpotLight(const SpotLightData& data, int32 index)
 	{
 		m_SpotLights[index] = data;

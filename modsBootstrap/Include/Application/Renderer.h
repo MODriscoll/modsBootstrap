@@ -90,6 +90,10 @@ namespace mods
 		static void Create(int32 width, int32 height);
 		static void Destroy();
 
+	private:
+
+		void GenerateSphere();
+
 	protected:
 
 		// Target to draw geometry phase to
@@ -98,10 +102,23 @@ namespace mods
 		// Index to various textures of the geometry target
 		int32 m_PosIdx, m_NorIdx, m_AlbIdx;
 
+		// Target to draw lighting phase to
+		RenderTarget m_LTarget;
+
+		// Index to variouse textures of the lighting target
+		int32 m_ColIdx;
+
 	protected:
 
-		// Shader for applying lighting
-		ShaderProgram m_LShader;
+		// Shaders for applying compisition
+		ShaderProgram m_DIRShader;
+		ShaderProgram m_PNTShader;
+
+		// Shader for applying composition
+		ShaderProgram m_CShader;
+
+		// Shader for applying initial post processing
+		ShaderProgram m_PPShader;
 
 	protected:
 
@@ -115,6 +132,8 @@ namespace mods
 
 		// TODO: make vertex array object
 		uint32 m_VAO, m_VBO, m_IBO;
+		uint32 m_sphereVAO, m_sphereVBO, m_sphereIBO;
+		uint32 m_sphereIndices;
 
 		// Width and height of the viewport
 		int32 m_Width, m_Height;

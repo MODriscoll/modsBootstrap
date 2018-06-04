@@ -27,6 +27,7 @@ namespace mods
 
 		ShaderProgram();
 		ShaderProgram(const std::string& vertexpath, const std::string& fragmentpath);
+		ShaderProgram(const std::string& vertexpath, const std::string& geometrypath, const std::string& fragmentpath);
 		ShaderProgram(const ShaderProgram& rhs) = delete;
 		ShaderProgram(ShaderProgram&& rhs);
 
@@ -39,9 +40,11 @@ namespace mods
 
 		// Loads a new program from the given paths
 		bool Load(const std::string& vertexpath, const std::string& fragmentpath);
+		bool Load(const std::string& vertexpath, const std::string& geometrypath, const std::string& fragmentpath);
 
 		// Creates a new program from given shaders
 		bool Create(const std::string& vertex, const std::string& fragment);
+		bool Create(const std::string& vertex, const std::string& geometry, const std::string& fragment);
 
 		// Binds this program for use
 		void Bind() const;
@@ -71,7 +74,7 @@ namespace mods
 		bool CompileShader(const std::string& script, uint32 type, uint32& shader);
 
 		// Links the shaders into a single program
-		bool LinkShaders(uint32 vertex, uint32 fragment, uint32& program);
+		bool LinkShaders(uint32 vertex, uint32 geometry, uint32 fragment, uint32& program);
 
 		// Retrieves the location of the given uniform.
 		// Saves location for later indexing if uniform exists

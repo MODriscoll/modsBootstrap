@@ -20,6 +20,12 @@ namespace mods
 		Load(vpath, fpath);
 	}
 
+	ShaderProgram::ShaderProgram(const std::string& vpath, const std::string& gpath, const std::string& fpath)
+		: m_Program(0)
+	{
+		Load(vpath, gpath, fpath);
+	}
+
 	ShaderProgram::ShaderProgram(ShaderProgram&& rhs)
 		: m_Program(rhs.m_Program)
 		, m_Uniforms(std::move(rhs.m_Uniforms))
@@ -59,6 +65,19 @@ namespace mods
 		return Create(vertex, fragment);
 	}
 
+	bool ShaderProgram::Load(const std::string& vpath, const std::string& gpath, const std::string& fpath)
+	{
+		std::string vertex, geometry, fragment;
+		if (!detail::LoadShaderFromSource(vpath, vertex) ||
+			!detail::LoadShaderFromSource(gpath, geometry) ||
+			!detail::LoadShaderFromSource(fpath, fragment))
+		{
+			return false;
+		}
+
+		return Create(vertex, geometry, fragment);
+	}
+
 	bool ShaderProgram::Create(const std::string& vertex, const std::string& fragment)
 	{
 		uint32 vshader;
@@ -73,7 +92,36 @@ namespace mods
 		}
 
 		uint32 program;
-		if (!LinkShaders(vshader, fshader, program))
+		if (!LinkShaders(vshader, 0, fshader, program))
+			return false;
+
+		m_Program = program;
+		return true;
+	}
+
+	bool ShaderProgram::Create(const std::string& vertex, const std::string& geometry, const std::string& fragment)
+	{
+		uint32 vshader;
+		if (!CompileShader(vertex, GL_VERTEX_SHADER, vshader))
+			return false;
+
+		uint32 gshader;
+		if (!CompileShader(geometry, GL_GEOMETRY_SHADER, gshader))
+		{
+			glDeleteShader(vshader);
+			return false;
+		}
+
+		uint32 fshader;
+		if (!CompileShader(fragment, GL_FRAGMENT_SHADER, fshader))
+		{
+			glDeleteShader(vshader);
+			glDeleteShader(gshader);
+			return false;
+		}
+
+		uint32 program;
+		if (!LinkShaders(vshader, gshader, fshader, program))
 			return false;
 
 		m_Program = program;
@@ -171,11 +219,13 @@ namespace mods
 		return true;
 	}
 
-	bool ShaderProgram::LinkShaders(uint32 vertex, uint32 fragment, uint32& program)
+	bool ShaderProgram::LinkShaders(uint32 vertex, uint32 geometry, uint32 fragment, uint32& program)
 	{
 		program = glCreateProgram();
 
 		glAttachShader(program, vertex);
+		if (geometry > 0)
+			glAttachShader(program, geometry);
 		glAttachShader(program, fragment);
 
 		glLinkProgram(program);
@@ -186,22 +236,28 @@ namespace mods
 		if (!success)
 		{
 			char log[512];
-			glGetShaderInfoLog(program, 512, nullptr, log);
+			glGetProgramInfoLog(program, 512, nullptr, log);
 
 			std::cout << "Error: Failed to link program. Log:\n" << log << std::endl;
 
 			// Delete failed program and shaders
 			glDeleteProgram(program);
 			glDeleteShader(vertex);
+			if (geometry > 0)
+				glDeleteShader(geometry);
 			glDeleteShader(fragment);
 
 			return false;
 		}
 	
 		glDetachShader(program, vertex);
+		if (geometry > 0)
+			glDetachShader(program, geometry);
 		glDetachShader(program, fragment);
 
 		glDeleteShader(vertex);
+		if (geometry > 0)
+			glDeleteShader(geometry);
 		glDeleteShader(fragment);
 
 		return true;
