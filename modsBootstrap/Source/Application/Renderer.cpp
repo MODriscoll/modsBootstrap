@@ -8,6 +8,7 @@
 
 #include <glm\gtc\type_ptr.hpp>
 #include <glm\gtc\matrix_inverse.hpp>
+#include <glm\gtc\matrix_transform.hpp>
 
 #include <cassert>
 #include <iostream>
@@ -206,18 +207,39 @@ namespace mods
 
 		m_LTarget.Bind();
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
 		glDisable(GL_DEPTH_TEST);
 		glDisable(GL_STENCIL_TEST);
 
-		//glEnable(GL_BLEND);
-		//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glDepthMask(GL_FALSE);
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_ONE);
+		glBlendEquation(GL_FUNC_ADD);
+
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		m_PNTShader.Bind();
+		m_GTarget.GetTarget(m_PosIdx).Bind(m_PosIdx);
+		m_GTarget.GetTarget(m_NorIdx).Bind(m_NorIdx);
+		m_GTarget.GetTarget(m_AlbIdx).Bind(m_AlbIdx);
+
+		m_PNTShader.SetUniformValue("time", (float)glfwGetTime());
+
+		glDisable(GL_CULL_FACE);
+
+		glBindVertexArray(m_sphereVAO);
+		for (int32 i = 0; i < m_LightUniform.GetPntCount(); ++i)
+		{
+			m_PNTShader.SetUniformValue("index", i);
+			glDrawElements(GL_TRIANGLE_STRIP, m_sphereIndices, GL_UNSIGNED_INT, 0);
+		}
+
+		glEnable(GL_CULL_FACE);
 
 		m_DIRShader.Bind();
 		m_GTarget.GetTarget(m_PosIdx).Bind(m_PosIdx);
 		m_GTarget.GetTarget(m_NorIdx).Bind(m_NorIdx);
-		//m_GTarget.GetTarget(m_AlbIdx).Bind(m_AlbIdx);
+		m_GTarget.GetTarget(m_AlbIdx).Bind(m_AlbIdx);
 
 		glBindVertexArray(m_VAO);
 		for (int32 i = 0; i < m_LightUniform.GetDirCount(); ++i)
@@ -225,30 +247,17 @@ namespace mods
 			m_DIRShader.SetUniformValue("index", i);
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0);
 		}
-
-		//glBindVertexArray(m_VAO);
-		//glDrawElementsInstanced(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0, m_LightUniform.GetDirCount());
-
-		m_PNTShader.Bind();
-		m_GTarget.GetTarget(m_PosIdx).Bind(m_PosIdx);
-		m_GTarget.GetTarget(m_NorIdx).Bind(m_NorIdx);
-		//m_GTarget.GetTarget(m_AlbIdx).Bind(m_AlbIdx);
-
-		glBindVertexArray(m_sphereVAO);
-		for (int32 i = 0; i < m_LightUniform.GetPntCount(); ++i)
-		{
-			m_PNTShader.SetUniformValue("index", i);
-			glDrawElements(GL_TRIANGLES, m_sphereIndices, GL_UNSIGNED_INT, 0);
-		}
 		glBindVertexArray(0);
 
-		m_PNTShader.Unbind();
+		m_DIRShader.Unbind();
 
 		glDisable(GL_BLEND);
 
-		/*glBindVertexArray(m_VAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0);
-		glBindVertexArray(0);*/
+		uint32 error;
+		while ((error = glGetError()) != GL_NO_ERROR)
+		{
+			std::cout << "error code: " << error << std::endl;
+		}
 	}
 
 	void Renderer::StartPostProcessPass()
@@ -259,14 +268,14 @@ namespace mods
 
 		// Make function in render target
 		{
-			//glBindFramebuffer(GL_READ_FRAMEBUFFER, m_GTarget.GetHandle());
-			//glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, m_LTarget.GetHandle());
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
 			//// TODO: need to track size of viewport
 			//// Copy the depth and stencil values to be potenially used for post processing
-			//glBlitFramebuffer(0, 0, m_GTarget.GetWidth(), m_GTarget.GetHeight(), 0, 0, m_GTarget.GetWidth(), m_GTarget.GetHeight(), GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
+			glBlitFramebuffer(0, 0, m_LTarget.GetWidth(), m_LTarget.GetHeight(), 0, 0, m_LTarget.GetWidth(), m_LTarget.GetHeight(), GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
 
-			//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 
 		m_PPShader.Bind();
@@ -299,8 +308,8 @@ namespace mods
 	{
 		assert(width >= 0 && height >= 0);
 
-		//glEnable(GL_CULL_FACE);
-		//glCullFace(GL_BACK);
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
 
 		float vertices[16] =
 		{
@@ -412,8 +421,8 @@ namespace mods
 		std::vector<glm::vec3> normals;
 		std::vector<uint32> indices;
 
-		const uint32 X_SEGMENTS = 64;
-		const uint32 Y_SEGMENTS = 64;
+		const uint32 X_SEGMENTS = 16;
+		const uint32 Y_SEGMENTS = 16;
 		for (uint32 y = 0; y <= Y_SEGMENTS; ++y)
 		{
 			for (uint32 x = 0; x <= X_SEGMENTS; ++x)
@@ -436,16 +445,16 @@ namespace mods
 			if (!oddRow) // even rows: y == 0, y == 2; and so on
 			{
 				for (int32 x = 0; x <= X_SEGMENTS; ++x)
-				{
-					indices.push_back(y       * (X_SEGMENTS + 1) + x);
+				{				
+					indices.push_back(y       * (X_SEGMENTS + 1) + x); 
 					indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
 				}
 			}
 			else
 			{
 				for (int32 x = X_SEGMENTS; x >= 0; --x)
-				{
-					indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
+				{					
+					indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);	
 					indices.push_back(y       * (X_SEGMENTS + 1) + x);
 				}
 			}
@@ -460,12 +469,6 @@ namespace mods
 			data.push_back(positions[i].x);
 			data.push_back(positions[i].y);
 			data.push_back(positions[i].z);
-			if (normals.size() > 0)
-			{
-				data.push_back(normals[i].x);
-				data.push_back(normals[i].y);
-				data.push_back(normals[i].z);
-			}
 			if (uv.size() > 0)
 			{
 				data.push_back(uv[i].x);
@@ -481,12 +484,10 @@ namespace mods
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_sphereIBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32), &indices[0], GL_STATIC_DRAW);
 
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)0);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)(3 * sizeof(float)));
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8, (void*)0);
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8, (void*)(3 * sizeof(float)));
-		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8, (void*)(6 * sizeof(float)));
 
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);

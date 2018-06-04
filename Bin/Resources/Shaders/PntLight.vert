@@ -1,8 +1,7 @@
 #version 450 core
 
 layout (location = 0) in vec3 vPosition;
-layout (location = 1) in vec3 vNormal;
-layout (location = 2) in vec2 vTexCoords;
+layout (location = 1) in vec2 vTexCoords;
 
 out vData
 {
@@ -38,8 +37,6 @@ struct PointLight
 	float constant;
 	float linear;
 	float quadratic;
-	
-	float radius;
 };
 
 struct SpotLight
@@ -56,8 +53,6 @@ struct SpotLight
 	float constant;
 	float linear;
 	float quadratic;
-	
-	float radius;
 };
 
 layout (std140, binding = 1) uniform Lights
@@ -72,15 +67,19 @@ layout (std140, binding = 1) uniform Lights
 };
 
 uniform int index;
+//uniform mat4 model;
 
 void main()
 {
 	PointLight light = pntlights[index];
 
 	v.texcoords = vTexCoords;
-	v.radius = 1.f;//light.radius;
-	mat4 model = mat4(vec4(1.f, 0.f, 0.f, light.position.x),
-	vec4(0.f, 1.f, 0.f, light.position.y), vec4(0.f, 0.f, 1.f, light.position.z),
-	vec4(0.f, 0.f, 0.f, 1.f));
+	v.radius = 3.f;//light.radius;
+	float lightmax = max(max(light.color.r, light.color.b), light.color.g);
+	float radius = (-light.linear - sqrt(light.linear * light.linear - 4 * light.quadratic * (light.constant - (256.f / 5.f) * lightmax))) / (2.f * light.quadratic);
+	//float radius = 1.f;
+	mat4 model = mat4(vec4(radius, 0.f, 0.f, 0.f),
+	vec4(0.f, radius, 0.f, 0.f), vec4(0.f, 0.f, radius, 0.f),
+	vec4(light.position, 1.f));
 	gl_Position = projection * view * model * vec4(vPosition, 1.f);
 }

@@ -43,8 +43,6 @@ struct PointLight
 	float constant;
 	float linear;
 	float quadratic;
-	
-	float radius;
 };
 
 struct SpotLight
@@ -61,8 +59,6 @@ struct SpotLight
 	float constant;
 	float linear;
 	float quadratic;
-	
-	float radius;
 };
 
 layout (std140, binding = 1) uniform Lights
@@ -89,9 +85,12 @@ float GetAttenuation(float distance, float constant, float linear, float quadrat
 void main()
 {
 	PointLight light = pntlights[index];
+	
+	// Size of viewport, should be a uniform
+	vec2 gScreenSize = vec2(1280.f, 720.f);
 
-	vec3 fPosition = texture(target.gPosition, fTexCoords).rgb;
-	vec3 fNormal = texture(target.gNormal, fTexCoords).rgb;
+	vec3 fPosition = texture(target.gPosition, gl_FragCoord.xy / gScreenSize).rgb;
+	vec3 fNormal = texture(target.gNormal, gl_FragCoord.xy / gScreenSize).rgb;
 	vec3 viewdir = normalize(position - fPosition);
 	
 	// Apply point light
@@ -106,7 +105,7 @@ void main()
 		// Specular
 		vec3 reflectdir = reflect(-lightdir, fNormal);
 		float spec = pow(max(dot(viewdir, reflectdir), 0.f), 32);
-		vec3 specular = light.color * spec * texture(target.gAlbedoSpec, fTexCoords).a;
+		vec3 specular = light.color * spec * texture(target.gAlbedoSpec, gl_FragCoord.xy / gScreenSize).a;
 		
 		// Attenuation
 		float attenuation = GetAttenuation(length(displacement), light.constant, light.linear, light.quadratic);
@@ -114,6 +113,6 @@ void main()
 		diffuse *= attenuation;
 		specular *= attenuation;
 		
-		lColor = diffuse + specular;
+		lColor = (diffuse + specular) * 20.f;
 	}
 }

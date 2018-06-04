@@ -43,8 +43,6 @@ struct PointLight
 	float constant;
 	float linear;
 	float quadratic;
-	
-	float radius;
 };
 
 struct SpotLight
@@ -61,8 +59,6 @@ struct SpotLight
 	float constant;
 	float linear;
 	float quadratic;
-	
-	float radius;
 };
 
 layout (std140, binding = 1) uniform Lights

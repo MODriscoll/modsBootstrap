@@ -11,16 +11,18 @@ in vData
 
 out vec2 fTexCoords;
 
+uniform float time;
+
 vec3 GetNormal()
 {
-	vec3 a = vec3(gl_in[0].gl_Position) - vec3(gl_in[1].gl_Position);
-	vec3 b = vec3(gl_in[2].gl_Position) - vec3(gl_in[1].gl_Position);
+	vec3 a = vec3(gl_in[2].gl_Position) - vec3(gl_in[1].gl_Position);
+	vec3 b = vec3(gl_in[0].gl_Position) - vec3(gl_in[1].gl_Position);
 	return normalize(cross(a, b));
 }
 
 void main()
 {
-	vec4 expand = vec4(0.f);// = vec4(GetNormal() * g[0].radius, 1.f);
+	vec4 expand = vec4(0.f);//vec4(GetNormal() * ((sin(time) + 1.f) / 2.f) * 2.f, 0.f);
 	
 	gl_Position = gl_in[0].gl_Position + expand;
 	fTexCoords = g[0].texcoords;
