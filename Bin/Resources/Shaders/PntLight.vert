@@ -3,11 +3,7 @@
 layout (location = 0) in vec3 vPosition;
 layout (location = 1) in vec2 vTexCoords;
 
-out vData
-{
-	vec2 texcoords;
-	float radius;
-} v;
+out vec2 fTexCoords;
 
 layout (std140, binding = 0) uniform Camera
 {
@@ -67,14 +63,13 @@ layout (std140, binding = 1) uniform Lights
 };
 
 uniform int index;
-//uniform mat4 model;
 
 void main()
 {
 	PointLight light = pntlights[index];
+	
+	fTexCoords = vTexCoords;
 
-	v.texcoords = vTexCoords;
-	v.radius = 3.f;//light.radius;
 	float lightmax = max(max(light.color.r, light.color.b), light.color.g);
 	float radius = (-light.linear - sqrt(light.linear * light.linear - 4 * light.quadratic * (light.constant - (256.f / 5.f) * lightmax))) / (2.f * light.quadratic);
 	//float radius = 1.f;

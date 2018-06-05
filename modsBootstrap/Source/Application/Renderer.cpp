@@ -192,11 +192,18 @@ namespace mods
 		m_GTarget.Bind();
 
 		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_STENCIL_TEST);
+
+		// Allow for optional writing to stencil buffer
+		//glEnable(GL_STENCIL_TEST);
 
 		glDepthMask(GL_TRUE);
 
+		// No blending allowed during geometry pass
 		glDisable(GL_BLEND);
+
+		// Enable back face culling
+		glEnable(GL_CULL_FACE);
+		glCullFace(GL_BACK);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 	}
@@ -205,18 +212,22 @@ namespace mods
 	{
 		m_GTarget.Unbind();
 
+		{
+			glBindFramebuffer(GL_READ_FRAMEBUFFER, m_GTarget.GetHandle());
+			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_LTarget.GetHandle());
+
+			// TODO: need to track size of viewport
+			// Copy the depth values from geometry pass to use for the stencil pass
+			glBlitFramebuffer(0, 0, m_GTarget.GetWidth(), m_GTarget.GetHeight(), 0, 0, m_LTarget.GetWidth(), m_LTarget.GetHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
+		}
+
 		m_LTarget.Bind();
 
-		glDisable(GL_DEPTH_TEST);
-		glDisable(GL_STENCIL_TEST);
-
-		glDepthMask(GL_FALSE);
-
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_ONE, GL_ONE);
-		glBlendEquation(GL_FUNC_ADD);
-
+		// Only clear color
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		// No longer write to the depth buffer
+		glDepthMask(GL_FALSE);
 
 		m_PNTShader.Bind();
 		m_GTarget.GetTarget(m_PosIdx).Bind(m_PosIdx);
@@ -225,16 +236,62 @@ namespace mods
 
 		m_PNTShader.SetUniformValue("time", (float)glfwGetTime());
 
-		glDisable(GL_CULL_FACE);
+		// Enable stencil testing for stencil pass
+		glEnable(GL_STENCIL_TEST);
+
+		// Enable additive blending for lighting pass
+		glEnable(GL_BLEND);
+		glBlendEquation(GL_FUNC_ADD);
+		glBlendFunc(GL_ONE, GL_ONE);
 
 		glBindVertexArray(m_sphereVAO);
 		for (int32 i = 0; i < m_LightUniform.GetPntCount(); ++i)
 		{
-			m_PNTShader.SetUniformValue("index", i);
-			glDrawElements(GL_TRIANGLE_STRIP, m_sphereIndices, GL_UNSIGNED_INT, 0);
+			// Stencil pass
+			{
+				glEnable(GL_DEPTH_TEST);
+
+				glDisable(GL_CULL_FACE);
+
+				// Clear stencil buffer for every test
+				glClear(GL_STENCIL_BUFFER_BIT);
+
+				// We always want stencil test to succeed
+				// Only the depth test matters
+				glStencilFunc(GL_ALWAYS, 0, 0x00);
+
+				// Back face renders will increment stencil buffer
+				glStencilOpSeparate(GL_BACK, GL_KEEP, GL_INCR_WRAP, GL_KEEP);
+
+				// Front face renders will decrement stencil buffer
+				glStencilOpSeparate(GL_FRONT, GL_KEEP, GL_DECR_WRAP, GL_KEEP);
+
+				m_SShader.Bind();
+				m_SShader.SetUniformValue("index", i);
+				glDrawElements(GL_TRIANGLE_STRIP, m_sphereIndices, GL_UNSIGNED_INT, 0);
+			}
+
+			// Lighting pass
+			{
+				glStencilFunc(GL_NOTEQUAL, 0, 0xFF);
+
+				glDisable(GL_DEPTH_TEST);
+
+				// No longer need both faces
+				glEnable(GL_CULL_FACE);
+				glCullFace(GL_FRONT);
+
+				m_PNTShader.Bind();
+				m_PNTShader.SetUniformValue("index", i);
+				glDrawElements(GL_TRIANGLE_STRIP, m_sphereIndices, GL_UNSIGNED_INT, 0);
+			}
 		}
 
-		glEnable(GL_CULL_FACE);
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_STENCIL_TEST);
+
+		// Re-enable back face culling
+		glCullFace(GL_BACK);
 
 		m_DIRShader.Bind();
 		m_GTarget.GetTarget(m_PosIdx).Bind(m_PosIdx);
@@ -251,13 +308,8 @@ namespace mods
 
 		m_DIRShader.Unbind();
 
+		// No longer need to blend
 		glDisable(GL_BLEND);
-
-		uint32 error;
-		while ((error = glGetError()) != GL_NO_ERROR)
-		{
-			std::cout << "error code: " << error << std::endl;
-		}
 	}
 
 	void Renderer::StartPostProcessPass()
@@ -308,9 +360,6 @@ namespace mods
 	{
 		assert(width >= 0 && height >= 0);
 
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
-
 		float vertices[16] =
 		{
 			-1.f, -1.f,		0.f, 0.f,
@@ -352,8 +401,10 @@ namespace mods
 		
 		assert(m_LTarget.Create());
 
+		m_SShader.Load("Resources/Shaders/PntLightStencilPass.vert", "Resources/Shaders/PntLightStencilPass.frag");
+
 		m_DIRShader.Load("Resources/Shaders/DirLight.vert", "Resources/Shaders/DirLight.frag");
-		m_PNTShader.Load("Resources/Shaders/PntLight.vert", "Resources/Shaders/PntLight.geom", "Resources/Shaders/PntLight.frag");
+		m_PNTShader.Load("Resources/Shaders/PntLight.vert", "Resources/Shaders/PntLight.frag");
 
 		m_DIRShader.Bind();
 		m_DIRShader.SetUniformValue("target.gPosition", m_PosIdx);

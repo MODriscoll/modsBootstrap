@@ -110,6 +110,9 @@ namespace mods
 
 	protected:
 
+		// Shader for performing stencil test
+		ShaderProgram m_SShader;
+
 		// Shaders for applying compisition
 		ShaderProgram m_DIRShader;
 		ShaderProgram m_PNTShader;

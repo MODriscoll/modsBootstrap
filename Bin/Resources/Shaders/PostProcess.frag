@@ -29,5 +29,5 @@ void main()
 	vec3 fAlbedo = texture(target.gAlbedoSpec, fTexCoords).rgb;
 	vec3 lColor = texture(target.lColor, fTexCoords).rgb;
 
-	fragcolor = vec4(lColor, 1.f);
+	fragcolor = vec4(fAlbedo * lColor, 1.f);
 }
