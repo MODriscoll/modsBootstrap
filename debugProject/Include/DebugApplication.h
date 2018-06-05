@@ -5,7 +5,7 @@
 #include <Rendering\Meshes\Model.h>
 #include <Rendering\Shaders\Shader.h>
 
-#include <Rendering\Lighting\SpotLight.h>
+#include <Rendering\Lighting\PointLight.h>
 
 #include <Camera\Camera.h>
 
@@ -30,7 +30,4 @@ private:
 
 	mods::ShaderProgram m_ModelShader;
 	mods::Model m_Nanosuit;
-
-	mods::SpotLight m_Flashlight;
-	mods::int32 m_FlashlightIndex;
 };

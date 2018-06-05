@@ -113,6 +113,6 @@ void main()
 		diffuse *= attenuation;
 		specular *= attenuation;
 		
-		lColor = (diffuse + specular) * 10.f;
+		lColor = (diffuse + specular);
 	}
 }

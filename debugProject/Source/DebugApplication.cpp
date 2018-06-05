@@ -43,26 +43,12 @@ bool DebugApplication::Startup()
 		mods::PointLight pntlight;
 
 		pntlight.Color = glm::vec3(1.f, 0.f, 0.f);
-		//pntlight.Position = glm::vec3(3.f, 12.f, 4.f);
+		pntlight.Position = glm::vec3(3.f, 12.f, 4.f);
+		pntlight.Attenuation.Linear = 0.022f;
+		pntlight.Attenuation.Quadratic = 0.0019f;
 		
 		Renderer::AddLight(pntlight);
 	}
-
-	float constant = 1.f;
-	float linear = 0.022f;
-	float quadratic = 0.0019f;
-	float lightMax = 1.f;
-	float radius =
-		(-linear + std::sqrtf(linear * linear - 4 * quadratic * (constant - (256.0 / 5.0) * lightMax)))
-		/ (2 * quadratic);
-
-	m_Flashlight.Color = glm::vec3(1.f, 1.f, 1.f);
-	m_Flashlight.Position = m_Camera.Position;
-	m_Flashlight.SetDirection(m_Camera.GetHeading());
-	m_Flashlight.SetInnerCutoff(12.5f);
-	m_Flashlight.SetOuterCutoff(17.5f);
-
-	m_FlashlightIndex = Renderer::AddLight(m_Flashlight);
 
 	return true;
 }
@@ -108,10 +94,6 @@ void DebugApplication::Tick(float deltaTime)
 			
 			m_Camera.SetRotation(rot);
 		}	
-
-		m_Flashlight.Position = m_Camera.Position;
-		m_Flashlight.SetDirection(m_Camera.GetHeading());
-		Renderer::UpdateLight(m_Flashlight, m_FlashlightIndex);
 	}
 }
 
