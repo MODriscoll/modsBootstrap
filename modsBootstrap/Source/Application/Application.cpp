@@ -22,9 +22,10 @@ namespace mods
 		const char* message,
 		const void* userParam)
 	{
-		if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
+		if (id == 131169 || id == 131185 || id == 131218 || id == 131204) 
+			return;
 
-		std::cout << "\nOpenGL debug message (" << id << "): " << message << std::endl;
+		std::cout << "\n[OpenGL]\nDebug Output: " << id << "\nMessage: " << message << std::endl;
 
 		switch (source)
 		{
@@ -34,7 +35,7 @@ namespace mods
 			case GL_DEBUG_SOURCE_THIRD_PARTY:     std::cout << "Source: Third Party"; break;
 			case GL_DEBUG_SOURCE_APPLICATION:     std::cout << "Source: Application"; break;
 			case GL_DEBUG_SOURCE_OTHER:           std::cout << "Source: Other"; break;
-		} std::cout << std::endl;
+		} std::cout << '\n';
 
 		switch (type)
 		{
@@ -47,7 +48,7 @@ namespace mods
 			case GL_DEBUG_TYPE_PUSH_GROUP:          std::cout << "Type: Push Group"; break;
 			case GL_DEBUG_TYPE_POP_GROUP:           std::cout << "Type: Pop Group"; break;
 			case GL_DEBUG_TYPE_OTHER:               std::cout << "Type: Other"; break;
-		} std::cout << std::endl;
+		} std::cout << '\n';
 
 		switch (severity)
 		{
@@ -55,8 +56,7 @@ namespace mods
 			case GL_DEBUG_SEVERITY_MEDIUM:       std::cout << "Severity: Medium"; break;
 			case GL_DEBUG_SEVERITY_LOW:          std::cout << "Severity: Low"; break;
 			case GL_DEBUG_SEVERITY_NOTIFICATION: std::cout << "Severity: Notification"; break;
-		} std::cout << std::endl;
-		std::cout << std::endl;
+		} std::cout << '\n' << std::endl;
 	}
 
 	#endif
@@ -190,9 +190,13 @@ namespace mods
 
 		glfwSetErrorCallback(HandleGLFWError);
 
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		// Setting 4.3 to utilize debbuger
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);	
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+		// temp (need to add viewport size to a uniform buffer for point light calculations to use)
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 		#if _DEBUG
 
@@ -211,25 +215,39 @@ namespace mods
 		glfwMakeContextCurrent(m_Window);
 
 		// Get pointers to openGL functions
-		if (!gladLoadGL())
+		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 		{
 			glfwTerminate();
 			return false;
 		}
 
-		std::cout << "OpenGL version: " << GLVersion.major << "." << GLVersion.minor << std::endl;
-
 		#if _DEBUG
 
 		int32 flags;
 		glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-		if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
+		if (flags & GL_CONTEXT_FLAG_DEBUG_BIT &&
+			GLAD_GL_VERSION_4_3) // ARB_debug_output exists but is not included in versions below 4.3
 		{
-			/*glEnable(GL_DEBUG_OUTPUT);
+			glEnable(GL_DEBUG_OUTPUT);
 			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 			glDebugMessageCallback(HandleOpenGLDebugOutput, nullptr);
-			glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);*/
+			glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
+
+			std::cout << "Debug Output Initialised" << std::endl;
 		}
+
+		#endif
+
+		#if _DEBUG
+
+		std::cout << "Version: " << glGetString(GL_VERSION) << std::endl;
+		std::cout << "Renderer: " << glGetString(GL_RENDERER) << std::endl;
+		std::cout << "Vendor: " << glGetString(GL_VENDOR) << std::endl;
+		std::cout << "Shading language: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+
+		int32 extensions;
+		glGetIntegerv(GL_NUM_EXTENSIONS, &extensions);
+		std::cout << "Number of Extensions: " << extensions << '\n' << std::endl;
 
 		#endif
 
@@ -263,7 +281,7 @@ namespace mods
 
 	void Application::HandleGLFWError(int32 error, const char* message)
 	{
-		std::cout << "[GLFW] Error: Code=" << error << " Message: " << message << std::endl;
+		std::cout << "\n[GLFW]\nError: " << error << "\nMessage: " << message << std::endl;
 	}
 
 	void Application::HandleFramebufferResize(GLFWwindow* window, int32 width, int32 height)
