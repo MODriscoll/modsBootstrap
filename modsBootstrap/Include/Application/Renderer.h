@@ -57,6 +57,14 @@ namespace mods
 		// Updates a light being rendered
 		static void UpdateLight(const Light& light, int32 index);
 
+	public:
+
+		// Enables/Disables gamma correction
+		static void EnableGammaCorrection(bool enable);
+
+		// Sets the exponent to use for gamma correction
+		static void SetGammaExponent(float gamma);
+
 	protected:
 
 		// Starts new frame of rendering
@@ -93,6 +101,14 @@ namespace mods
 	private:
 
 		void GenerateSphere();
+
+	protected:
+
+		// If gamma correction is activated
+		bool m_bGammaCorrect;
+
+		// Gamma exponent for gamma correction
+		float m_GammaExponent;
 
 	protected:
 

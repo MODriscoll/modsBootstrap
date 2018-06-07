@@ -81,6 +81,11 @@ void DebugApplication::Tick(float deltaTime)
 			m_Camera.Position += up;
 		if (Input::IsKeyDown(eInputKey::Q))
 			m_Camera.Position -= up;
+		
+		if (Input::WasKeyPressed(eInputKey::F1))
+			Renderer::EnableGammaCorrection(true);
+		if (Input::WasKeyPressed(eInputKey::F2))
+			Renderer::EnableGammaCorrection(false);
 
 		if (Input::IsKeyDown(eInputKey::MouseRight))
 		{

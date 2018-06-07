@@ -16,18 +16,24 @@ struct Targets
 
 uniform Targets target;
 
-layout (std140, binding = 0) uniform Camera
-{
-	mat4 projection;
-	mat4 view;
-	vec3 position;
-	vec3 heading;
-};
+// Gamma correction
+// TODO: move to its own shader?
+// as it should be done very last
+uniform bool bGammaCorrect;
+uniform float gamma;
 
 void main()
 {
 	vec3 fAlbedo = texture(target.gAlbedoSpec, fTexCoords).rgb;
 	vec3 lColor = texture(target.lColor, fTexCoords).rgb;
 
-	fragcolor = vec4(fAlbedo * lColor, 1.f);
+	vec3 color = fAlbedo * lColor;
+	
+	// Gamma correction
+	if (bGammaCorrect)
+	{
+		color = pow(color, vec3(1.f / gamma));
+	}
+	
+	fragcolor = vec4(color, 1.f);
 }

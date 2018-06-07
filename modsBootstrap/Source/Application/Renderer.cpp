@@ -79,7 +79,9 @@ namespace mods
 	// final size			4 bytes
 
 	Renderer::Renderer(uint32 width, uint32 height)
-		: m_GTarget(width, height)
+		: m_bGammaCorrect(false)
+		, m_GammaExponent(2.2f)
+		, m_GTarget(width, height)
 		, m_LTarget(width, height)
 		, m_Width(width)
 		, m_Height(height)
@@ -183,6 +185,16 @@ namespace mods
 		}
 	}
 
+	void Renderer::EnableGammaCorrection(bool enable)
+	{
+		m_Singleton->m_bGammaCorrect = enable;
+	}
+
+	void Renderer::SetGammaExponent(float gamma)
+	{
+		m_Singleton->m_GammaExponent = glm::max(0.001f, gamma);
+	}
+
 	void Renderer::StartFrame()
 	{
 	}
@@ -192,11 +204,11 @@ namespace mods
 		m_GTarget.Bind();
 
 		glEnable(GL_DEPTH_TEST);
-
-		// Allow for optional writing to stencil buffer
-		//glEnable(GL_STENCIL_TEST);
-
 		glDepthMask(GL_TRUE);
+
+		// By default, no stencil testing
+		// Can still be used if desired
+		glDisable(GL_STENCIL_TEST);
 
 		// No blending allowed during geometry pass
 		glDisable(GL_BLEND);
@@ -318,23 +330,18 @@ namespace mods
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-		// Make function in render target
-		{
-			glBindFramebuffer(GL_READ_FRAMEBUFFER, m_LTarget.GetHandle());
-			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
-
-			//// TODO: need to track size of viewport
-			//// Copy the depth and stencil values to be potenially used for post processing
-			glBlitFramebuffer(0, 0, m_LTarget.GetWidth(), m_LTarget.GetHeight(), 0, 0, m_LTarget.GetWidth(), m_LTarget.GetHeight(), GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT, GL_NEAREST);
-
-			glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		}
-
 		m_PPShader.Bind();
 		m_GTarget.GetTarget(m_PosIdx).Bind(0);
 		m_GTarget.GetTarget(m_NorIdx).Bind(1);
 		m_GTarget.GetTarget(m_AlbIdx).Bind(2);
 		m_LTarget.GetTarget(m_ColIdx).Bind(3);
+
+		// Only enable gamma correction during last pass
+		// TODO: replace with gamma correct shader, it is the
+		// shader that will do the last draw to the back buffer
+		// if will take in two uniforms (bGammaCorrect and gamma (default for gamma is 2.2)
+		m_PPShader.SetUniformValue("bGammaCorrect", m_bGammaCorrect);
+		m_PPShader.SetUniformValue("gamma", m_GammaExponent);
 
 		glBindVertexArray(m_VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0);
