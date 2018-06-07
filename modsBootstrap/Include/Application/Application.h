@@ -71,8 +71,8 @@ namespace mods
 
 	private:
 
-		// Handles errors encountered by openGL
-		static void HandleGLError(int32 error, const char* message);
+		// Handles errors encountered by glfw
+		static void HandleGLFWError(int32 error, const char* message);
 
 		// Handles resizing of window
 		static void HandleFramebufferResize(GLFWwindow* window, int32 width, int32 height);

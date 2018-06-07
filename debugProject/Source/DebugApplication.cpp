@@ -14,6 +14,7 @@ using namespace mods;
 
 DebugApplication::DebugApplication()
 {
+	m_ModelTransform = glm::mat4(1.f);
 }
 
 DebugApplication::~DebugApplication()
@@ -60,51 +61,50 @@ bool DebugApplication::Shutdown()
 
 void DebugApplication::Tick(float deltaTime)
 {
-	// Update camera
+	float speed = 5.f * deltaTime;
+
+	glm::vec3 forward = m_Camera.GetHeading() * speed;
+	if (Input::IsKeyDown(eInputKey::W))
+		m_Camera.Position += forward;
+	if (Input::IsKeyDown(eInputKey::S))
+		m_Camera.Position -= forward;
+
+	glm::vec3 right = glm::normalize(glm::cross(m_Camera.GetHeading(), glm::vec3(0.f, 1.f, 0.f))) * speed;
+	if (Input::IsKeyDown(eInputKey::D))
+		m_Camera.Position += right;
+	if (Input::IsKeyDown(eInputKey::A))
+		m_Camera.Position -= right;
+
+	glm::vec3 up(0.f, speed, 0.f);
+	if (Input::IsKeyDown(eInputKey::E))
+		m_Camera.Position += up;
+	if (Input::IsKeyDown(eInputKey::Q))
+		m_Camera.Position -= up;
+
+	if (Input::WasKeyPressed(eInputKey::F1))
+		Renderer::EnableGammaCorrection(true);
+	if (Input::WasKeyPressed(eInputKey::F2))
+		Renderer::EnableGammaCorrection(false);
+
+	if (Input::IsKeyDown(eInputKey::MouseRight))
 	{
-		float speed = 5.f * deltaTime;
+		float DeltaX = Input::GetDeltaX() * 0.3f;
+		float DeltaY = Input::GetDeltaY() * 0.3f;
 
-		glm::vec3 forward = m_Camera.GetHeading() * speed;
-		if (Input::IsKeyDown(eInputKey::W))
-			m_Camera.Position += forward;
-		if (Input::IsKeyDown(eInputKey::S))
-			m_Camera.Position -= forward;
+		glm::vec3 rot = m_Camera.GetRotation();
 
-		glm::vec3 right = glm::normalize(glm::cross(m_Camera.GetHeading(), glm::vec3(0.f, 1.f, 0.f))) * speed;
-		if (Input::IsKeyDown(eInputKey::D))
-			m_Camera.Position += right;
-		if (Input::IsKeyDown(eInputKey::A))
-			m_Camera.Position -= right;
+		rot.y = glm::mod(rot.y + DeltaX, 360.f);
+		rot.x = glm::clamp(rot.x + DeltaY, -89.f, 89.f);
 
-		glm::vec3 up(0.f, speed, 0.f);
-		if (Input::IsKeyDown(eInputKey::E))
-			m_Camera.Position += up;
-		if (Input::IsKeyDown(eInputKey::Q))
-			m_Camera.Position -= up;
-		
-		if (Input::WasKeyPressed(eInputKey::F1))
-			Renderer::EnableGammaCorrection(true);
-		if (Input::WasKeyPressed(eInputKey::F2))
-			Renderer::EnableGammaCorrection(false);
-
-		if (Input::IsKeyDown(eInputKey::MouseRight))
-		{
-			float DeltaX = Input::GetDeltaX() * 0.3f;
-			float DeltaY = Input::GetDeltaY() * 0.3f;
-
-			glm::vec3 rot = m_Camera.GetRotation();
-
-			rot.y = glm::mod(rot.y + DeltaX, 360.f);
-			rot.x = glm::clamp(rot.x + DeltaY, -89.f, 89.f);
-			
-			m_Camera.SetRotation(rot);
-		}	
+		m_Camera.SetRotation(rot);
 	}
+
+	m_ModelTransform = glm::rotate(m_ModelTransform, glm::radians(45.f) * deltaTime, glm::vec3(0.f, 1.f, 0.f));
 }
 
 void DebugApplication::Draw()
 {
 	Renderer::SetCamera(m_Camera);
 
-	Renderer::DrawModel(m_Nanosuit, m_ModelShader, glm::mat4(1.f));
+	Renderer::DrawModel(m_Nanosuit, m_ModelShader, m_ModelTransform);
 }

@@ -81,6 +81,7 @@ namespace mods
 	Renderer::Renderer(uint32 width, uint32 height)
 		: m_bGammaCorrect(false)
 		, m_GammaExponent(2.2f)
+		, m_HDRExposure(1.f)
 		, m_GTarget(width, height)
 		, m_LTarget(width, height)
 		, m_Width(width)
@@ -193,6 +194,11 @@ namespace mods
 	void Renderer::SetGammaExponent(float gamma)
 	{
 		m_Singleton->m_GammaExponent = glm::max(0.001f, gamma);
+	}
+
+	void Renderer::SetExposure(float exposure)
+	{
+		m_Singleton->m_HDRExposure = exposure;
 	}
 
 	void Renderer::StartFrame()
@@ -332,7 +338,7 @@ namespace mods
 
 		m_PPShader.Bind();
 		m_GTarget.GetTarget(m_PosIdx).Bind(0);
-		m_GTarget.GetTarget(m_NorIdx).Bind(1);
+		m_GTarget.GetTarget(m_NorIdx).Bind(1);		
 		m_GTarget.GetTarget(m_AlbIdx).Bind(2);
 		m_LTarget.GetTarget(m_ColIdx).Bind(3);
 
@@ -342,6 +348,10 @@ namespace mods
 		// if will take in two uniforms (bGammaCorrect and gamma (default for gamma is 2.2)
 		m_PPShader.SetUniformValue("bGammaCorrect", m_bGammaCorrect);
 		m_PPShader.SetUniformValue("gamma", m_GammaExponent);
+
+		// Update tone mapping exposure
+		// TODO: needs to before gamma correction (same shader will do)
+		m_PPShader.SetUniformValue("exposure", m_HDRExposure);
 
 		glBindVertexArray(m_VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0);
@@ -404,7 +414,7 @@ namespace mods
 
 		assert(m_GTarget.Create());
 
-		m_ColIdx = m_LTarget.AttachTarget(eTextureFormat::RGB);
+		m_ColIdx = m_LTarget.AttachTarget(eTextureFormat::RGB16F);		// 16 bits float since we are using high dynamic range
 		
 		assert(m_LTarget.Create());
 

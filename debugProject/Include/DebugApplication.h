@@ -30,4 +30,6 @@ private:
 
 	mods::ShaderProgram m_ModelShader;
 	mods::Model m_Nanosuit;
+
+	glm::mat4 m_ModelTransform;
 };

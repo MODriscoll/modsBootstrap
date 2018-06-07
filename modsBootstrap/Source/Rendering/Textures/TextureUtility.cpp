@@ -48,24 +48,28 @@ namespace mods
 			{
 				case eTextureFormat::R:
 				case eTextureFormat::R16F:
+				case eTextureFormat::R32F:
 				{
 					return GL_R16;
 				};
 
 				case eTextureFormat::RG:
 				case eTextureFormat::RG16F:
+				case eTextureFormat::RG32F:
 				{
 					return GL_RG;
 				}
 
 				case eTextureFormat::RGB:
 				case eTextureFormat::RGB16F:
+				case eTextureFormat::RGB32F:
 				{
 					return GL_RGB;
 				}
 
 				case eTextureFormat::RGBA:
 				case eTextureFormat::RGBA16F:
+				case eTextureFormat::RGBA32F:
 				{
 					return GL_RGBA;
 				}

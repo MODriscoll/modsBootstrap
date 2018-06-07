@@ -22,12 +22,20 @@ uniform Targets target;
 uniform bool bGammaCorrect;
 uniform float gamma;
 
+// HDR tonemapping
+// Needs to be calculated before gamma correction
+// as it converts HDR to LDR
+uniform float exposure;
+
 void main()
 {
 	vec3 fAlbedo = texture(target.gAlbedoSpec, fTexCoords).rgb;
 	vec3 lColor = texture(target.lColor, fTexCoords).rgb;
 
 	vec3 color = fAlbedo * lColor;
+	
+	// Tone mapping
+	color = vec3(1.f) - exp(-color * exposure);
 	
 	// Gamma correction
 	if (bGammaCorrect)

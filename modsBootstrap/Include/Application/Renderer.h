@@ -65,6 +65,9 @@ namespace mods
 		// Sets the exponent to use for gamma correction
 		static void SetGammaExponent(float gamma);
 
+		// Sets the exposure for tone mapping HDR lighting
+		static void SetExposure(float exposure);
+
 	protected:
 
 		// Starts new frame of rendering
@@ -109,6 +112,9 @@ namespace mods
 
 		// Gamma exponent for gamma correction
 		float m_GammaExponent;
+
+		// Exposure for tonemapping high dynamic range lighting
+		float m_HDRExposure;
 
 	protected:
 
