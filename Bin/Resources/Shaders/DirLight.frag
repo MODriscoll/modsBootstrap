@@ -25,47 +25,47 @@ layout (std140, binding = 0) uniform Camera
 
 struct DirectionalLight
 {
-	vec3 color;
-	float ambientstrength;
-	float diffusestrength;	
-	
-	vec3 direction;
+	vec3 color;	
+	float intensity;
+	vec3 direction;	
 };
+
+#ifndef MAX_DIRECTIONAL_LIGHTS
+#define MAX_DIRECTIONAL_LIGHTS 4
+#endif
 
 struct PointLight
 {
 	vec3 color;
-	float ambientstrength;
-	float diffusestrength;	
-	
-	vec3 position;
-
-	float constant;
-	float linear;
-	float quadratic;
+	float intensity;
+	vec3 position;	
+	float radius;
 };
+
+#ifndef MAX_POINT_LIGHTS
+#define MAX_POINT_LIGHTS 10
+#endif
 
 struct SpotLight
 {
 	vec3 color;
-	float ambientstrength;
-	float diffusestrength;
-	
 	vec3 position;
 	vec3 direction;
-	float innercutoff;
-	float outercutoff;
-	
-	float constant;
-	float linear;
-	float quadratic;
+	float intensity;
+	float radius;
+	float inner;
+	float outer;
 };
+
+#ifndef MAX_SPOT_LIGHTS
+#define MAX_SPOT_LIGHTS 10
+#endif
 
 layout (std140, binding = 1) uniform Lights
 {
-	DirectionalLight[4] dirlights;
-	PointLight[10] pntlights;
-	SpotLight[10] sptlights;
+	DirectionalLight[MAX_DIRECTIONAL_LIGHTS] dirlights;
+	PointLight[MAX_POINT_LIGHTS] pntlights;
+	SpotLight[MAX_SPOT_LIGHTS] sptlights;
 	
 	int dircount;
 	int pntcount;
@@ -74,8 +74,7 @@ layout (std140, binding = 1) uniform Lights
 
 uniform int index;
 
-// Just using lights RGB values (need to check if they should have an alpha)
-// Also assuming shininess value is 32 (need to make target to pass that in
+// Assuming shininess value is 32 (need to make target to pass that in
 
 void main()
 {
@@ -91,12 +90,12 @@ void main()
 		
 		// Diffuse
 		float diff = max(dot(fNormal, lightdir), 0.f);
-		vec3 diffuse = light.color * diff;
+		vec3 diffuse = light.color * light.intensity * diff;
 		
 		// Specular
 		vec3 reflectdir = reflect(-lightdir, fNormal);
 		float spec = pow(max(dot(viewdir, reflectdir), 0.f), 32);
-		vec3 specular = light.color * spec * texture(target.gAlbedoSpec, fTexCoords).a;
+		vec3 specular = light.color * light.intensity * spec * texture(target.gAlbedoSpec, fTexCoords).a;
 		
 		lColor = diffuse + specular;
 	}

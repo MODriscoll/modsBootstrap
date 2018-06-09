@@ -6,10 +6,16 @@ namespace mods
 {
 	Light::Light()
 		: Color(1.f)
+		, m_Intensity(10.f)
 		, m_AmbientStrength(0.5f)
 		, m_DiffuseStrength(0.5f)
 	{
 
+	}
+
+	void Light::SetIntensity(float intensity)
+	{
+		m_Intensity = glm::max(intensity, 0.f);
 	}
 
 	void Light::SetAmbientStrength(float strength)

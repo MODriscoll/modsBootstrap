@@ -59,6 +59,11 @@ namespace mods
 
 	public:
 
+		// Enables/Disables wireframe rendering
+		static void EnableWireframe(bool enable);
+
+	public:
+
 		// Enables/Disables gamma correction
 		static void EnableGammaCorrection(bool enable);
 
@@ -104,6 +109,11 @@ namespace mods
 	private:
 
 		void GenerateSphere();
+
+	protected:
+
+		// If we are rendering in wireframe
+		bool m_bRenderWireframe;
 
 	protected:
 

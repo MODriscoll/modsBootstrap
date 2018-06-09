@@ -32,11 +32,13 @@ void main()
 	vec3 fAlbedo = texture(target.gAlbedoSpec, fTexCoords).rgb;
 	vec3 lColor = texture(target.lColor, fTexCoords).rgb;
 
-	vec3 color = fAlbedo * lColor;
+	vec3 color = lColor;
 	
 	// Tone mapping
 	color = vec3(1.f) - exp(-color * exposure);
 	
+	color = fAlbedo * color;
+
 	// Gamma correction
 	if (bGammaCorrect)
 	{

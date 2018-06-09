@@ -6,37 +6,30 @@
 namespace mods
 {
 	DirectionalLightData::DirectionalLightData(const DirectionalLight& light)
-		: Color(light.Color, 1.f)
-		, AmbientStrength(light.GetAmbientStrength())
-		, DiffuseStrength(light.GetDiffuseStrength())
+		: Color(light.Color)
+		, Intensity(light.GetIntensity())
 		, Direction(light.GetDirection(), 0.f)
 	{
 
 	}
 
 	PointLightData::PointLightData(const PointLight& light)
-		: Color(light.Color, 1.f)
-		, AmbientStrength(light.GetAmbientStrength())
-		, DiffuseStrength(light.GetDiffuseStrength())
+		: Color(light.Color)
+		, Intensity(light.GetIntensity())
 		, Position(light.Position)
-		, Constant(light.Attenuation.Constant)
-		, Linear(light.Attenuation.Linear)
-		, Quadratic(light.Attenuation.Quadratic)
+		, Radius(light.GetRadius())
 	{
 
 	}
 
 	SpotLightData::SpotLightData(const SpotLight& light)
 		: Color(light.Color, 1.f)
-		, AmbientStrength(light.GetAmbientStrength())
-		, DiffuseStrength(light.GetDiffuseStrength())
 		, Position(light.Position, 1.f)
-		, Direction(light.GetDirection())
+		, Direction(light.GetDirection(), 0.f)
+		, Intensity(light.GetIntensity())
+		, Radius(light.GetRadius())
 		, InnerCutoff(light.GetInnerCutoff())
 		, OuterCutoff(light.GetOuterCutoff())
-		, Constant(light.Attenuation.Constant)
-		, Linear(light.Attenuation.Linear)
-		, Quadratic(light.Attenuation.Quadratic)
 	{
 
 	}

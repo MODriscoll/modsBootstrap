@@ -11,7 +11,10 @@ namespace mods
 	class PointLight;
 	class SpotLight;
 
-	// Structs used by the renderer to store lighting data
+	// These structs are aligned to so the can be
+	// written to a uniform buffer with one call.
+	// Each struct size (sizeof()) is a multiplication of 16
+
 	struct DirectionalLightData
 	{
 	public:
@@ -19,24 +22,13 @@ namespace mods
 		DirectionalLightData() = default;
 		DirectionalLightData(const DirectionalLight& light);
 
-	public:
+	protected:
 
-		// Color of the light
-		glm::vec4 Color;
+		// Color of the light (in linear space)
+		glm::vec3 Color;
 
-		// Ambient strength of the light
-		float AmbientStrength;
-
-		// Diffuse strength of the light
-		float DiffuseStrength;
-
-	private:
-
-		// Padding variables
-		float Padding1;
-		float Padding2;
-
-	public:
+		// Intensity of this light
+		float Intensity;
 
 		// Direction of the light
 		glm::vec4 Direction;
@@ -49,42 +41,19 @@ namespace mods
 		PointLightData() = default;
 		PointLightData(const PointLight& light);
 
-	public:
+	protected:
 
-		// Color of the light
-		glm::vec4 Color;
+		// Color of the light (in linear space)
+		glm::vec3 Color;
 
-		// Ambient strength of the light
-		float AmbientStrength;
-
-		// Diffuse strength of the light
-		float DiffuseStrength;
-
-	private:
-
-		// Padding variables
-		float Padding1;
-		float Padding2;
-
-	public:
+		// Intensity of this light
+		float Intensity;
 
 		// Position of the light
-		glm::vec3 Position;
+		glm::vec3 Position;	
 
-		// Constant of the attenuation
-		float Constant;
-
-		// Linear of the attenuation
-		float Linear;
-
-		// Quadratic of the attenuation
-		float Quadratic;
-
-	private:
-
-		// Padding variables
-		float Padding3;
-		float Padding4;
+		// Radius of this light
+		float Radius;
 	};
 
 	struct SpotLightData
@@ -94,44 +63,27 @@ namespace mods
 		SpotLightData() = default;
 		SpotLightData(const SpotLight& light);
 
-	public:
+	protected:
 
-		// Color of the light
+		// Color of the light (in linear space)
 		glm::vec4 Color;
-
-		// Ambient strength of the light
-		float AmbientStrength;
-
-		// Diffuse strength of the light
-		float DiffuseStrength;
-
-	private:
-
-		// Padding variables
-		float Padding1;
-		float Padding2;
-
-	public:
 
 		// Position of the light
 		glm::vec4 Position;
 
-		// Direction of the light
-		glm::vec3 Direction;
+		// Direction of this light
+		glm::vec4 Direction;
 
-		// Inner cutoff of the light
+		// Intensity of this light
+		float Intensity;
+
+		// Radius (length) of this light
+		float Radius;
+
+		// Inner cutoff of this light
 		float InnerCutoff;
-
-		// Outer cutoff of the light
+		
+		// Outer cutoff of this light
 		float OuterCutoff;
-
-		// Constant of the attenuation
-		float Constant;
-
-		// Linear of the attenuation
-		float Linear;
-
-		// Quadratic of the attenuation
-		float Quadratic;
 	};
 }

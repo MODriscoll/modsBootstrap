@@ -24,6 +24,9 @@ namespace mods
 
 	public:
 
+		// Set this lights intensity
+		void SetIntensity(float intensity);
+
 		// Set this lights ambient strength
 		void SetAmbientStrength(float strength);
 
@@ -33,6 +36,9 @@ namespace mods
 	public:
 
 		inline virtual eLightType GetLightType() const = 0;
+
+		// Get this lights intensity
+		inline float GetIntensity() const { return m_Intensity; }
 
 		// Get the lights ambient strength
 		inline float GetAmbientStrength() const { return m_AmbientStrength; }
@@ -46,6 +52,9 @@ namespace mods
 		glm::vec3 Color;
 
 	protected:
+
+		// The intensity of this light
+		float m_Intensity;
 
 		// Lights ambience strength
 		float m_AmbientStrength;

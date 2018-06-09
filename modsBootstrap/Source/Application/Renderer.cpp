@@ -79,7 +79,8 @@ namespace mods
 	// final size			4 bytes
 
 	Renderer::Renderer(uint32 width, uint32 height)
-		: m_bGammaCorrect(false)
+		: m_bRenderWireframe(false)
+		, m_bGammaCorrect(false)
 		, m_GammaExponent(2.2f)
 		, m_HDRExposure(1.f)
 		, m_GTarget(width, height)
@@ -186,6 +187,11 @@ namespace mods
 		}
 	}
 
+	void Renderer::EnableWireframe(bool enable)
+	{
+		m_Singleton->m_bRenderWireframe = enable;
+	}
+
 	void Renderer::EnableGammaCorrection(bool enable)
 	{
 		m_Singleton->m_bGammaCorrect = enable;
@@ -216,14 +222,29 @@ namespace mods
 		// Can still be used if desired
 		glDisable(GL_STENCIL_TEST);
 
+		// Reset stencil operations for potential stencil testing
+		glStencilFunc(GL_ALWAYS, 0, 0xFF);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
 		// No blending allowed during geometry pass
 		glDisable(GL_BLEND);
 
-		// Enable back face culling
-		glEnable(GL_CULL_FACE);
-		glCullFace(GL_BACK);
+		// Disable culling if wireframe is active
+		// so all geometry is visible from all sides
+		if (m_bRenderWireframe)
+		{
+			glDisable(GL_CULL_FACE);
+		}
+		else
+		{
+			glEnable(GL_CULL_FACE);
+			glCullFace(GL_BACK);
+		}
 
+		glClearColor(0.f, 0.f, 0.f, 1.f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+		glPolygonMode(GL_FRONT_AND_BACK, m_bRenderWireframe ? GL_LINE : GL_FILL);
 	}
 
 	void Renderer::StartLightingPass()
@@ -241,7 +262,20 @@ namespace mods
 
 		m_LTarget.Bind();
 
-		// Only clear color
+		if (m_bRenderWireframe)
+		{
+			// Clear screen to white, so 'everything' is lit
+			glClearColor(1.f, 1.f, 1.f, 1.f);
+			glClear(GL_COLOR_BUFFER_BIT);
+
+			// No lighting during wireframe, so 
+			// all lines can be visibly seen
+			return;
+		}
+
+		// Clear screen to black, so areas that do not
+		// recieve light default to being unlit
+		glClearColor(0.2f, 0.2f, 0.2f, 1.f);	// 0.2f to act as temporary ambient lighting
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// No longer write to the depth buffer
@@ -297,7 +331,7 @@ namespace mods
 
 				// No longer need both faces
 				glEnable(GL_CULL_FACE);
-				glCullFace(GL_FRONT);
+				glCullFace(GL_FRONT); 
 
 				m_PNTShader.Bind();
 				m_PNTShader.SetUniformValue("index", i);
@@ -335,6 +369,13 @@ namespace mods
 		m_LTarget.Unbind();
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+		// By default, post processing should always pass
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_STENCIL_TEST);
+
+		// Always fill the quad
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 		m_PPShader.Bind();
 		m_GTarget.GetTarget(m_PosIdx).Bind(0);
@@ -414,7 +455,7 @@ namespace mods
 
 		assert(m_GTarget.Create());
 
-		m_ColIdx = m_LTarget.AttachTarget(eTextureFormat::RGB16F);		// 16 bits float since we are using high dynamic range
+		m_ColIdx = m_LTarget.AttachTarget(eTextureFormat::RGB32F);		// 16 bits float since we are using high dynamic range
 		
 		assert(m_LTarget.Create());
 
@@ -514,16 +555,16 @@ namespace mods
 			{
 				for (int32 x = 0; x <= X_SEGMENTS; ++x)
 				{				
-					indices.push_back(y       * (X_SEGMENTS + 1) + x); 
 					indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
+					indices.push_back(y       * (X_SEGMENTS + 1) + x); 
 				}
 			}
 			else
 			{
 				for (int32 x = X_SEGMENTS; x >= 0; --x)
-				{					
-					indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);	
+				{									
 					indices.push_back(y       * (X_SEGMENTS + 1) + x);
+					indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
 				}
 			}
 			oddRow = !oddRow;

@@ -15,47 +15,47 @@ layout (std140, binding = 0) uniform Camera
 
 struct DirectionalLight
 {
-	vec3 color;
-	float ambientstrength;
-	float diffusestrength;	
-	
+	vec3 color;	
+	float intensity;
 	vec3 direction;
 };
+
+#ifndef MAX_DIRECTIONAL_LIGHTS
+#define MAX_DIRECTIONAL_LIGHTS 4
+#endif
 
 struct PointLight
 {
 	vec3 color;
-	float ambientstrength;
-	float diffusestrength;	
-	
-	vec3 position;
-
-	float constant;
-	float linear;
-	float quadratic;
+	float intensity;
+	vec3 position;	
+	float radius;
 };
+
+#ifndef MAX_POINT_LIGHTS
+#define MAX_POINT_LIGHTS 10
+#endif
 
 struct SpotLight
 {
 	vec3 color;
-	float ambientstrength;
-	float diffusestrength;
-	
 	vec3 position;
 	vec3 direction;
-	float innercutoff;
-	float outercutoff;
-	
-	float constant;
-	float linear;
-	float quadratic;
+	float intensity;
+	float radius;
+	float inner;
+	float outer;
 };
+
+#ifndef MAX_SPOT_LIGHTS
+#define MAX_SPOT_LIGHTS 10
+#endif
 
 layout (std140, binding = 1) uniform Lights
 {
-	DirectionalLight dirlights[4];
-	PointLight pntlights[10];
-	SpotLight sptlights[10];
+	DirectionalLight[MAX_DIRECTIONAL_LIGHTS] dirlights;
+	PointLight[MAX_POINT_LIGHTS] pntlights;
+	SpotLight[MAX_SPOT_LIGHTS] sptlights;
 	
 	int dircount;
 	int pntcount;
@@ -63,6 +63,7 @@ layout (std140, binding = 1) uniform Lights
 };
 
 uniform int index;
+//uniform mat4 model;
 
 void main()
 {
@@ -70,11 +71,19 @@ void main()
 	
 	fTexCoords = vTexCoords;
 
-	float lightmax = max(max(light.color.r, light.color.b), light.color.g);
-	float radius = (-light.linear - sqrt(light.linear * light.linear - 4 * light.quadratic * (light.constant - (256.f / 5.f) * lightmax))) / (2.f * light.quadratic);
-	//float radius = 1.f;
-	mat4 model = mat4(vec4(radius, 0.f, 0.f, 0.f),
-	vec4(0.f, radius, 0.f, 0.f), vec4(0.f, 0.f, radius, 0.f),
-	vec4(light.position, 1.f));
+	// Construct model matrix using
+	// the lights position and radius
+	mat4 model = mat4(
+		vec4(light.radius, 0.f, 0.f, 0.f),
+		vec4(0.f, light.radius, 0.f, 0.f), 
+		vec4(0.f, 0.f, light.radius, 0.f),
+		vec4(light.position, 1.f));
+	//float rad = dircount;//5.f;
+	//mat4 model = mat4(
+	//	vec4(rad, 0.f, 0.f, 0.f),	
+	//	vec4(0.f, rad, 0.f, 0.f),
+	//	vec4(0.f, 0.f, rad, 0.f),
+    //	vec4(light.position, 1.f));
+		
 	gl_Position = projection * view * model * vec4(vPosition, 1.f);
 }

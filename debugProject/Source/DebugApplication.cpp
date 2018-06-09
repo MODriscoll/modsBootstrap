@@ -33,8 +33,8 @@ bool DebugApplication::Startup()
 	{
 		mods::DirectionalLight dirlight;
 
-		dirlight.Color.r = 0.f;
-		dirlight.SetDirection(glm::vec3(0.f, -1.f, 0.f));
+		dirlight.Color = glm::vec3(0.f, 1.f, 1.f);
+		dirlight.SetDirection(glm::vec3(1.f, -1.f, 0.f));
 
 		Renderer::AddLight(dirlight);
 	}
@@ -43,10 +43,10 @@ bool DebugApplication::Startup()
 	{
 		mods::PointLight pntlight;
 
-		pntlight.Color = glm::vec3(1.f, 0.f, 0.f);
+		pntlight.Color = glm::vec3(0.f, 1.f, 0.f);
 		pntlight.Position = glm::vec3(3.f, 12.f, 4.f);
-		pntlight.Attenuation.Linear = 0.022f;
-		pntlight.Attenuation.Quadratic = 0.0019f;
+		pntlight.SetIntensity(100.f);
+		pntlight.SetRadius(15.f);
 		
 		Renderer::AddLight(pntlight);
 	}
@@ -97,6 +97,13 @@ void DebugApplication::Tick(float deltaTime)
 		rot.x = glm::clamp(rot.x + DeltaY, -89.f, 89.f);
 
 		m_Camera.SetRotation(rot);
+	}
+
+	static bool wire = false;
+	if (Input::WasKeyPressed(eInputKey::F5))
+	{
+		wire = !wire;
+		Renderer::EnableWireframe(wire);
 	}
 
 	m_ModelTransform = glm::rotate(m_ModelTransform, glm::radians(45.f) * deltaTime, glm::vec3(0.f, 1.f, 0.f));
