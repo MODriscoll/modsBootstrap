@@ -2,8 +2,6 @@
 
 layout (location = 0) out vec3 lColor;
 
-in vec2 fTexCoords;
-
 // Textures containing the geometry
 // data from the geometry pass
 struct GTargets
@@ -72,6 +70,12 @@ layout (std140, binding = 1) uniform Lights
 	int sptcount;
 };
 
+layout (std140, binding = 2) uniform Application
+{
+	vec2 viewportsize;
+	float time;
+};
+
 uniform int index;
 
 // Assuming shininess value is 32 (need to make target to pass that in
@@ -94,11 +98,10 @@ void main()
 {
 	PointLight light = pntlights[index];
 	
-	// Size of viewport, should be a uniform
-	vec2 gScreenSize = vec2(1280.f, 720.f);
+	vec2 texcoord = gl_FragCoord.xy / viewportsize;
 
-	vec3 fPosition = texture(target.gPosition, gl_FragCoord.xy / gScreenSize).rgb;
-	vec3 fNormal = texture(target.gNormal, gl_FragCoord.xy / gScreenSize).rgb;
+	vec3 fPosition = texture(target.gPosition, texcoord).rgb;
+	vec3 fNormal = texture(target.gNormal, texcoord).rgb;
 	vec3 viewdir = normalize(position - fPosition);
 	
 	// Apply point light
@@ -113,7 +116,7 @@ void main()
 		// Specular
 		vec3 reflectdir = reflect(-lightdir, fNormal);
 		float spec = pow(max(dot(viewdir, reflectdir), 0.f), 32);
-		vec3 specular = light.color * light.intensity * spec * texture(target.gAlbedoSpec, gl_FragCoord.xy / gScreenSize).a;
+		vec3 specular = light.color * light.intensity * spec * texture(target.gAlbedoSpec, texcoord).a;
 		
 		// Attenuation
 		float attenuation = GetFalloff(length(displacement), light.radius);

@@ -22,6 +22,7 @@
     <ClCompile Include="Source\Application\Application.cpp" />
     <ClCompile Include="Source\Application\Input.cpp" />
     <ClCompile Include="Source\Application\Renderer.cpp" />
+    <ClCompile Include="Source\Buffers\AppUniformBuffer.cpp" />
     <ClCompile Include="Source\Buffers\CameraUniformBuffer.cpp" />
     <ClCompile Include="Source\Buffers\FrameBuffer.cpp" />
     <ClCompile Include="Source\Buffers\LightUniformBuffer.cpp" />
@@ -63,6 +64,7 @@
     <ClInclude Include="Include\Buffers\FrameBuffer.h" />
     <ClInclude Include="Include\Buffers\LightUniformBuffer.h" />
     <ClInclude Include="Include\Buffers\UniformBuffer.h" />
+    <ClInclude Include="Include\Buffers\AppUniformBuffer.h" />
     <ClInclude Include="Include\Camera\Camera.h" />
     <ClInclude Include="Include\IncludeGLFW.h" />
     <ClInclude Include="Include\Buffers\Buffer.h" />

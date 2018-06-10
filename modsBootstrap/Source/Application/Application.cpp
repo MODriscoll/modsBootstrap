@@ -126,7 +126,7 @@ namespace mods
 				// Perform tick
 				Tick((float)deltatime);
 
-				Render->StartFrame();
+				Render->StartFrame((float)glfwGetTime());
 				Render->StartGeometryPass();
 
 				// Draw geometry for this frame
@@ -196,7 +196,7 @@ namespace mods
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 		// temp (need to add viewport size to a uniform buffer for point light calculations to use)
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+		//glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 		#if _DEBUG
 
@@ -286,7 +286,7 @@ namespace mods
 
 	void Application::HandleFramebufferResize(GLFWwindow* window, int32 width, int32 height)
 	{
-		glViewport(0, 0, width, height);
+		//glViewport(0, 0, width, height);
 		Renderer::m_Singleton->m_Width = width;
 		Renderer::m_Singleton->m_Height = height;
 	}

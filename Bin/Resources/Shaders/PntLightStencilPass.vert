@@ -74,12 +74,6 @@ void main()
 		vec4(0.f, light.radius, 0.f, 0.f), 
 		vec4(0.f, 0.f, light.radius, 0.f),
 		vec4(light.position, 1.f));
-	//float rad = dircount;//5.f;
-	//mat4 model = mat4(
-	//	vec4(rad, 0.f, 0.f, 0.f),	
-	//	vec4(0.f, rad, 0.f, 0.f),
-	//	vec4(0.f, 0.f, rad, 0.f),
-    //	vec4(light.position, 1.f));
 		
 	gl_Position = projection * view * model * vec4(vPosition, 1.f);
 }

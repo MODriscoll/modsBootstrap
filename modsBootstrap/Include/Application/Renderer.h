@@ -9,6 +9,7 @@
 
 #include "Buffers\CameraUniformBuffer.h"
 #include "Buffers\LightUniformBuffer.h"
+#include "Buffers\AppUniformBuffer.h"
 
 #include <vector>
 
@@ -37,8 +38,7 @@ namespace mods
 
 	public:
 
-		// Set the uniform data for the camera
-		// Should be called before frame starts
+		// Set the camera to use to render the scene
 		static void SetCamera(const Camera& camera);
 
 	public:
@@ -76,7 +76,7 @@ namespace mods
 	protected:
 
 		// Starts new frame of rendering
-		virtual void StartFrame();
+		virtual void StartFrame(float time);
 
 		// Called to start the geometry pass
 		virtual void StartGeometryPass();
@@ -142,6 +142,11 @@ namespace mods
 
 	protected:
 
+		// The camera to use when rendering
+		const Camera* m_Camera;
+
+	protected:
+
 		// Shader for performing stencil test
 		ShaderProgram m_SShader;
 
@@ -162,6 +167,9 @@ namespace mods
 
 		// Lights uniform buffer
 		LightUniforms m_LightUniform;
+
+		// Application uniform buffer
+		AppUniforms m_AppUniform;
 
 	private:
 

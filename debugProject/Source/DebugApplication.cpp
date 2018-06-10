@@ -51,6 +51,8 @@ bool DebugApplication::Startup()
 		Renderer::AddLight(pntlight);
 	}
 
+	Renderer::SetCamera(m_Camera);
+
 	return true;
 }
 
@@ -111,7 +113,5 @@ void DebugApplication::Tick(float deltaTime)
 
 void DebugApplication::Draw()
 {
-	Renderer::SetCamera(m_Camera);
-
 	Renderer::DrawModel(m_Nanosuit, m_ModelShader, m_ModelTransform);
 }

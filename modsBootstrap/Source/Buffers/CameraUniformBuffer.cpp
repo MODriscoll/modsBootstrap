@@ -4,14 +4,6 @@
 
 namespace mods
 {
-	// Camera Uniform		binding = 0
-	// mat4 projection		(64 bytes)	(offset=0)
-	// mat4 view			(64 bytes)	(offset=64)
-	// vec3 position		(16 bytes)	(offset=128)
-	// vec3 heading			(16 bytes)	(offset=144)
-
-	// final size			160 bytes
-
 	struct CameraBuffer
 	{
 	public:
@@ -42,7 +34,7 @@ namespace mods
 	};
 
 	CameraUniforms::CameraUniforms()
-		: UniformBuffer(160, 0)
+		: UniformBuffer(sizeof(CameraBuffer), 0)
 	{
 
 	}
@@ -51,6 +43,6 @@ namespace mods
 	{
 		// Convert to aligned data, so we can pass with only one call
 		CameraBuffer buffer(camera);
-		Fill(0, 160, buffer.Data);
+		Fill(0, sizeof(CameraBuffer), buffer.Data);
 	}
 }

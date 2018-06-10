@@ -15,7 +15,7 @@ namespace mods
 		RGB			= 3,
 		RGBA		= 4,
 
-		Count		= 4,
+		Depth		= 5
 	};
 
 	enum class eTextureFormat : int32
@@ -33,6 +33,11 @@ namespace mods
 		R32F			= 0x822E,
 		RG32F			= 0x8230,
 		RGB32F			= 0x8815,
-		RGBA32F			= 0x8814
+		RGBA32F			= 0x8814,
+
+		Depth			= 0x1902,
+		Depth16			= 0x81A5,
+		Depth24			= 0x81A6,
+		Depth32			= 0x81A7
 	};
 }

@@ -17,72 +17,12 @@ namespace mods
 {
 	Renderer* Renderer::m_Singleton = nullptr;
 
-	// Camera Uniform		binding = 0
-	// mat4 projection		(64 bytes)	(offset=0)
-	// mat4 view			(64 bytes)	(offset=64)
-	// vec3 position		(16 bytes)	(offset=128)
-	// vec3 heading			(16 bytes)	(offset=144)
-
-	// final size			160 bytes
-
-	// STRUCTS get padded to be the multiplication of a vec4 (vec4 being 16 bytes)
-
-	// struct directionallight
-	// vec4 color				(16 bytes)	(offset=0)
-	// float ambientstrength	(4 bytes)	(offset=16)
-	// float diffusestrength	(4 bytes)	(offset=20)
-	// vec3 direction			(16 bytes)	(offset=24)
-
-	// final size				40 bytes
-	// padded size				48 bytes
-
-	// struct pointlight			
-	// vec4 color				(16 bytes)	(offset=0)
-	// float ambientstrength	(4 bytes)	(offset=16)
-	// float diffusestrength	(4 bytes)	(offset=20)
-	// vec3 position			(16 bytes)	(offset=24)
-	// float constant			(4 bytes)	(offset=40)
-	// float linear				(4 bytes)	(offset=44)
-	// float quadratic			(4 bytes)	(offset=48)
-
-	// final size				52 bytes
-	// padded size				64 bytes
-
-	// struct spotlight	
-	// vec4 color				(16 bytes)	(offset=0)
-	// float ambientstrength	(4 bytes)	(offset=16)
-	// float diffusestrength	(4 bytes)	(offset=20)
-	// vec3 position			(16 bytes)	(offset=24)
-	// vec3 direction			(16 bytes)	(offset=40)
-	// float innercutoff		(4 bytes)	(offset=56)
-	// float outercutoff		(4 bytes)	(offset=60)
-	// float constant			(4 bytes)	(offset=64)
-	// float linear				(4 bytes)	(offset=68)
-	// float quadratic			(4 bytes)	(offset=72)
-
-	// final size				76 bytes
-	// padded size				80 bytes
-
-	// Light Uniform							binding = 1 (using padded size)
-	// directionallight dirlights[4]			(192 bytes)	(offset=0)
-	// pointlight pntlights[10]					(640 bytes) (offset=192)
-	// spotlight sptlights[10]					(800 bytes) (offset=832)
-	// int dircount								(4 bytes)	(offset=1632)
-	// int pntcount								(4 bytes)	(offset=1636)
-	// int sptcount								(4 bytes)	(offset=1640)
-
-	// final size								1644 bytes
-
-	// Game Uniform			binding = 2
-	// float time			(4 bytes)	(offset=0)
-	
-	// final size			4 bytes
-
 	Renderer::Renderer(uint32 width, uint32 height)
 		: m_bRenderWireframe(false)
 		, m_bGammaCorrect(false)
 		, m_GammaExponent(2.2f)
 		, m_HDRExposure(1.f)
+		, m_Camera(nullptr)
 		, m_GTarget(width, height)
 		, m_LTarget(width, height)
 		, m_Width(width)
@@ -98,7 +38,7 @@ namespace mods
 
 	void Renderer::SetCamera(const Camera& camera)
 	{
-		m_Singleton->m_CameraUniform.UpdateBuffer(camera);
+		m_Singleton->m_Camera = &camera;
 	}
 
 	void Renderer::DrawMesh(const Mesh& mesh, ShaderProgram& program, const glm::mat4x4& transform)
@@ -207,8 +147,16 @@ namespace mods
 		m_Singleton->m_HDRExposure = exposure;
 	}
 
-	void Renderer::StartFrame()
+	void Renderer::StartFrame(float time)
 	{
+		if (m_Camera)
+		{
+			// Update data relating to the camera
+			m_CameraUniform.UpdateBuffer(*m_Camera);
+		}
+
+		// Update data relating to the application
+		m_AppUniform.UpdateBuffer(time, glm::ivec2(1280, 720));
 	}
 
 	void Renderer::StartGeometryPass()
@@ -245,6 +193,8 @@ namespace mods
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		glPolygonMode(GL_FRONT_AND_BACK, m_bRenderWireframe ? GL_LINE : GL_FILL);
+
+		glViewport(0, 0, 1280, 720);
 	}
 
 	void Renderer::StartLightingPass()
@@ -285,8 +235,6 @@ namespace mods
 		m_GTarget.GetTarget(m_PosIdx).Bind(m_PosIdx);
 		m_GTarget.GetTarget(m_NorIdx).Bind(m_NorIdx);
 		m_GTarget.GetTarget(m_AlbIdx).Bind(m_AlbIdx);
-
-		m_PNTShader.SetUniformValue("time", (float)glfwGetTime());
 
 		// Enable stencil testing for stencil pass
 		glEnable(GL_STENCIL_TEST);
@@ -394,19 +342,14 @@ namespace mods
 		// TODO: needs to before gamma correction (same shader will do)
 		m_PPShader.SetUniformValue("exposure", m_HDRExposure);
 
+		// Render final image as size of screen
+		glViewport(0, 0, m_Width, m_Height);
+
 		glBindVertexArray(m_VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0);
 		glBindVertexArray(0);
 
 		m_PPShader.Unbind();
-
-		/*m_PShader.Bind();
-
-		glBindVertexArray(m_VAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0);
-		glBindVertexArray(0);
-
-		m_PShader.Unbind();*/
 	}
 
 	void Renderer::EndFrame()
@@ -453,9 +396,10 @@ namespace mods
 		m_NorIdx = m_GTarget.AttachTarget(eTextureFormat::RGB16F);		// Normal
 		m_AlbIdx = m_GTarget.AttachTarget(eTextureFormat::RGBA);		// Albedo + specular
 
+
 		assert(m_GTarget.Create());
 
-		m_ColIdx = m_LTarget.AttachTarget(eTextureFormat::RGB32F);		// 16 bits float since we are using high dynamic range
+		m_ColIdx = m_LTarget.AttachTarget(eTextureFormat::RGB16F);		// 16 bits float since we are using high dynamic range
 		
 		assert(m_LTarget.Create());
 
@@ -526,8 +470,6 @@ namespace mods
 		glGenBuffers(1, &m_sphereIBO);
 
 		std::vector<glm::vec3> positions;
-		std::vector<glm::vec2> uv;
-		std::vector<glm::vec3> normals;
 		std::vector<uint32> indices;
 
 		const uint32 X_SEGMENTS = 16;
@@ -543,8 +485,6 @@ namespace mods
 				float zPos = glm::sin(xSegment * 2.0f * glm::pi<float>()) * glm::sin(ySegment * glm::pi<float>());
 
 				positions.push_back(glm::vec3(xPos, yPos, zPos));
-				uv.push_back(glm::vec2(xSegment, ySegment));
-				normals.push_back(glm::vec3(xPos, yPos, zPos));
 			}
 		}
 
@@ -572,31 +512,16 @@ namespace mods
 		
 		m_sphereIndices = indices.size();
 
-		std::vector<float> data;
-		for (int32 i = 0; i < (int32)positions.size(); ++i)
-		{
-			data.push_back(positions[i].x);
-			data.push_back(positions[i].y);
-			data.push_back(positions[i].z);
-			if (uv.size() > 0)
-			{
-				data.push_back(uv[i].x);
-				data.push_back(uv[i].y);
-			}
-		}
-
 		glBindVertexArray(m_sphereVAO);
 
 		glBindBuffer(GL_ARRAY_BUFFER, m_sphereVBO);
-		glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(float), &data[0], GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, positions.size() * sizeof(glm::vec3), positions.data(), GL_STATIC_DRAW);
 
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_sphereIBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32), &indices[0], GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32), indices.data(), GL_STATIC_DRAW);
 
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)0);
-		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 5, (void*)(3 * sizeof(float)));
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
 		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
 
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
