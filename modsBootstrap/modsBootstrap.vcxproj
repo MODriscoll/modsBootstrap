@@ -24,7 +24,6 @@
     <ClCompile Include="Source\Application\Renderer.cpp" />
     <ClCompile Include="Source\Buffers\AppUniformBuffer.cpp" />
     <ClCompile Include="Source\Buffers\CameraUniformBuffer.cpp" />
-    <ClCompile Include="Source\Buffers\FrameBuffer.cpp" />
     <ClCompile Include="Source\Buffers\LightUniformBuffer.cpp" />
     <ClCompile Include="Source\Buffers\UniformBuffer.cpp" />
     <ClCompile Include="Source\Camera\Camera.cpp" />
@@ -50,7 +49,11 @@
     <ClCompile Include="Source\Rendering\Meshes\MeshUtility.cpp" />
     <ClCompile Include="Source\Rendering\Shaders\Shader.cpp" />
     <ClCompile Include="Source\Rendering\Shaders\ShaderUtility.cpp" />
+    <ClCompile Include="Source\Rendering\Targets\FrameBuffer.cpp" />
+    <ClCompile Include="Source\Rendering\Targets\RenderBuffer.cpp" />
     <ClCompile Include="Source\Rendering\Targets\RenderTarget.cpp" />
+    <ClCompile Include="Source\Rendering\Targets\Texture2DTarget.cpp" />
+    <ClCompile Include="Source\Rendering\Targets\TextureTarget.cpp" />
     <ClCompile Include="Source\Rendering\Textures\Cubemap.cpp" />
     <ClCompile Include="Source\Rendering\Textures\Texture.cpp" />
     <ClCompile Include="Source\Rendering\Textures\Texture2D.cpp" />
@@ -61,7 +64,6 @@
     <ClInclude Include="Include\Buffers\CameraUniformBuffer.h" />
     <ClInclude Include="Include\Application\Input.h" />
     <ClInclude Include="Include\Application\Renderer.h" />
-    <ClInclude Include="Include\Buffers\FrameBuffer.h" />
     <ClInclude Include="Include\Buffers\LightUniformBuffer.h" />
     <ClInclude Include="Include\Buffers\UniformBuffer.h" />
     <ClInclude Include="Include\Buffers\AppUniformBuffer.h" />
@@ -92,7 +94,11 @@
     <ClInclude Include="Include\Rendering\Meshes\Model.h" />
     <ClInclude Include="Include\Rendering\Shaders\Shader.h" />
     <ClInclude Include="Include\Rendering\Shaders\ShaderUtility.h" />
+    <ClInclude Include="Include\Rendering\Targets\RenderBuffer.h" />
     <ClInclude Include="Include\Rendering\Targets\RenderTarget.h" />
+    <ClInclude Include="Include\Rendering\Targets\FrameBuffer.h" />
+    <ClInclude Include="Include\Rendering\Targets\Texture2DTarget.h" />
+    <ClInclude Include="Include\Rendering\Targets\TextureTarget.h" />
     <ClInclude Include="Include\Rendering\Textures\Cubemap.h" />
     <ClInclude Include="Include\Rendering\Textures\Texture.h" />
     <ClInclude Include="Include\Rendering\Textures\Texture2D.h" />

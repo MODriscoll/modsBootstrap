@@ -38,6 +38,8 @@ namespace mods
 		Depth			= 0x1902,
 		Depth16			= 0x81A5,
 		Depth24			= 0x81A6,
-		Depth32			= 0x81A7
+		Depth32			= 0x81A7,
+
+		Depth24Stencil8 = 0x88F0
 	};
 }

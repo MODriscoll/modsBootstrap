@@ -392,14 +392,21 @@ namespace mods
 
 		GenerateSphere();
 
-		m_PosIdx = m_GTarget.AttachTarget(eTextureFormat::RGB16F);		// Position
-		m_NorIdx = m_GTarget.AttachTarget(eTextureFormat::RGB16F);		// Normal
-		m_AlbIdx = m_GTarget.AttachTarget(eTextureFormat::RGBA);		// Albedo + specular
+		//m_PosIdx = m_GTarget.AttachTarget(eTextureFormat::RGB16F);		// Position
+		//m_NorIdx = m_GTarget.AttachTarget(eTextureFormat::RGB16F);		// Normal
+		//m_AlbIdx = m_GTarget.AttachTarget(eTextureFormat::RGBA);		// Albedo + specular
 
+		m_GTarget.AttachTarget(eTargetType::Texture2D, eTargetFormat::RGB16F, &m_PosIdx);
+		m_GTarget.AttachTarget(eTargetType::Texture2D, eTargetFormat::RGB16F, &m_NorIdx);
+		m_GTarget.AttachTarget(eTargetType::Texture2D, eTargetFormat::RGBA, &m_AlbIdx);
+		m_GTarget.AttachTarget(eTargetType::RenderBuffer, eTargetFormat::Depth24Stencil8);
 
 		assert(m_GTarget.Create());
 
-		m_ColIdx = m_LTarget.AttachTarget(eTextureFormat::RGB16F);		// 16 bits float since we are using high dynamic range
+		//m_ColIdx = m_LTarget.AttachTarget(eTextureFormat::RGB16F);		// 16 bits float since we are using high dynamic range
+
+		m_LTarget.AttachTarget(eTargetType::Texture2D, eTargetFormat::RGB16F, &m_ColIdx);
+		m_LTarget.AttachTarget(eTargetType::RenderBuffer, eTargetFormat::Depth24Stencil8);
 		
 		assert(m_LTarget.Create());
 

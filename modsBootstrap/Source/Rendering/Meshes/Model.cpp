@@ -17,6 +17,8 @@ namespace mods
 		
 		m_Meshes = std::move(data.Meshes);
 		m_Directory = path;
+
+		return true;
 	}
 
 	void Model::Draw(ShaderProgram& program) const

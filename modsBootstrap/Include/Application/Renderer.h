@@ -5,7 +5,7 @@
 
 #include "Rendering\Lighting\LightRenderData.h"
 
-#include "Rendering\Targets\RenderTarget.h"
+#include "Rendering\Targets\FrameBuffer.h"
 
 #include "Buffers\CameraUniformBuffer.h"
 #include "Buffers\LightUniformBuffer.h"
@@ -129,13 +129,13 @@ namespace mods
 	protected:
 
 		// Target to draw geometry phase to
-		RenderTarget m_GTarget;
+		FrameBuffer m_GTarget;
 
 		// Index to various textures of the geometry target
 		int32 m_PosIdx, m_NorIdx, m_AlbIdx;
 
 		// Target to draw lighting phase to
-		RenderTarget m_LTarget;
+		FrameBuffer m_LTarget;
 
 		// Index to variouse textures of the lighting target
 		int32 m_ColIdx;

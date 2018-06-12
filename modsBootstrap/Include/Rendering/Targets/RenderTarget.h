@@ -1,16 +1,47 @@
 #pragma once
 
-#include "Rendering\Textures\Texture2D.h"
+#include "Types.h"
 
-#include <vector>
+#include "IncludeGLFW.h"
 
 namespace mods
 {
+	enum class eTargetType : byte
+	{
+		Texture2D,
+		RenderBuffer
+	};
+
+	enum class eTargetFormat : int32
+	{
+		R					= 0x1903,
+		RG					= 0x8227,
+		RGB					= 0x1907,
+		RGBA				= 0x1908,
+
+		R16F				= 0x822D,
+		RG16F				= 0x822F,
+		RGB16F				= 0x881B,
+		RGBA16F				= 0x881A,
+
+		R32F				= 0x822E,
+		RG32F				= 0x8230,
+		RGB32F				= 0x8815,
+		RGBA32F				= 0x8814,
+
+		Depth				= 0x1902,
+		Depth16				= 0x81A5,
+		Depth24				= 0x81A6,
+		Depth32				= 0x81A7,
+
+		Depth24Stencil8		= 0x88F0
+	};
+
 	class RenderTarget
 	{
 	public:
 
-		RenderTarget(uint32 width, uint32 height);
+		RenderTarget();
 		RenderTarget(const RenderTarget& rhs) = delete;
 		RenderTarget(RenderTarget&& rhs);
 
@@ -21,56 +52,42 @@ namespace mods
 
 	public:
 
-		// Binds this target for use
-		void Bind();
+		// Creates new target with given type and format
+		virtual bool Create(int32 width, int32 height, eTargetFormat format) = 0;
 
-		// Unbinds this target from use
-		void Unbind();
+		// Destroys existing target if any
+		virtual bool Destroy() = 0;
 
-	public:
-
-		// Adds a new attachment to this buffer
-		// Only valid if no handle has been generated
-		int32 AttachTarget(eTextureFormat format);
-
-		// Generates a new render target if buffers have been attached
-		// Only valid if no handle has been generated
-		virtual bool Create();
-
-		// Destroys existing targets if any
-		virtual bool Destroy();
+		// Attaches this target to the bound frame buffer is valid
+		// Requires index for color attachments (auto incremented if color)
+		// Returns if index was incremented
+		virtual bool BoundToFrameBuffer(int32 index = 0) const = 0;
 
 	public:
 
-		inline bool IsValid() const { return m_FBO != 0; }
+		// Get if this target is valid
+		inline bool IsValid() const { return m_Handle != 0; }
 
-		inline uint32 GetHandle() const { return m_FBO; }
+		// Direct access to handle
+		inline uint32 GetHandle() const { return m_Handle; }
 
-		inline int32 GetWidth() const { return m_Width; }
-		inline int32 GetHeight() const { return m_Height; }
+		// Get the internal format of this target
+		inline eTargetFormat GetFormat() const { return m_Format; }
 
-		inline uint32 GetTargetCount() const { return m_Textures.size(); }
-
-		// Get the target texture at the given index
-		inline const Texture2D& GetTarget(int32 index) const { return m_Textures[index]; }
-
-	private:
-
-		// Clears all resources
-		void Clear();
+		// Get this targets type
+		virtual eTargetType GetTargetType() const = 0;
 
 	protected:
 
-		// Width and height of the frame buffer
-		int32 m_Width, m_Height;
+		// Get the attachment type of this target
+		uint32 GetAttachmentType(int32 index, bool& iscolor) const;
 
-		// Handle to the frame buffer
-		uint32 m_FBO;
+	protected:
 
-		// All textures attached to this target
-		std::vector<Texture2D> m_Textures;
+		// Handle to the target
+		uint32 m_Handle;
 
-		// Handle to the depth and stencil buffer
-		uint32 m_RBO;
+		// Format of the target
+		eTargetFormat m_Format;
 	};
 }
