@@ -4,14 +4,11 @@ out vec4 fragcolor;
 
 in vec2 fTexCoords;
 
-// Textures containing the geometry
-// and lighting from respective passes
+// Targets from previous post processing passes
 struct Targets
 {
-	sampler2D gPosition;
-	sampler2D gNormal;
-	sampler2D gAlbedoSpec;
-	sampler2D lColor;
+	sampler2D pNoPost;
+	sampler2D pBloom;
 };
 
 uniform Targets target;
@@ -29,15 +26,14 @@ uniform float exposure;
 
 void main()
 {
-	vec3 fAlbedo = texture(target.gAlbedoSpec, fTexCoords).rgb;
-	vec3 lColor = texture(target.lColor, fTexCoords).rgb;
-
-	vec3 color = lColor;
+	vec3 pNoPost = texture(target.pNoPost, fTexCoords).rgb;
+	vec3 pBloom = texture(target.pBloom, fTexCoords).rgb;
+	
+	// Additive blending
+	vec3 color = pNoPost + pBloom;
 	
 	// Tone mapping
 	color = vec3(1.f) - exp(-color * exposure);
-	
-	color = fAlbedo * color;
 
 	// Gamma correction
 	if (bGammaCorrect)

@@ -108,6 +108,11 @@ namespace mods
 
 	private:
 
+		// Applies bloom to the scene
+		void ApplyBloom();
+
+	private:
+
 		void GenerateSphere();
 
 	protected:
@@ -128,17 +133,32 @@ namespace mods
 
 	protected:
 
-		// Target to draw geometry phase to
-		FrameBuffer m_GTarget;
+		// Buffer to draw geometry phase to
+		FrameBuffer m_GBuffer;
 
-		// Index to various textures of the geometry target
-		int32 m_PosIdx, m_NorIdx, m_AlbIdx;
+		// Index of position texture
+		int32 m_PosIdx;
+		// Index of normal texture
+		int32 m_NorIdx;
+		// Index of albedo and specular texture
+		int32 m_AlbIdx;
 
-		// Target to draw lighting phase to
-		FrameBuffer m_LTarget;
+		// Buffer to draw lighting phase to
+		FrameBuffer m_LBuffer;
 
-		// Index to variouse textures of the lighting target
+		// Index to lighting texture
 		int32 m_ColIdx;
+
+		// Buffer to draw post processing to
+		FrameBuffer m_PBuffer;
+
+		// Index to albedo + lighting scene pre-post processing (no post applied)
+		int32 m_NoPostIdx;
+		// Index to scene with color values greate than brightness threshold
+		int32 m_BrightIdx;
+
+		// Ping, pong buffer used to draw bloom effect
+		FrameBuffer m_PingBuffer, m_PongBuffer;
 
 	protected:
 
@@ -158,7 +178,13 @@ namespace mods
 		ShaderProgram m_CShader;
 
 		// Shader for applying initial post processing
-		ShaderProgram m_PPShader;
+		ShaderProgram m_IPShader;
+
+		// Shader for applying bloom effect
+		ShaderProgram m_BloomShader;
+
+		// Shader for applying finishing post processing
+		ShaderProgram m_FPShader;
 
 	protected:
 
