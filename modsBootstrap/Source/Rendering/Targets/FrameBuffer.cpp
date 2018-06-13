@@ -61,51 +61,31 @@ namespace mods
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	}
 
-	bool FrameBuffer::AttachTarget(eTargetType type, eTargetFormat format, int32* index)
+	int32 FrameBuffer::AttachTexture2D(eTargetFormat format, eFilterMode filter, eWrapMode wrap)
 	{
 		if (IsValid())
-		{
-			if (index)
-				*index = -1;
+			return -1;
 
-			return false;
-		}
+		Texture2DTarget* target = new Texture2DTarget();
+		target->Create(m_Width, m_Height, format, filter, wrap);
 
-		switch (type)
-		{
-			case eTargetType::RenderBuffer:
-			{
-				RenderBuffer* buffer = new RenderBuffer();
-				buffer->Create(m_Width, m_Height, format);
+		// Record index before adding
+		int32 index = (int32)m_Textures.size();
 
-				m_RenderBuffers.push_back(buffer);
+		m_Textures.push_back(target);
 
-				if (index)
-					*index = -1;
+		return index;
+	}
 
-				break;
-			}
+	void FrameBuffer::AttachRenderBuffer(eTargetFormat format)
+	{
+		if (IsValid())
+			return;
 
-			case eTargetType::Texture2D:
-			{
-				Texture2DTarget* target = new Texture2DTarget();
-				target->Create(m_Width, m_Height, format);
+		RenderBuffer* target = new RenderBuffer();
+		target->Create(m_Width, m_Height, format);
 
-				if (index)
-					*index = (int32)m_Textures.size();
-
-				m_Textures.push_back(target);
-
-				break;
-			}
-
-			default:
-			{
-				assert(false);
-			}
-		}
-
-		return true;
+		m_RenderBuffers.push_back(target);
 	}
 
 	bool FrameBuffer::Create()
@@ -168,6 +148,14 @@ namespace mods
 			Clear();
 
 		return true;
+	}
+
+	void FrameBuffer::Blit(const FrameBuffer& read, const FrameBuffer& draw, eBufferBit buffers, eFilterMode filter)
+	{
+		glBindFramebuffer(GL_READ_FRAMEBUFFER, read.m_FBO);
+		glBindFramebuffer(GL_DRAW_FRAMEBUFFER, draw.m_FBO);
+
+		glBlitFramebuffer(0, 0, read.m_Width, read.m_Height, 0, 0, draw.m_Width, draw.m_Height, (uint32)buffers, (uint32)filter);
 	}
 
 	void FrameBuffer::Clear()

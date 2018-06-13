@@ -5,8 +5,22 @@
 
 #include <vector>
 
+#include "IncludeGLFW.h"
+
 namespace mods
 {
+	enum class eBufferBit : uint32
+	{
+		Color		= 0x4000,
+		Depth		= 0x0100,
+		Stencil		= 0x0400
+	};
+
+	inline constexpr eBufferBit operator | (eBufferBit lhs, eBufferBit rhs)
+	{
+		return static_cast<eBufferBit>(static_cast<uint32>(lhs) | static_cast<uint32>(rhs));
+	}
+
 	class FrameBuffer
 	{
 	public:
@@ -30,17 +44,24 @@ namespace mods
 
 	public:
 
-		// Adds a new texture to the frame buffer
-		// Index will be invalid if either the frame buffer has
-		// already been created or type is a render buffer
-		bool AttachTarget(eTargetType type, eTargetFormat format, int32* index = nullptr);
+		// Creates a new 2D texture render target
+		// Index to texture is returned, index is invalid on failure
+		int32 AttachTexture2D(eTargetFormat format, eFilterMode filter = eFilterMode::Nearest, eWrapMode wrap = eWrapMode::Edge);
+
+		// Creates a new render buffer render target
+		void AttachRenderBuffer(eTargetFormat format);
 
 		// Generates the frame buffer if targets have been attached
 		// Can only be used if IsValid returns false
-		virtual bool Create();
+		bool Create();
 
 		// Destroys existing targets if any
-		virtual bool Destroy();
+		bool Destroy();
+
+	public:
+
+		// Performs a blit operation between two frame buffers
+		static void Blit(const FrameBuffer& read, const FrameBuffer& draw, eBufferBit buffers, eFilterMode filter = eFilterMode::Nearest);
 
 	public:
 
@@ -62,6 +83,9 @@ namespace mods
 
 		// Get the target texture at the given index
 		inline const TextureTarget& GetTarget(int32 index) const { return *m_Textures[index]; }
+
+		// Binds target at the given index to given slot
+		inline void BindTarget(int32 index, uint32 slot = 0) const { m_Textures[index]->Bind(slot); }
 
 	private:
 

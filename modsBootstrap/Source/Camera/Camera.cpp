@@ -31,6 +31,20 @@ namespace mods
 		SetRotation(rotation);
 	}
 
+	glm::mat4 Camera::GetTransformMatrix() const
+	{
+		glm::mat4 rm(1.f);
+
+		rm = glm::rotate(rm, glm::radians(m_Rotation.y), glm::vec3(0.f, 1.f, 0.f));
+		rm = glm::rotate(rm, glm::radians(m_Rotation.x), glm::vec3(1.f, 0.f, 0.f));
+
+		glm::mat4 tm(1.f);
+
+		tm = glm::translate(tm, Position);
+
+		return tm * rm;
+	}
+
 	glm::mat4 Camera::GetViewMatrix() const
 	{
 		// TODO: Have optional up variable

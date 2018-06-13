@@ -73,6 +73,13 @@ namespace mods
 		// Sets the exposure for tone mapping HDR lighting
 		static void SetExposure(float exposure);
 
+		// Enables/Disables bloom
+		static void EnableBloom(bool enable);
+
+		// Sets the threshold for colors
+		// considered bright enough to bloom
+		static void SetBrightThreshold(float threshold);
+
 	protected:
 
 		// Starts new frame of rendering
@@ -130,6 +137,12 @@ namespace mods
 
 		// Exposure for tonemapping high dynamic range lighting
 		float m_HDRExposure;
+
+		// If bloom should be applied to the scene
+		bool m_bBloom;
+
+		// Brightness threshold for bloom
+		float m_BloomThreshold;
 
 	protected:
 

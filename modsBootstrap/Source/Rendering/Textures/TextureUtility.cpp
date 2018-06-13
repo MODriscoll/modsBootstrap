@@ -16,10 +16,6 @@ namespace mods
 			eTextureChannels channels,
 			bool sRGB)
 		{
-			// Can't load depth values
-			if (channels == eTextureChannels::Depth)
-				return false;
-
 			int32 width, height, format;
 			byte* pixels = stbi_load(path.c_str(), &width, &height, &format, (int32)channels);
 
@@ -32,7 +28,7 @@ namespace mods
 			data.Height = height;
 			data.Channels = format;
 
-			if (channels == eTextureChannels::Unknown)
+			if (channels == eTextureChannels::Auto)
 				channels = (eTextureChannels)format;
 
 			GetTextureFormats(channels, data.Format, data.InternalFormat, sRGB);
@@ -103,10 +99,9 @@ namespace mods
 				case GL_RG:					{ return eTextureChannels::RG; }
 				case GL_RGB:				{ return eTextureChannels::RGB; }
 				case GL_RGBA:				{ return eTextureChannels::RGBA; }
-				case GL_DEPTH_COMPONENT:	{ return eTextureChannels::Depth; }
 			}
 
-			return eTextureChannels::Unknown;
+			return eTextureChannels::Auto;
 		}
 
 		void GetTextureFormats(eTextureChannels channels, uint32& format, int32& intern, bool sRGB)

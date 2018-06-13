@@ -19,9 +19,11 @@ namespace mods
 
 	Renderer::Renderer(uint32 width, uint32 height)
 		: m_bRenderWireframe(false)
-		, m_bGammaCorrect(false)
+		, m_bGammaCorrect(true)
 		, m_GammaExponent(2.2f)
 		, m_HDRExposure(1.f)
+		, m_bBloom(false)
+		, m_BloomThreshold(1.f)
 		, m_Camera(nullptr)
 		, m_GBuffer(width, height)
 		, m_LBuffer(width, height)
@@ -150,6 +152,16 @@ namespace mods
 		m_Singleton->m_HDRExposure = exposure;
 	}
 
+	void Renderer::EnableBloom(bool enable)
+	{
+		m_Singleton->m_bBloom = enable;
+	}
+
+	void Renderer::SetBrightThreshold(float threshold)
+	{
+		m_Singleton->m_BloomThreshold = glm::max(0.f, threshold);
+	}
+
 	void Renderer::StartFrame(float time)
 	{
 		if (m_Camera)
@@ -159,7 +171,10 @@ namespace mods
 		}
 
 		// Update data relating to the application
-		m_AppUniform.UpdateBuffer(time, glm::ivec2(1280, 720));
+		m_AppUniform.UpdateBuffer(time, glm::ivec2(m_Width, m_Height));
+
+		// Keep viewport to size of frame buffers
+		glViewport(0, 0, m_Width, m_Height);
 	}
 
 	void Renderer::StartGeometryPass()
@@ -196,26 +211,16 @@ namespace mods
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		glPolygonMode(GL_FRONT_AND_BACK, m_bRenderWireframe ? GL_LINE : GL_FILL);
-
-		// temp
-		glViewport(0, 0, 1280, 720);
 	}
 
 	void Renderer::StartLightingPass()
 	{
 		m_GBuffer.Unbind();
 
-		{
-			glBindFramebuffer(GL_READ_FRAMEBUFFER, m_GBuffer.GetHandle());
-			glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_LBuffer.GetHandle());
-
-			// TODO: need to track size of viewport
-			// Copy the depth values from geometry pass to use for the stencil pass
-			glBlitFramebuffer(0, 0, m_GBuffer.GetWidth(), m_GBuffer.GetHeight(), 0, 0, m_LBuffer.GetWidth(), m_LBuffer.GetHeight(), GL_DEPTH_BUFFER_BIT, GL_NEAREST);
-		}
+		// We need to depth values for lighting calculations
+		FrameBuffer::Blit(m_GBuffer, m_LBuffer, eBufferBit::Depth);
 
 		m_LBuffer.Bind();
-		//glViewport(0, 0, m_Width, m_Height);
 
 		if (m_bRenderWireframe)
 		{
@@ -233,14 +238,18 @@ namespace mods
 		glClearColor(0.2f, 0.2f, 0.2f, 1.f);	// 0.2f to act as temporary ambient lighting
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		// No longer write to the depth buffer
+		// We need to perform depth testing but
+		// dont need to write to the depth buffer
+		glEnable(GL_DEPTH_TEST);
 		glDepthMask(GL_FALSE);
 
-		m_PNTShader.Bind();
-		m_GBuffer.GetTarget(m_PosIdx).Bind(m_PosIdx);
-		m_GBuffer.GetTarget(m_NorIdx).Bind(m_NorIdx);
-		m_GBuffer.GetTarget(m_AlbIdx).Bind(m_AlbIdx);
+		// Prebind textures used by lighting
+		m_GBuffer.BindTarget(m_PosIdx, m_PosIdx);
+		m_GBuffer.BindTarget(m_NorIdx, m_NorIdx);
+		m_GBuffer.BindTarget(m_AlbIdx, m_AlbIdx);
 
+		m_PNTShader.Bind();
+		
 		// Enable stencil testing for stencil pass
 		glEnable(GL_STENCIL_TEST);
 
@@ -299,9 +308,6 @@ namespace mods
 		glCullFace(GL_BACK);
 
 		m_DIRShader.Bind();
-		m_GBuffer.GetTarget(m_PosIdx).Bind(m_PosIdx);
-		m_GBuffer.GetTarget(m_NorIdx).Bind(m_NorIdx);
-		m_GBuffer.GetTarget(m_AlbIdx).Bind(m_AlbIdx);
 
 		glBindVertexArray(m_VAO);
 		for (int32 i = 0; i < m_LightUniform.GetDirCount(); ++i)
@@ -321,11 +327,18 @@ namespace mods
 	{
 		m_LBuffer.Unbind();
 
+		// Get all of the stencil information that could
+		// have been performed during the geometry pass
+		//FrameBuffer::Blit(m_GBuffer, m_LBuffer, eBufferBit::Stencil);
+
 		m_PBuffer.Bind();
 
-		// Render final image as size of screen (temp)
-		glViewport(0, 0, m_Width, m_Height);
+		// (post buffer only has color buffers right now)
+		// (might need a stencil buffer to blit stencil from geoemtry) 
+		glClear(GL_COLOR_BUFFER_BIT);
 
+		// By default, post processing needs
+		// depth or stencil testing
 		glDisable(GL_DEPTH_TEST);
 		glDisable(GL_STENCIL_TEST);
 
@@ -333,21 +346,36 @@ namespace mods
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 		m_IPShader.Bind();	
-		m_GBuffer.GetTarget(m_AlbIdx).Bind(0);
-		m_LBuffer.GetTarget(m_ColIdx).Bind(1);
+		m_GBuffer.BindTarget(m_AlbIdx, 0);
+		m_LBuffer.BindTarget(m_ColIdx, 1);
+
+		// Update initial post pass variables
+		m_IPShader.SetUniformValue("bBloom", m_bRenderWireframe ? false : m_bBloom);
+		m_IPShader.SetUniformValue("brightnessThreshold", m_BloomThreshold);
 
 		glBindVertexArray(m_VAO);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0);
 		glBindVertexArray(0);
 
-		if (true)//bBloom
+		if (m_bBloom && !m_bRenderWireframe)
+		{
+			// Apply bloom will set the texture
+			// texture to use for final pass
 			ApplyBloom();
+		}
+		else
+		{
+			// Bind the brightness value which
+			// should now be all black
+			m_PBuffer.BindTarget(m_BrightIdx, 1);
+		}
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		m_FPShader.Bind();
-		m_PBuffer.GetTarget(m_NoPostIdx).Bind();
+		m_PBuffer.BindTarget(m_NoPostIdx, 0);
 
+		// Update final post pass variables
 		m_FPShader.SetUniformValue("bGammaCorrect", m_bGammaCorrect);
 		m_FPShader.SetUniformValue("gamma", m_GammaExponent);
 		m_FPShader.SetUniformValue("exposure", m_HDRExposure);
@@ -399,29 +427,26 @@ namespace mods
 
 		GenerateSphere();
 
-		// Generate geometry buffer
-		m_GBuffer.AttachTarget(eTargetType::Texture2D, eTargetFormat::RGB16F, &m_PosIdx);
-		m_GBuffer.AttachTarget(eTargetType::Texture2D, eTargetFormat::RGB16F, &m_NorIdx);
-		m_GBuffer.AttachTarget(eTargetType::Texture2D, eTargetFormat::RGBA, &m_AlbIdx);
-		m_GBuffer.AttachTarget(eTargetType::RenderBuffer, eTargetFormat::Depth24Stencil8);		// LDR albedo and specular
+		m_PosIdx = m_GBuffer.AttachTexture2D(eTargetFormat::RGB16F);		// TODO: replace with depth values
+		m_NorIdx = m_GBuffer.AttachTexture2D(eTargetFormat::RGB16F);		// World Normals
+		m_AlbIdx = m_GBuffer.AttachTexture2D(eTargetFormat::RGBA);			// Albedo + specular
+		m_GBuffer.AttachRenderBuffer(eTargetFormat::Depth24Stencil8);		// Required depth + custom stencil
 
 		assert(m_GBuffer.Create());
 
-		// Generate lighting buffer
-		m_LBuffer.AttachTarget(eTargetType::Texture2D, eTargetFormat::RGB16F, &m_ColIdx);		// HDR Lighting
-		m_LBuffer.AttachTarget(eTargetType::RenderBuffer, eTargetFormat::Depth24Stencil8);
-		
+		m_ColIdx = m_LBuffer.AttachTexture2D(eTargetFormat::RGB16F);		// HDR lighting
+		m_LBuffer.AttachRenderBuffer(eTargetFormat::Depth24Stencil8);		// Required depth and stencil
+
 		assert(m_LBuffer.Create());
 
-		// Generate post processing buffer
-		m_PBuffer.AttachTarget(eTargetType::Texture2D, eTargetFormat::RGB16F, &m_NoPostIdx);	// HDR 
-		m_PBuffer.AttachTarget(eTargetType::Texture2D, eTargetFormat::RGB16F, &m_BrightIdx);	// HDR
+		m_NoPostIdx = m_PBuffer.AttachTexture2D(eTargetFormat::RGB16F);		// AlbedoSpec + HDR lighting
+		m_BrightIdx = m_PBuffer.AttachTexture2D(eTargetFormat::RGB16F);		// NoPost above brightness threshold
+		// TODO: add stencil render buffer
 			
 		assert(m_PBuffer.Create());
 
-		// Generate bloom effect buffer
-		m_PingBuffer.AttachTarget(eTargetType::Texture2D, eTargetFormat::RGB16F);				// HDR
-		m_PongBuffer.AttachTarget(eTargetType::Texture2D, eTargetFormat::RGB16F);				// HDR
+		m_PingBuffer.AttachTexture2D(eTargetFormat::RGB16F, eFilterMode::Linear);	
+		m_PongBuffer.AttachTexture2D(eTargetFormat::RGB16F, eFilterMode::Linear);
 
 		assert(m_PingBuffer.Create() && m_PongBuffer.Create());
 
@@ -433,10 +458,12 @@ namespace mods
 		m_DIRShader.Bind();
 		m_DIRShader.SetUniformValue("target.gPosition", m_PosIdx);
 		m_DIRShader.SetUniformValue("target.gNormal", m_NorIdx);
+		m_DIRShader.SetUniformValue("target.gAlbedoSpec", m_AlbIdx);
 
 		m_PNTShader.Bind();
 		m_PNTShader.SetUniformValue("target.gPosition", m_PosIdx);
 		m_PNTShader.SetUniformValue("target.gNormal", m_NorIdx);
+		m_PNTShader.SetUniformValue("target.gAlbedoSpec", m_AlbIdx);
 	
 		m_IPShader.Load("Resources/Shaders/PostProcess/InitPost.vert", "Resources/Shaders/PostProcess/InitPost.frag");
 		m_FPShader.Load("Resources/Shaders/PostProcess.vert", "Resources/Shaders/PostProcess.frag");
@@ -495,13 +522,13 @@ namespace mods
 	void Renderer::ApplyBloom()
 	{
 		bool hor = true;
-		int32 amount = 20;
+		int32 amount = 10;
 
 		m_BloomShader.Bind();
 		m_BloomShader.SetUniformValue("scene", 0);
 
 		// Start with our initial brightness
-		m_PBuffer.GetTarget(m_BrightIdx).Bind(0);
+		m_PBuffer.BindTarget(m_BrightIdx, 0);
 
 		glBindVertexArray(m_VAO);
 		for (int32 i = 0; i < amount; ++i)
@@ -516,18 +543,18 @@ namespace mods
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0);
 
 			if (hor)
-				m_PingBuffer.GetTarget(0).Bind(0);
+				m_PingBuffer.BindTarget(0);
 			else
-				m_PongBuffer.GetTarget(0).Bind(0);
+				m_PongBuffer.BindTarget(0);
 
 			hor = !hor;
 		}
 		glBindVertexArray(0);
 
 		if (hor)
-			m_PongBuffer.GetTarget(0).Bind(1);
+			m_PongBuffer.BindTarget(0, 1);
 		else
-			m_PingBuffer.GetTarget(0).Bind(1);
+			m_PingBuffer.BindTarget(0, 1);
 	}
 
 	void Renderer::GenerateSphere()

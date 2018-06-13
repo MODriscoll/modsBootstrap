@@ -2,20 +2,32 @@
 
 #include "Types.h"
 
-#include "IncludeGLFW.h"
-
 namespace mods
 {
 	enum class eTextureChannels : int8
 	{
-		Unknown		= 0,
+		Auto		= 0,
 
 		R			= 1,
 		RG			= 2,
 		RGB			= 3,
 		RGBA		= 4,
+	};
 
-		Depth		= 5
+	enum class eTextureWrap : int32
+	{
+		Repeat		= 0x2901,
+		Mirror		= 0x8370,
+		Edge		= 0x812F,
+		Border		= 0x812D
+	};
+
+	enum class eTextureFilter : int32
+	{
+		Nearest			= 0x2600,
+		Linear			= 0x2601
+
+		// TODO: mipmaps
 	};
 
 	enum class eTextureFormat : int32

@@ -47,6 +47,7 @@
     <ClCompile Include="Source\Rendering\Meshes\Mesh.cpp" />
     <ClCompile Include="Source\Rendering\Meshes\Model.cpp" />
     <ClCompile Include="Source\Rendering\Meshes\MeshUtility.cpp" />
+    <ClCompile Include="Source\Rendering\Particles\ParticleEmitter.cpp" />
     <ClCompile Include="Source\Rendering\Shaders\Shader.cpp" />
     <ClCompile Include="Source\Rendering\Shaders\ShaderUtility.cpp" />
     <ClCompile Include="Source\Rendering\Targets\FrameBuffer.cpp" />
@@ -92,6 +93,7 @@
     <ClInclude Include="Include\Rendering\Meshes\MeshTypes.h" />
     <ClInclude Include="Include\Rendering\Meshes\MeshUtility.h" />
     <ClInclude Include="Include\Rendering\Meshes\Model.h" />
+    <ClInclude Include="Include\Rendering\Particles\ParticleEmitter.h" />
     <ClInclude Include="Include\Rendering\Shaders\Shader.h" />
     <ClInclude Include="Include\Rendering\Shaders\ShaderUtility.h" />
     <ClInclude Include="Include\Rendering\Targets\RenderBuffer.h" />

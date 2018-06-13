@@ -15,8 +15,9 @@ struct Targets
 
 uniform Targets target;
 
-// Threshold for pixels of the scene that are considered bright
-uniform float BrightThreshold;
+// Bloom
+uniform bool bBloom;
+uniform float brightnessThreshold;
 
 void main()
 {
@@ -26,7 +27,8 @@ void main()
 	// Scene with no post processing applied
 	pNoPost = fAlbedo * lColor;
 	
+	// Human eye is more sensitive to green then other colors
 	float brightness = dot(pNoPost, vec3(0.2126f, 0.7152f, 0.0722f));
-	if (brightness > BrightThreshold)
-		pBright = pNoPost;
+	if (brightness > brightnessThreshold)
+		pBright = pNoPost * float(bBloom);
 }

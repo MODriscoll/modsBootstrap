@@ -10,7 +10,7 @@ namespace mods
 	Texture2D::Texture2D()
 		: m_Width(0)
 		, m_Height(0)
-		, m_Channels(eTextureChannels::Unknown)
+		, m_Channels(eTextureChannels::Auto)
 	{
 
 	}
@@ -18,7 +18,7 @@ namespace mods
 	Texture2D::Texture2D(const std::string& path, eTextureChannels channels, bool sRGB)
 		: m_Width(0)
 		, m_Height(0)
-		, m_Channels(eTextureChannels::Unknown)
+		, m_Channels(eTextureChannels::Auto)
 	{
 		Load(path, channels, sRGB);
 	}
@@ -31,7 +31,7 @@ namespace mods
 	{
 		rhs.m_Width = 0;
 		rhs.m_Height = 0;
-		rhs.m_Channels = eTextureChannels::Unknown;
+		rhs.m_Channels = eTextureChannels::Auto;
 	}
 
 	Texture2D& Texture2D::operator=(Texture2D&& rhs)
@@ -44,7 +44,7 @@ namespace mods
 
 		rhs.m_Width = 0;
 		rhs.m_Height = 0;
-		rhs.m_Channels = eTextureChannels::Unknown;
+		rhs.m_Channels = eTextureChannels::Auto;
 
 		return *this;
 	}

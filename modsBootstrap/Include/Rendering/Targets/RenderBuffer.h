@@ -13,7 +13,7 @@ namespace mods
 	public:
 
 		// Creates a new render buffer with given format
-		virtual bool Create(int32 width, int32 height, eTargetFormat format) override;
+		bool Create(int32 width, int32 height, eTargetFormat format) ;
 
 		// Destroys existing buffer if any
 		virtual bool Destroy() override;

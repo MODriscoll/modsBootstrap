@@ -195,8 +195,8 @@ namespace mods
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-		// temp (need to add viewport size to a uniform buffer for point light calculations to use)
-		//glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+		// Till resize option has been implemented
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 		#if _DEBUG
 

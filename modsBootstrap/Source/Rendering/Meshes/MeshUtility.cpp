@@ -92,7 +92,9 @@ namespace mods
 				MeshVertex vertex;
 
 				vertex.Position = ToVec3(mesh.mVertices[i]);
-				vertex.Normal = ToVec3(mesh.mNormals[i]);
+
+				if (mesh.HasNormals())
+					vertex.Normal = ToVec3(mesh.mNormals[i]);
 				
 				if (mesh.HasTextureCoords(0))
 					vertex.TexCoords = ToVec2(mesh.mTextureCoords[0][i]);

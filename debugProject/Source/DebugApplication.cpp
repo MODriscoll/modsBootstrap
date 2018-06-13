@@ -23,6 +23,12 @@ DebugApplication::~DebugApplication()
 
 bool DebugApplication::Startup()
 {
+	m_ParticleShader.Load("Resources/Shaders/TestParticle.vert", "Resources/Shaders/TestParticle.frag");
+	m_ParticleTexture.Load("Resources/Textures/AwesomeFace.png", eTextureChannels::RGB);
+	m_TestEmitter.Initialise(1000, 500, 0.1f, 1.f, 1, 5, 1, 0.1f, glm::vec3(1.f, 0.f, 0.f), glm::vec3(1.f, 1.f, 0.f));
+
+	m_TestEmitter.m_Position.x = 5.f;
+
 	m_ModelShader.Load("Resources/Shaders/ModelVertex.vert", "Resources/Shaders/ModelFragment.frag");
 	m_Nanosuit.Load("Resources/Models/Nanosuit/nanosuit.obj", eProcessModel::Triangulate);
 
@@ -108,10 +114,25 @@ void DebugApplication::Tick(float deltaTime)
 		Renderer::EnableWireframe(wire);
 	}
 
+	static bool bloom = false;
+	if (Input::WasKeyPressed(eInputKey::F6))
+	{
+		bloom = !bloom;
+		Renderer::EnableBloom(bloom);
+	}
+
 	m_ModelTransform = glm::rotate(m_ModelTransform, glm::radians(45.f) * deltaTime, glm::vec3(0.f, 1.f, 0.f));
+
+	m_TestEmitter.Update(deltaTime, m_Camera.GetTransformMatrix());
 }
 
 void DebugApplication::Draw()
 {
 	Renderer::DrawModel(m_Nanosuit, m_ModelShader, m_ModelTransform);
+
+	m_ParticleTexture.Bind(0);
+
+	m_ParticleShader.Bind();
+	m_ParticleShader.SetUniformValue("image", 0);
+	m_TestEmitter.Draw();
 }

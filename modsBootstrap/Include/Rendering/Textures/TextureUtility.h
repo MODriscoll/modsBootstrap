@@ -47,7 +47,7 @@ namespace mods
 		bool LoadTextureFromSource(
 			const std::string& path, 
 			TextureData& data, 
-			eTextureChannels channels = eTextureChannels::Unknown, 
+			eTextureChannels channels = eTextureChannels::Auto, 
 			bool sRGB = false);
 
 		// Destroys a texture

@@ -13,7 +13,7 @@ namespace mods
 	public:
 
 		// Creates a 2D texture with given format
-		virtual bool Create(int32 width, int32 height, eTargetFormat format) override;
+		virtual bool Create(int32 width, int32 height, eTargetFormat format, eFilterMode filter, eWrapMode wrap) override;
 
 		// Bounds this target as a texture 2D
 		virtual bool BoundToFrameBuffer(int32 index) const override;

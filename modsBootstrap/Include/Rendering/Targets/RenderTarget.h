@@ -52,9 +52,6 @@ namespace mods
 
 	public:
 
-		// Creates new target with given type and format
-		virtual bool Create(int32 width, int32 height, eTargetFormat format) = 0;
-
 		// Destroys existing target if any
 		virtual bool Destroy() = 0;
 

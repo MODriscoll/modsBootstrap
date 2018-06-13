@@ -33,6 +33,7 @@ namespace mods
 
 	}
 
+	// TODO: viewport size does not need to be constantly updated
 	void AppUniforms::UpdateBuffer(float time, const glm::ivec2& viewportsize)
 	{
 		// Convert to aligned data, so we can pass with only one call

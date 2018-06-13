@@ -32,6 +32,9 @@ namespace mods
 
 	public:
 
+		// Get the transform matrix of this camera
+		glm::mat4 GetTransformMatrix() const;
+
 		// Get the view matrix of this camera
 		glm::mat4 GetViewMatrix() const;
 

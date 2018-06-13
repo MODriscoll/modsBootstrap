@@ -4,7 +4,8 @@
 
 namespace mods
 {
-	bool Texture2DTarget::Create(int32 width, int32 height, eTargetFormat format)
+	bool Texture2DTarget::Create(int32 width, int32 height, 
+		eTargetFormat format, eFilterMode filter, eWrapMode wrap)
 	{
 		if (width <= 0 || height <= 0)
 			return false;
@@ -15,10 +16,12 @@ namespace mods
 		glGenTextures(1, &m_Handle);
 		glBindTexture(GL_TEXTURE_2D, m_Handle);
 
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);	// TODO: add options
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		// TODO: mipmap option
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (int32)filter);	
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (int32)filter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, (int32)wrap);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, (int32)wrap);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, (int32)format, width, height, 
 			0, GetPixelFormat(format), GetDataType(format), nullptr);

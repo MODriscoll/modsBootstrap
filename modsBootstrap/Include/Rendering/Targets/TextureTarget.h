@@ -4,6 +4,22 @@
 
 namespace mods
 {
+	enum class eWrapMode : int32
+	{
+		Repeat		= 0x2901,
+		Mirror		= 0x8370,
+		Edge		= 0x812F,
+		Border		= 0x812D
+	};
+
+	enum class eFilterMode : int32
+	{
+		Nearest		= 0x2600,
+		Linear		= 0x2601
+
+		// TODO: mipmap
+	};
+
 	class TextureTarget : public RenderTarget
 	{
 	public:
@@ -11,6 +27,9 @@ namespace mods
 		virtual ~TextureTarget() = default;
 
 	public:
+
+		// Creates new target with given type and format
+		virtual bool Create(int32 width, int32 height, eTargetFormat format, eFilterMode filter, eWrapMode wrap) = 0;
 
 		// Destroys existing texture if any
 		virtual bool Destroy() override;
