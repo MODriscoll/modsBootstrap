@@ -78,7 +78,7 @@ namespace mods
 
 		// Sets the threshold for colors
 		// considered bright enough to bloom
-		static void SetBrightThreshold(float threshold);
+		static void SetBloomThreshold(float threshold);
 
 	protected:
 

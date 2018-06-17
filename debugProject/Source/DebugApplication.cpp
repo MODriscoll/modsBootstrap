@@ -58,6 +58,7 @@ bool DebugApplication::Startup()
 	}
 
 	Renderer::SetCamera(m_Camera);
+	Renderer::SetBloomThreshold(20.f);
 
 	return true;
 }

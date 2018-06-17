@@ -157,7 +157,7 @@ namespace mods
 		m_Singleton->m_bBloom = enable;
 	}
 
-	void Renderer::SetBrightThreshold(float threshold)
+	void Renderer::SetBloomThreshold(float threshold)
 	{
 		m_Singleton->m_BloomThreshold = glm::max(0.f, threshold);
 	}
