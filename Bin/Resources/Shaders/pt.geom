@@ -8,6 +8,7 @@ in vec3 gColor[];
 out vec3 fPosition;
 out vec3 fColor;
 out vec3 fNormal;
+out vec2 fTexCoords;
 
 layout (std140, binding = 0) uniform Camera
 {
@@ -19,32 +20,48 @@ layout (std140, binding = 0) uniform Camera
 
 uniform float size;
 
+vec4 ApplyOffset(vec3 right, vec3 up, float extx, float exty)
+{
+	vec3 position = gl_in[0].gl_Position.xyz;
+	
+	position += right * extx;
+	position += up * exty;
+
+	return vec4(position, 1.f);
+}
+
 void main()
 {
 	fColor = gColor[0];
+	fNormal = -heading;
 
-	float halfsize = size * 0.5f;
-	
-	vec3 corners[4];
-	corners[0] = gl_in[0].gl_Position.xyz + vec3(-halfsize, halfsize, 0);
-	corners[1] = gl_in[0].gl_Position.xyz + vec3(halfsize, halfsize, 0);
-	corners[2] = gl_in[0].gl_Position.xyz + vec3(halfsize, -halfsize, 0);
-	corners[3] = gl_in[0].gl_Position.xyz + vec3(-halfsize, -halfsize, 0);
-	
-	mat3 billboard;
-	billboard[2] = normalize(position - gl_in[0].gl_Position.xyz);
-	billboard[0] = cross(vec3(0.f, 1.f, 0.f), billboard[2]);
-	billboard[1] = cross(billboard[2], billboard[0]);
-	
-	fNormal = billboard[2];
+	// For scaled billboards, the half size needs to be used
+	float hs = size * 0.5f;
 	
 	mat4 projview = projection * view;
 	
-	for (int i = 0; i < 4; ++i)
-	{
-		fPosition = (projview * vec4(billboard * corners[i], 1.f)).xyz;
+	vec3 right = vec3(view[0][0], view[1][0], view[2][0]);
+	vec3 up = vec3(view[0][1], view[1][1], view[2][1]);
 	
-		gl_Position = projview * vec4(billboard * corners[i], 1.f);
-		EmitVertex();
-	}
+	gl_Position = projview * ApplyOffset(right, up, -hs, hs);
+	fPosition = gl_Position.xyz;
+	fTexCoords = vec2(0.f, 1.f);
+	EmitVertex();
+	
+	gl_Position = projview * ApplyOffset(right, up, -hs, -hs);
+	fPosition = gl_Position.xyz;
+	fTexCoords = vec2(0.f, 0.f);
+	EmitVertex();
+	
+	gl_Position = projview * ApplyOffset(right, up, hs, hs);
+	fPosition = gl_Position.xyz;
+	fTexCoords = vec2(1.f, 1.f);
+	EmitVertex();
+	
+	gl_Position = projview * ApplyOffset(right, up, hs, -hs);
+	fPosition = gl_Position.xyz;
+	fTexCoords = vec2(1.f, 0.f);
+	EmitVertex();
+	
+	EndPrimitive();	
 }

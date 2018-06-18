@@ -28,18 +28,11 @@ namespace mods
 		m_Velocities.resize(m_Particles, glm::vec4(0.f));
 		m_Colors.resize(m_Particles, glm::vec4(1.f));
 
+		std::vector<glm::vec4> defs(m_Particles, glm::vec4(0.f));
+
 		glGenBuffers(3, m_SSBs);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_SSBs[0]);
-		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4) * m_Particles, nullptr, GL_DYNAMIC_COPY);
-
-		glm::vec4* points = (glm::vec4*)glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, m_Particles * sizeof(glm::vec4), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-
-		for (int32 i = 0; i < m_Particles; ++i)
-		{
-			points[i] = m_Positions[i];
-		}
-
-		glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4) * m_Particles, defs.data(), GL_DYNAMIC_COPY);
 
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_SSBs[1]);
 		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4) * m_Particles, nullptr, GL_DYNAMIC_COPY);
@@ -76,6 +69,8 @@ namespace mods
 		}
 		
 		glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 		std::string source;
 		assert(detail::LoadShaderFromSource("Resources/Shaders/c.cmpt", source));
@@ -125,6 +120,17 @@ namespace mods
 		glDeleteShader(shader);
 
 		glGenVertexArrays(1, &m_VAO);
+		glBindVertexArray(m_VAO);
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_SSBs[0]);
+		glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(glm::vec4), (void*)0);
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, m_SSBs[2]);
+		glVertexAttribPointer(1, 3, GL_FLOAT, false, sizeof(glm::vec4), (void*)0);
+		glEnableVertexAttribArray(1);
+
+		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
 	void GPUParticleSystem::Update()
@@ -145,17 +151,8 @@ namespace mods
 		program.SetUniformValue("model", glm::translate(glm::mat4(1.f), m_EmitterPosition));
 
 		glBindVertexArray(m_VAO);
-		glBindBuffer(GL_ARRAY_BUFFER, m_SSBs[0]);	
-		glVertexAttribPointer(0, 3, GL_FLOAT, false, sizeof(glm::vec4), (void*)0);
-		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, m_SSBs[2]);
-		glVertexAttribPointer(1, 3, GL_FLOAT, false, sizeof(glm::vec4), (void*)0);
-		glEnableVertexAttribArray(1);
-
 		glDrawArrays(GL_POINTS, 0, m_Particles);
-
 		glBindVertexArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 		program.Unbind();
 	}

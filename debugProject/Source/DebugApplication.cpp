@@ -60,8 +60,8 @@ bool DebugApplication::Startup()
 	Renderer::SetCamera(m_Camera);
 	//Renderer::SetBloomThreshold(20.f);
 
-	m_TestGPUParticleShader.Load("Resources/Shaders/pt.vert", "Resources/Shaders/pt.frag");
-	//m_TestGPUParticleShader.Load("Resources/Shaders/pt.vert", "Resources/Shaders/pt.geom", "Resources/Shaders/pt.frag");
+	//m_TestGPUParticleShader.Load("Resources/Shaders/pt.vert", "Resources/Shaders/pt.frag");
+	m_TestGPUParticleShader.Load("Resources/Shaders/pt.vert", "Resources/Shaders/pt.geom", "Resources/Shaders/pt.frag");
 	m_TestGPUParticles.Init(1028 * 1028);
 	//m_TestGPUParticles.m_EmitterPosition.y = 7.f;
 
@@ -144,5 +144,7 @@ void DebugApplication::Draw()
 	m_ParticleShader.SetUniformValue("image", 0);
 	m_TestEmitter.Draw();
 
+	m_TestGPUParticleShader.Bind();
+	m_TestGPUParticleShader.SetUniformValue("image", 0);
 	m_TestGPUParticles.Draw(m_TestGPUParticleShader);
 }
