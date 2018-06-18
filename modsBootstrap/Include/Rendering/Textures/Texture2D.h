@@ -24,8 +24,11 @@ namespace mods
 		// Loads a new texture from the given path
 		virtual bool Load(const std::string& path, eTextureChannels channels = eTextureChannels::Auto, bool sRGB = false);
 
-		// Creates a texture with given size and format
+		// Creates a texture with given size and format 
 		virtual bool Create(int32 width, int32 height, eTextureFormat format, byte* pixels = nullptr);
+
+		// Creates a float texture with given size and format
+		virtual bool CreateF(int32 width, int32 height, eTextureFormat format, float* pixels = nullptr);
 
 	public:
 

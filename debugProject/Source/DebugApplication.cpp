@@ -58,7 +58,12 @@ bool DebugApplication::Startup()
 	}
 
 	Renderer::SetCamera(m_Camera);
-	Renderer::SetBloomThreshold(20.f);
+	//Renderer::SetBloomThreshold(20.f);
+
+	m_TestGPUParticleShader.Load("Resources/Shaders/pt.vert", "Resources/Shaders/pt.frag");
+	//m_TestGPUParticleShader.Load("Resources/Shaders/pt.vert", "Resources/Shaders/pt.geom", "Resources/Shaders/pt.frag");
+	m_TestGPUParticles.Init(1028 * 1028);
+	//m_TestGPUParticles.m_EmitterPosition.y = 7.f;
 
 	return true;
 }
@@ -125,6 +130,8 @@ void DebugApplication::Tick(float deltaTime)
 	m_ModelTransform = glm::rotate(m_ModelTransform, glm::radians(45.f) * deltaTime, glm::vec3(0.f, 1.f, 0.f));
 
 	m_TestEmitter.Update(deltaTime, m_Camera.GetTransformMatrix());
+
+	m_TestGPUParticles.Update();
 }
 
 void DebugApplication::Draw()
@@ -136,4 +143,6 @@ void DebugApplication::Draw()
 	m_ParticleShader.Bind();
 	m_ParticleShader.SetUniformValue("image", 0);
 	m_TestEmitter.Draw();
+
+	m_TestGPUParticles.Draw(m_TestGPUParticleShader);
 }

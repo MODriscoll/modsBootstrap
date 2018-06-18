@@ -113,6 +113,33 @@ namespace mods
 		return true;
 	}
 
+	bool Texture2D::CreateF(int32 width, int32 height, eTextureFormat format, float* pixels)
+	{
+		uint32 form = detail::GetDataFormat(format);
+		int32 intern = (int32)format;
+
+		// Destroy potential existing texture
+		Destroy();
+
+		glGenTextures(1, &m_Handle);
+		glBindTexture(GL_TEXTURE_2D, m_Handle);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, intern, width, height, 0, form, GL_FLOAT, pixels);
+
+		glBindTexture(GL_TEXTURE_2D, 0);
+
+		m_Width = width;
+		m_Height = height;
+		m_Channels = detail::GetTextureChannels(form);
+
+		return true;
+	}
+
 	uint32 Texture2D::GetTextureType() const
 	{
 		return GL_TEXTURE_2D;

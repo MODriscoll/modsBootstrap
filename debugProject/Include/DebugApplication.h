@@ -8,6 +8,7 @@
 #include <Rendering\Lighting\PointLight.h>
 
 #include <Rendering\Particles\ParticleEmitter.h>
+#include <Rendering\Particles\GPUParticleSystem.h>
 
 #include <Rendering\Textures\Texture2D.h>
 
@@ -40,4 +41,7 @@ private:
 	mods::ParticleEmitter m_TestEmitter;
 
 	glm::mat4 m_ModelTransform;
+
+	mods::ShaderProgram m_TestGPUParticleShader;
+	mods::GPUParticleSystem m_TestGPUParticles;
 };
