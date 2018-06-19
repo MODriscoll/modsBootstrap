@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Types.h"
+#include "Rendering\Shaders\ComputeShader.h"
 
 #include <glm\vec3.hpp>
 
@@ -40,6 +40,6 @@ namespace mods
 
 		int32 m_Particles;
 
-		uint32 m_Program;
+		ComputeShader m_ComputeShader;
 	};
 }

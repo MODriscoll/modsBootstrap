@@ -2,7 +2,6 @@
 
 #include "IncludeGLFW.h"
 #include "Rendering\Shaders\Shader.h"
-#include "Rendering\Shaders\ShaderUtility.h"
 
 #include <glm\geometric.hpp>
 #include <glm\gtc\matrix_transform.hpp>
@@ -14,7 +13,6 @@ namespace mods
 	{
 		glDeleteVertexArrays(1, &m_VAO);
 		glDeleteBuffers(3, m_SSBs);
-		glDeleteProgram(m_Program);
 	}
 
 	void GPUParticleSystem::Init(int32 MaxParticles)
@@ -72,52 +70,7 @@ namespace mods
 
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-		std::string source;
-		assert(detail::LoadShaderFromSource("Resources/Shaders/c.cmpt", source));
-
-		const char* sc = source.c_str();
-		uint32 shader = glCreateShader(GL_COMPUTE_SHADER);
-		glShaderSource(shader, 1, &sc, nullptr);
-		glCompileShader(shader);
-
-		// Handle any potential errors
-		int32 success;
-		glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-		if (!success)
-		{
-			char log[512];
-			glGetShaderInfoLog(shader, 512, nullptr, log);
-
-			std::cout << "Error: Failed to compile shader. Log:\n" << log << std::endl;
-
-			// Destroy failed shader
-			glDeleteShader(shader);
-
-			assert(false);
-		}
-
-		m_Program = glCreateProgram();
-		glAttachShader(m_Program, shader);
-		glLinkProgram(m_Program);
-
-		// Handle potential errors
-		glGetProgramiv(m_Program, GL_LINK_STATUS, &success);
-		if (!success)
-		{
-			char log[512];
-			glGetProgramInfoLog(m_Program, 512, nullptr, log);
-
-			std::cout << "Error: Failed to link program. Log:\n" << log << std::endl;
-
-			// Delete failed program and shaders
-			glDeleteProgram(m_Program);
-			glDeleteShader(shader);
-
-			assert(false);
-		}
-
-		glDetachShader(m_Program, shader);
-		glDeleteShader(shader);
+		assert(m_ComputeShader.Load("Resources/Shaders/c.cmpt"));
 
 		glGenVertexArrays(1, &m_VAO);
 		glBindVertexArray(m_VAO);
@@ -139,8 +92,12 @@ namespace mods
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, m_SSBs[1]);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, m_SSBs[2]);
 
-		glUseProgram(m_Program);
-		glDispatchCompute(m_Particles / 128, 1, 1);
+		int32 max[3];
+		glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &max[0]); 
+		glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, &max[1]);
+		glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, &max[2]);
+
+		m_ComputeShader.Dispatch((m_Particles / 128) + 1, 1, 1);
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 	}
 
