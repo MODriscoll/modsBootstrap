@@ -1,0 +1,48 @@
+struct DirectionalLight
+{
+	vec3 color;	
+	float intensity;
+	vec3 direction;	
+};
+
+#ifndef MAX_DIRECTIONAL_LIGHTS
+#define MAX_DIRECTIONAL_LIGHTS 4
+#endif
+
+struct PointLight
+{
+	vec3 color;
+	float intensity;
+	vec3 position;	
+	float radius;
+};
+
+#ifndef MAX_POINT_LIGHTS
+#define MAX_POINT_LIGHTS 10
+#endif
+
+struct SpotLight
+{
+	vec3 color;
+	vec3 position;
+	vec3 direction;
+	float intensity;
+	float radius;
+	float inner;
+	float outer;
+};
+
+#ifndef MAX_SPOT_LIGHTS
+#define MAX_SPOT_LIGHTS 10
+#endif
+
+layout (std140, binding = 1) uniform Lights
+{
+	DirectionalLight[MAX_DIRECTIONAL_LIGHTS] dirlights;
+	PointLight[MAX_POINT_LIGHTS] pntlights;
+	SpotLight[MAX_SPOT_LIGHTS] sptlights;
+	
+	int dircount;
+	int pntcount;
+	int sptcount;
+};

@@ -23,13 +23,13 @@ DebugApplication::~DebugApplication()
 
 bool DebugApplication::Startup()
 {
-	m_ParticleShader.Load("Resources/Shaders/TestParticle.vert", "Resources/Shaders/TestParticle.frag");
+	m_ParticleShader.Load("Resources/Shaders/Particles/TestParticle.vert", "Resources/Shaders/Particles/TestParticle.frag");
 	m_ParticleTexture.Load("Resources/Textures/AwesomeFace.png", eTextureChannels::RGB);
 	m_TestEmitter.Initialise(1000, 500, 0.1f, 1.f, 1, 5, 1, 0.1f, glm::vec3(1.f, 0.f, 0.f), glm::vec3(1.f, 1.f, 0.f));
 
 	m_TestEmitter.m_Position.x = 5.f;
 
-	m_ModelShader.Load("Resources/Shaders/ModelVertex.vert", "Resources/Shaders/ModelFragment.frag");
+	m_ModelShader.Load("Resources/Shaders/Meshes/ModelVertex.vert", "Resources/Shaders/Meshes/ModelFragment.frag");
 	m_Nanosuit.Load("Resources/Models/Nanosuit/nanosuit.obj", eProcessModel::Triangulate);
 
 	m_Camera.Position = glm::vec3(10.f);
@@ -60,8 +60,7 @@ bool DebugApplication::Startup()
 	Renderer::SetCamera(m_Camera);
 	//Renderer::SetBloomThreshold(20.f);
 
-	//m_TestGPUParticleShader.Load("Resources/Shaders/pt.vert", "Resources/Shaders/pt.frag");
-	m_TestGPUParticleShader.Load("Resources/Shaders/pt.vert", "Resources/Shaders/pt.geom", "Resources/Shaders/pt.frag");
+	m_TestGPUParticleShader.Load("Resources/Shaders/Particles/pt.vert", "Resources/Shaders/Particles/pt.geom", "Resources/Shaders/Particles/pt.frag");
 	m_TestGPUParticles.Init(1028 * 1028);
 	//m_TestGPUParticles.m_EmitterPosition.y = 7.f;
 

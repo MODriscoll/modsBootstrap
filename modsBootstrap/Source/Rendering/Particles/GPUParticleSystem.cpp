@@ -70,7 +70,7 @@ namespace mods
 
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
-		assert(m_ComputeShader.Load("Resources/Shaders/c.cmpt"));
+		assert(m_ComputeShader.Load("Resources/Shaders/Particles/c.comp"));
 
 		glGenVertexArrays(1, &m_VAO);
 		glBindVertexArray(m_VAO);

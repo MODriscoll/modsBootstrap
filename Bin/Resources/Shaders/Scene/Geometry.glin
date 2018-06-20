@@ -1,0 +1,10 @@
+// Textures containing the geometry
+// data from the geometry pass
+struct GTargets
+{
+	sampler2D gPosition;
+	sampler2D gNormal;
+	sampler2D gAlbedoSpec;
+};
+
+uniform GTargets target;

@@ -1,0 +1,5 @@
+layout (std140, binding = 2) uniform Application
+{
+	vec2 viewportsize;
+	float time;
+};

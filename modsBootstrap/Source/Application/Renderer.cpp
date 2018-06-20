@@ -450,10 +450,10 @@ namespace mods
 
 		assert(m_PingBuffer.Create() && m_PongBuffer.Create());
 
-		m_SShader.Load("Resources/Shaders/PntLightStencilPass.vert", "Resources/Shaders/PntLightStencilPass.frag");
+		m_SShader.Load("Resources/Shaders/Lights/PntLightStencilPass.vert", "Resources/Shaders/Blank.frag");
 
-		m_DIRShader.Load("Resources/Shaders/DirLight.vert", "Resources/Shaders/DirLight.frag");
-		m_PNTShader.Load("Resources/Shaders/PntLight.vert", "Resources/Shaders/PntLight.frag");
+		m_DIRShader.Load("Resources/Shaders/Lights/DirLight.vert", "Resources/Shaders/Lights/DirLight.frag");
+		m_PNTShader.Load("Resources/Shaders/Lights/PntLight.vert", "Resources/Shaders/Lights/PntLight.frag");
 
 		m_DIRShader.Bind();
 		m_DIRShader.SetUniformValue("target.gPosition", m_PosIdx);
@@ -466,7 +466,7 @@ namespace mods
 		m_PNTShader.SetUniformValue("target.gAlbedoSpec", m_AlbIdx);
 	
 		m_IPShader.Load("Resources/Shaders/PostProcess/InitPost.vert", "Resources/Shaders/PostProcess/InitPost.frag");
-		m_FPShader.Load("Resources/Shaders/PostProcess.vert", "Resources/Shaders/PostProcess.frag");
+		m_FPShader.Load("Resources/Shaders/PostProcess/PostProcess.vert", "Resources/Shaders/PostProcess/PostProcess.frag");
 
 		m_BloomShader.Load("Resources/Shaders/PostProcess/Bloom.vert", "Resources/Shaders/PostProcess/Bloom.frag");
 
