@@ -20,7 +20,7 @@ namespace mods
 
 		void Init(int32 MaxParticles);
 
-		void Update();
+		void Update(float deltaTime);
 
 		void Draw(ShaderProgram& program);
 
@@ -32,13 +32,15 @@ namespace mods
 
 		uint32 m_VAO;
 
-		uint32 m_SSBs[3];
+		// Position, velocity, color, size, age
+		uint32 m_SSBs[5];
 
-		std::vector<glm::vec4> m_Positions;
-		std::vector<glm::vec4> m_Velocities;
-		std::vector<glm::vec4> m_Colors;
+		// Dead list ssbos
+		uint32 m_DeadList;
 
 		int32 m_Particles;
+
+		uint32 m_DeadBuffer;
 
 		ComputeShader m_ComputeShader;
 	};

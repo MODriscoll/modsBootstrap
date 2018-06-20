@@ -49,12 +49,10 @@ namespace mods
 
 	bool ComputeShader::Load(const std::string& path)
 	{
+		// Load shader from source
 		std::string compute;
 		if (!detail::LoadShaderFromSource(path, compute))
-		{
-			std::cout << "Error: Failed to load shader source - Path: " << path << std::endl;
 			return false;
-		}
 
 		return CreateProgram(compute, path);
 	}
@@ -85,11 +83,8 @@ namespace mods
 		glUseProgram(0);
 	}
 
-	void ComputeShader::Dispatch(uint32 x, uint32 y, uint32 z, bool bBind) const
+	void ComputeShader::Dispatch(uint32 x, uint32 y, uint32 z) const
 	{
-		if (bBind)
-			Bind();
-
 		glDispatchCompute(x, y, z);
 	}
 
@@ -152,67 +147,16 @@ namespace mods
 		// Need to destroy existing program first
 		Destroy();
 
-		const char* sc = script.c_str();
+		// Compile shader
+		uint32 cshader;
+		if (!detail::CreateAndCompileShader(script, GL_COMPUTE_SHADER, cshader))
+			return false;
 
-		uint32 shader = glCreateShader(GL_COMPUTE_SHADER);
-		glShaderSource(shader, 1, &sc, nullptr);
-		glCompileShader(shader);
+		std::vector<uint32> shader;
+		shader.push_back(cshader);
 
-		// Handle any compiling errors
-		{
-			int32 success;
-			glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-			if (!success)
-			{
-				int32 length = 512;
-				glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
-
-				std::vector<char> log(length, '?');
-				glGetShaderInfoLog(shader, length, nullptr, log.data());
-
-				std::cout << "Error: Failed to compile shader. Log: \n" << log.data() << std::endl;
-				if (!path.empty())
-					std::cout << "\nPath: " << path << std::endl;
-
-				// Destroy failed shader
-				glDeleteShader(shader);
-
-				return false;
-			}
-		}
-
-		uint32 program = glCreateProgram();
-		glAttachShader(program, shader);
-		glLinkProgram(program);
-
-		// Handle any linking errors
-		{
-			int32 success;
-			glGetProgramiv(program, GL_LINK_STATUS, &success);
-			if (!success)
-			{
-				int32 length = 512;
-				glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
-
-				std::vector<char> log(length, '?');
-				glGetProgramInfoLog(program, length, nullptr, log.data());
-
-				std::cout << "Error: Failed to link program. Log:\n" << log.data() << std::endl;
-
-				// Need to delete failed program and shader
-				glDeleteProgram(program);
-				glDeleteShader(shader);
-
-				return false;
-			}
-		}
-
-		glDetachShader(program, shader);
-		glDeleteShader(shader);
-
-		m_Program = program;
-
-		return true;
+		// Link shader into single program (destroying it aswell)
+		return detail::CreateAndLinkProgram(shader, m_Program);
 	}
 
 	bool ComputeShader::GetUniformLocation(const std::string& name, int32& location)

@@ -43,7 +43,7 @@ namespace mods
 		void Unbind() const;
 
 		// Dispatches this compute shader with given amount of work groups
-		void Dispatch(uint32 x, uint32 y, uint32 z, bool bBind = true) const;
+		void Dispatch(uint32 x, uint32 y, uint32 z) const;
 
 	public:
 

@@ -12,7 +12,8 @@ namespace mods
 	GPUParticleSystem::~GPUParticleSystem()
 	{
 		glDeleteVertexArrays(1, &m_VAO);
-		glDeleteBuffers(3, m_SSBs);
+		glDeleteBuffers(5, m_SSBs);
+		glDeleteBuffers(1, &m_DeadBuffer);
 	}
 
 	void GPUParticleSystem::Init(int32 MaxParticles)
@@ -22,13 +23,11 @@ namespace mods
 
 		m_Particles = (1024 * 1024);// MaxParticles;
 
-		m_Positions.resize(m_Particles, glm::vec4(0.f));
-		m_Velocities.resize(m_Particles, glm::vec4(0.f));
-		m_Colors.resize(m_Particles, glm::vec4(1.f));
-
 		std::vector<glm::vec4> defs(m_Particles, glm::vec4(0.f));
+		std::vector<glm::vec4> age(m_Particles, glm::vec4(0.f));
+		std::vector<glm::vec4> size(m_Particles, glm::vec4(5.f));
 
-		glGenBuffers(3, m_SSBs);
+		glGenBuffers(5, m_SSBs);
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_SSBs[0]);
 		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4) * m_Particles, defs.data(), GL_DYNAMIC_COPY);
 
@@ -68,7 +67,21 @@ namespace mods
 		
 		glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_SSBs[3]);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4) * m_Particles, size.data(), GL_DYNAMIC_COPY);
+
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_SSBs[4]);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4) * m_Particles, age.data(), GL_DYNAMIC_COPY);
+
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
+
+		glGenBuffers(1, &m_DeadBuffer);
+		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, m_DeadBuffer);
+
+		uint32 dead = 0;
+		glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(uint32), &dead, GL_DYNAMIC_COPY);
+
+		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
 
 		assert(m_ComputeShader.Load("Resources/Shaders/Particles/c.comp"));
 
@@ -86,19 +99,31 @@ namespace mods
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
-	void GPUParticleSystem::Update()
+	void GPUParticleSystem::Update(float deltaTime)
 	{
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, m_SSBs[0]);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 5, m_SSBs[1]);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, m_SSBs[2]);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, m_SSBs[3]);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 8, m_SSBs[4]);
+		glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 3, m_DeadBuffer);
 
 		int32 max[3];
 		glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &max[0]); 
 		glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, &max[1]);
 		glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, &max[2]);
 
+		m_ComputeShader.Bind();
+		m_ComputeShader.SetUniformValue("DT", deltaTime);
 		m_ComputeShader.Dispatch((m_Particles / 128) + 1, 1, 1);
 		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, m_DeadBuffer);
+		uint32* ptr = (uint32*)glMapBuffer(GL_ATOMIC_COUNTER_BUFFER, GL_READ_ONLY);
+		uint32 count = *ptr;
+
+		glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
+		std::cout << "Dead particles: " << count << std::endl;
 	}
 
 	void GPUParticleSystem::Draw(ShaderProgram& program)

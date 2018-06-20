@@ -1,5 +1,7 @@
 #include "Rendering\Shaders\ShaderUtility.h"
 
+#include "IncludeGLFW.h"
+
 #include <fstream>
 #include <iostream>
 
@@ -15,7 +17,7 @@ namespace mods
 			std::ifstream fin(path, std::ios::in);
 			if (!fin.good())
 			{
-				std::cout << "Error: Failed to open shader source - Path: " << path << std::endl;
+				std::cout << "Error: Failed to open shader source\nPath: " << path << std::endl;
 
 				fin.close();
 				return false;
@@ -36,7 +38,7 @@ namespace mods
 					std::string shader;
 					if (!LoadShaderFromSource(include, shader))
 					{
-						std::cout << "Error: Failed to open include directive - Include Path: " << include << " in shader source - Path: " << path << std::endl;
+						std::cout << "Error: Failed to open include directive\nInclude Path: " << include << "\nSource Path: " << path << std::endl;
 
 						fin.close();
 						return false;
@@ -55,6 +57,88 @@ namespace mods
 
 			fin.close();
 			return true;
+		}
+
+		bool CreateAndCompileShader(const std::string& script, uint32 type, uint32& shader, const std::string& path)
+		{
+			const char* sc = script.c_str();
+
+			shader = glCreateShader(type);
+			glShaderSource(shader, 1, &sc, nullptr);
+			glCompileShader(shader);
+
+			// Handle compilation error if any
+			int32 success;
+			glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+			if (!success)
+			{
+				int32 length = 512;
+				glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
+
+				std::vector<char> log(length, '?');
+				glGetShaderInfoLog(shader, length, nullptr, log.data());
+
+				std::cout << "Error: Failed to compile shader\nLog:\n" << log.data() << std::endl;
+				if (!path.empty())
+					std::cout << "\nPath: " << path << std::endl;
+
+				// Destroy failed shader
+				glDeleteShader(shader);
+
+				shader = 0;
+				return false;
+			}
+
+			return true;
+		}
+
+		bool CreateAndLinkProgram(const std::vector<uint32>& shaders, uint32& program, bool bDestroy)
+		{
+			if (shaders.empty())
+			{
+				std::cout << "Error: Cannot link program with no shaders" << std::endl;
+
+				program = 0;
+				return false;
+			}
+
+			program = glCreateProgram();
+
+			// Attach first before linking
+			for (uint32 shader : shaders)
+				glAttachShader(program, shader);
+
+			glLinkProgram(program);
+
+			// Detach even on failure
+			for (uint32 shader : shaders)
+				glDetachShader(program, shader);
+
+			// Handle linkage error if any
+			int32 success;
+			glGetProgramiv(program, GL_LINK_STATUS, &success);
+			if (!success)
+			{
+				int32 length = 512;
+				glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
+
+				std::vector<char> log(length, '?');
+				glGetProgramInfoLog(program, length, nullptr, log.data());
+
+				std::cout << "Error: Failed to link program\nLog:\n" << log.data() << std::endl;
+
+				// Destroy the failed program
+				glDeleteProgram(program);
+				program = 0;
+			}
+
+			if (bDestroy)
+			{
+				for (uint32 shader : shaders)
+					glDeleteShader(shader);
+			}
+
+			return program != 0;
 		}
 	}
 }

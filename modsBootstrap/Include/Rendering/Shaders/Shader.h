@@ -4,10 +4,8 @@
 
 #include <glm\fwd.hpp>
 
-#include <memory>
 #include <string>
 #include <unordered_map>
-#include <vector>
 
 namespace mods
 {
@@ -69,12 +67,6 @@ namespace mods
 		void SetUniformValue(const std::string& name, const glm::mat4& value, bool transpose = false);
 
 	private:
-
-		// Compiles the script into a shader
-		bool CompileShader(const std::string& script, uint32 type, uint32& shader);
-
-		// Links the shaders into a single program
-		bool LinkShaders(uint32 vertex, uint32 geometry, uint32 fragment, uint32& program);
 
 		// Retrieves the location of the given uniform.
 		// Saves location for later indexing if uniform exists

@@ -130,7 +130,7 @@ void DebugApplication::Tick(float deltaTime)
 
 	m_TestEmitter.Update(deltaTime, m_Camera.GetTransformMatrix());
 
-	m_TestGPUParticles.Update();
+	m_TestGPUParticles.Update(deltaTime);
 }
 
 void DebugApplication::Draw()

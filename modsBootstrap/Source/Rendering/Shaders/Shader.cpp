@@ -55,6 +55,7 @@ namespace mods
 
 	bool ShaderProgram::Load(const std::string& vpath, const std::string& fpath)
 	{
+		// Load shaders from files
 		std::string vertex, fragment;
 		if (!detail::LoadShaderFromSource(vpath, vertex) ||
 			!detail::LoadShaderFromSource(fpath, fragment))
@@ -62,11 +63,29 @@ namespace mods
 			return false;
 		}
 
-		return Create(vertex, fragment);
+		// Compile shaders
+		uint32 vshader;
+		if (!detail::CreateAndCompileShader(vertex, GL_VERTEX_SHADER, vshader, vpath))
+			return false;
+
+		uint32 fshader;
+		if (!detail::CreateAndCompileShader(fragment, GL_FRAGMENT_SHADER, fshader, fpath))
+		{
+			glDeleteShader(vshader);
+			return false;
+		}
+
+		std::vector<uint32> shaders;
+		shaders.push_back(vshader);
+		shaders.push_back(fshader);
+
+		// Link shaders into single program (destroying them aswell)
+		return detail::CreateAndLinkProgram(shaders, m_Program);
 	}
 
 	bool ShaderProgram::Load(const std::string& vpath, const std::string& gpath, const std::string& fpath)
 	{
+		// Load shaders from files
 		std::string vertex, geometry, fragment;
 		if (!detail::LoadShaderFromSource(vpath, vertex) ||
 			!detail::LoadShaderFromSource(gpath, geometry) ||
@@ -75,57 +94,86 @@ namespace mods
 			return false;
 		}
 
-		return Create(vertex, geometry, fragment);
-	}
-
-	bool ShaderProgram::Create(const std::string& vertex, const std::string& fragment)
-	{
+		// Compile shaders
 		uint32 vshader;
-		if (!CompileShader(vertex, GL_VERTEX_SHADER, vshader))
-			return false;
-
-		uint32 fshader;
-		if (!CompileShader(fragment, GL_FRAGMENT_SHADER, fshader))
-		{
-			glDeleteShader(vshader);
-			return false;
-		}
-
-		uint32 program;
-		if (!LinkShaders(vshader, 0, fshader, program))
-			return false;
-
-		m_Program = program;
-		return true;
-	}
-
-	bool ShaderProgram::Create(const std::string& vertex, const std::string& geometry, const std::string& fragment)
-	{
-		uint32 vshader;
-		if (!CompileShader(vertex, GL_VERTEX_SHADER, vshader))
+		if (!detail::CreateAndCompileShader(vertex, GL_VERTEX_SHADER, vshader, vpath))
 			return false;
 
 		uint32 gshader;
-		if (!CompileShader(geometry, GL_GEOMETRY_SHADER, gshader))
+		if (!detail::CreateAndCompileShader(geometry, GL_GEOMETRY_SHADER, gshader, gpath))
 		{
 			glDeleteShader(vshader);
 			return false;
 		}
 
 		uint32 fshader;
-		if (!CompileShader(fragment, GL_FRAGMENT_SHADER, fshader))
+		if (!detail::CreateAndCompileShader(fragment, GL_FRAGMENT_SHADER, fshader, fpath))
 		{
-			glDeleteShader(vshader);
+			glDeleteProgram(vshader);
 			glDeleteShader(gshader);
 			return false;
 		}
 
-		uint32 program;
-		if (!LinkShaders(vshader, gshader, fshader, program))
+		std::vector<uint32> shaders;
+		shaders.push_back(vshader);
+		shaders.push_back(gshader);
+		shaders.push_back(fshader);
+
+		// Link shaders into single program (destroying them aswell)
+		return detail::CreateAndLinkProgram(shaders, m_Program);
+	}
+
+	bool ShaderProgram::Create(const std::string& vertex, const std::string& fragment)
+	{
+		// Compile shaders
+		uint32 vshader;
+		if (!detail::CreateAndCompileShader(vertex, GL_VERTEX_SHADER, vshader))
 			return false;
 
-		m_Program = program;
-		return true;
+		uint32 fshader;
+		if (!detail::CreateAndCompileShader(fragment, GL_FRAGMENT_SHADER, fshader))
+		{
+			glDeleteShader(vshader);
+			return false;
+		}
+
+		std::vector<uint32> shaders;
+		shaders.push_back(vshader);
+		shaders.push_back(fshader);
+
+		// Link shaders into single program (destroying them aswell)
+		return detail::CreateAndLinkProgram(shaders, m_Program);
+	}
+
+	bool ShaderProgram::Create(const std::string& vertex, const std::string& geometry, const std::string& fragment)
+	{
+		// Compile shaders
+		uint32 vshader;
+		if (!detail::CreateAndCompileShader(vertex, GL_VERTEX_SHADER, vshader))
+			return false;
+
+		uint32 gshader;
+		if (!detail::CreateAndCompileShader(geometry, GL_GEOMETRY_SHADER, gshader))
+		{
+			glDeleteShader(vshader);
+			return false;
+		}
+
+		uint32 fshader;
+		if (!detail::CreateAndCompileShader(fragment, GL_FRAGMENT_SHADER, fshader))
+		{
+			glDeleteProgram(vshader);
+			glDeleteShader(gshader);
+			return false;
+		}
+
+		std::vector<uint32> shaders;
+		shaders.push_back(vshader);
+		shaders.push_back(gshader);
+		shaders.push_back(fshader);
+
+		// Link shaders into single program (destroying them aswell)
+		return detail::CreateAndLinkProgram(shaders, m_Program);
 	}
 
 	void ShaderProgram::Bind() const
@@ -190,77 +238,6 @@ namespace mods
 		int32 location;
 		if (GetUniformLocation(name, location))
 			glUniformMatrix4fv(location, 1, transpose, glm::value_ptr(value));
-	}
-
-	bool ShaderProgram::CompileShader(const std::string& script, uint32 type, uint32& shader)
-	{
-		const char* sc = script.c_str();
-
-		shader = glCreateShader(type);
-		glShaderSource(shader, 1, &sc, nullptr);
-		glCompileShader(shader);
-
-		// Handle any potential errors
-		int32 success;
-		glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-		if (!success)
-		{
-			char log[512];
-			glGetShaderInfoLog(shader, 512, nullptr, log);
-
-			std::cout << "Error: Failed to compile shader. Log:\n" << log << std::endl;
-
-			// Destroy failed shader
-			glDeleteShader(shader);
-
-			return false;
-		}
-
-		return true;
-	}
-
-	bool ShaderProgram::LinkShaders(uint32 vertex, uint32 geometry, uint32 fragment, uint32& program)
-	{
-		program = glCreateProgram();
-
-		glAttachShader(program, vertex);
-		if (geometry > 0)
-			glAttachShader(program, geometry);
-		glAttachShader(program, fragment);
-
-		glLinkProgram(program);
-
-		// Handle potential errors
-		int32 success;
-		glGetProgramiv(program, GL_LINK_STATUS, &success);
-		if (!success)
-		{
-			char log[512];
-			glGetProgramInfoLog(program, 512, nullptr, log);
-
-			std::cout << "Error: Failed to link program. Log:\n" << log << std::endl;
-
-			// Delete failed program and shaders
-			glDeleteProgram(program);
-			glDeleteShader(vertex);
-			if (geometry > 0)
-				glDeleteShader(geometry);
-			glDeleteShader(fragment);
-
-			return false;
-		}
-	
-		glDetachShader(program, vertex);
-		if (geometry > 0)
-			glDetachShader(program, geometry);
-		glDetachShader(program, fragment);
-
-		glDeleteShader(vertex);
-		if (geometry > 0)
-			glDeleteShader(geometry);
-		glDeleteShader(fragment);
-
-		return true;
 	}
 
 	bool ShaderProgram::GetUniformLocation(const std::string& name, int32& location)
