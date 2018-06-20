@@ -78,9 +78,9 @@ namespace mods
 				std::vector<char> log(length, '?');
 				glGetShaderInfoLog(shader, length, nullptr, log.data());
 
-				std::cout << "Error: Failed to compile shader\nLog:\n" << log.data() << std::endl;
+				std::cout << "Error: Failed to compile shader\nLog:\n" << log.data();
 				if (!path.empty())
-					std::cout << "\nPath: " << path << std::endl;
+					std::cout << "Path: " << path << std::endl;
 
 				// Destroy failed shader
 				glDeleteShader(shader);

@@ -54,6 +54,7 @@ namespace mods
 		// Sets the uniform with the given name to the given value
 		void SetUniformValue(const std::string& name, bool value);
 		void SetUniformValue(const std::string& name, int32 value);
+		void SetUniformValue(const std::string& name, uint32 value);
 		void SetUniformValue(const std::string& name, float value);
 		void SetUniformValue(const std::string& name, const glm::vec2& value);
 		void SetUniformValue(const std::string& name, const glm::vec3& value);

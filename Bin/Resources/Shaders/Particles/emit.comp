@@ -17,26 +17,37 @@ layout (std140, binding = 6) buffer Col
 
 layout (std140, binding = 7) buffer Siz
 {
-	float par_siz[];
+	vec4 par_siz[];
 };
 
 layout (std140, binding = 8) buffer Age
 {
-	float par_age[];
+	vec4 par_age[];
 };
 
 layout (std140, binding = 9) buffer DeaI
 {
-	uint par_deaI[];
+	ivec4 par_deaI[];
 };
 
-layout (std140, binding = 10) buffer { atomic_uint deadcount };
+layout (binding = 3) uniform atomic_uint deadcount;
 
 layout (local_size_x = 128, local_size_y = 1, local_size_z = 1) in;
 
-uniform float DT;
+uniform uint AmountToSpawn;
 
 void main()
 {
-
+	uint gid = gl_GlobalInvocationID.x;
+	
+	if (gid < atomicCounter(deadcount) && gid < AmountToSpawn)
+	{
+		uint index = par_deaI[atomicCounterDecrement(deadcount)].x;
+	
+		par_pos[index].xyz = vec3(0.f);
+		par_vel[index].xyz = vec3(0.f, 1.f, 0.f) * 2.f;
+		par_col[index].rgb = vec3(1.f, 0.f, 0.f);
+		par_siz[index].x = 5.f;
+		par_age[index].x = 0.f;
+	}	
 }

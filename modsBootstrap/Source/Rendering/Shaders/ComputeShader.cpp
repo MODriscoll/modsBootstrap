@@ -100,6 +100,13 @@ namespace mods
 			glUniform1i(location, value);
 	}
 
+	void ComputeShader::SetUniformValue(const std::string& name, uint32 value)
+	{
+		int32 location;
+		if (GetUniformLocation(name, location))
+			glUniform1ui(location, value);
+	}
+
 	void ComputeShader::SetUniformValue(const std::string& name, float value)
 	{
 		int32 location;
@@ -149,7 +156,7 @@ namespace mods
 
 		// Compile shader
 		uint32 cshader;
-		if (!detail::CreateAndCompileShader(script, GL_COMPUTE_SHADER, cshader))
+		if (!detail::CreateAndCompileShader(script, GL_COMPUTE_SHADER, cshader, path))
 			return false;
 
 		std::vector<uint32> shader;

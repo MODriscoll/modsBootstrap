@@ -38,10 +38,14 @@ namespace mods
 		// Dead list ssbos
 		uint32 m_DeadList;
 
+		float m_EmitTime = 0.f;
+		float m_EmitRate;
+
 		int32 m_Particles;
 
 		uint32 m_DeadBuffer;
 
+		ComputeShader m_EmitShader;
 		ComputeShader m_ComputeShader;
 	};
 }

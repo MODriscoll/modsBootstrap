@@ -27,14 +27,14 @@ layout (std140, binding = 8) buffer Age
 
 layout (std140, binding = 9) buffer DeaI
 {
-	uint par_deaI[];
+	ivec4 par_deaI[];
 };
 
 layout (binding = 3) uniform atomic_uint deadcount;
 
 layout (local_size_x = 128, local_size_y = 1, local_size_z = 1) in;
 
-const vec3 G = vec3(0.f, -9.8f, 0.f);
+const vec3 G = vec3(0.f, -0.98f, 0.f);
 
 uniform float DT;
 
@@ -48,25 +48,25 @@ void main()
 	float s = par_siz[gid].x;
 	float a = par_age[gid].x;
 	
-	if (a < 5.f)
+	if (a <= 5.f)
 	{		
 		a += DT;
 		if (a > 5.f)
 		{
-			atomicCounterIncrement(deadcount);
-			//par_deaI[atomicCounterIncrement(deadcount)] = gid;
+			//atomicCounterIncrement(deadcount);
+			par_deaI[atomicCounterIncrement(deadcount)].x = int(gid);
 		}
 		else
 		{				
 			vec3 pp = p + v * DT + 0.5f * DT * DT * G;
 			vec3 vp = v + G * DT;
 			
-			pp.y = mod(pp.y - 40.f, -80.f) + 40.f;
-			vp.y = max(vp.y, -20.f);
+			//pp.y = mod(pp.y - 40.f, -80.f) + 40.f;
+			//vp.y = max(vp.y, -20.f);
 			
 			c = mix(vec3(1.f, 0.f, 0.f), vec3(0.f, 1.f, 0.f), clamp(a / 5.f, 0.f, 1.f));
 			
-			s = mix(5.f, 1.f, clamp(a / 5.f, 0.f, 1.f));
+			s = mix(1.f, 0.f, clamp(a / 5.f, 0.f, 1.f));
 			
 			par_pos[gid].xyz = pp;
 			par_vel[gid].xyz = vp;

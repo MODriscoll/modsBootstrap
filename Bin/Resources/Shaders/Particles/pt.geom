@@ -4,6 +4,7 @@ layout (points) in;
 layout (triangle_strip, max_vertices = 4) out;
 
 in vec3 gColor[];
+in float gExtent[];
 
 out vec3 fPosition;
 out vec3 fColor;
@@ -11,8 +12,6 @@ out vec3 fNormal;
 out vec2 fTexCoords;
 
 #include "Resources/Shaders/Scene/Camera.glin"
-
-uniform float size;
 
 vec4 ApplyOffset(vec3 right, vec3 up, float extx, float exty)
 {
@@ -30,7 +29,7 @@ void main()
 	fNormal = -heading;
 
 	// For scaled billboards, the half size needs to be used
-	float hs = size * 0.5f;
+	float hs = gExtent[0] * 0.5f;
 	
 	mat4 projview = projection * view;
 	

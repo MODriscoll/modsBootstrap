@@ -14,6 +14,7 @@ namespace mods
 		glDeleteVertexArrays(1, &m_VAO);
 		glDeleteBuffers(5, m_SSBs);
 		glDeleteBuffers(1, &m_DeadBuffer);
+		glDeleteBuffers(1, &m_DeadList);
 	}
 
 	void GPUParticleSystem::Init(int32 MaxParticles)
@@ -21,10 +22,10 @@ namespace mods
 		if (MaxParticles <= 0)
 			return;
 
-		m_Particles = (1024 * 1024);// MaxParticles;
+		m_Particles = (501);// MaxParticles;
 
 		std::vector<glm::vec4> defs(m_Particles, glm::vec4(0.f));
-		std::vector<glm::vec4> age(m_Particles, glm::vec4(0.f));
+		std::vector<glm::vec4> age(m_Particles, glm::vec4(5.f));
 		std::vector<glm::vec4> size(m_Particles, glm::vec4(5.f));
 
 		glGenBuffers(5, m_SSBs);
@@ -73,16 +74,30 @@ namespace mods
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_SSBs[4]);
 		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4) * m_Particles, age.data(), GL_DYNAMIC_COPY);
 
+		glGenBuffers(1, &m_DeadList);
+		glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_DeadList);
+		glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::ivec4) * m_Particles, nullptr, GL_DYNAMIC_COPY);
+
+		glm::ivec4* indices = (glm::ivec4*)glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, m_Particles * sizeof(glm::ivec4), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+
+		for (int32 i = 0; i < m_Particles; ++i)
+		{
+			indices[i].x = i;
+		}
+
+		glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
 		glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
 		glGenBuffers(1, &m_DeadBuffer);
 		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, m_DeadBuffer);
 
 		uint32 dead = 0;
-		glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(uint32), &dead, GL_DYNAMIC_COPY);
+		glBufferData(GL_ATOMIC_COUNTER_BUFFER, sizeof(uint32), &dead, GL_DYNAMIC_READ);
 
 		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0);
 
+		assert(m_EmitShader.Load("Resources/Shaders/Particles/emit.comp"));
 		assert(m_ComputeShader.Load("Resources/Shaders/Particles/c.comp"));
 
 		glGenVertexArrays(1, &m_VAO);
@@ -94,9 +109,14 @@ namespace mods
 		glBindBuffer(GL_ARRAY_BUFFER, m_SSBs[2]);
 		glVertexAttribPointer(1, 3, GL_FLOAT, false, sizeof(glm::vec4), (void*)0);
 		glEnableVertexAttribArray(1);
+		glBindBuffer(GL_ARRAY_BUFFER, m_SSBs[3]);
+		glVertexAttribPointer(2, 1, GL_FLOAT, false, sizeof(glm::vec4), (void*)0);
+		glEnableVertexAttribArray(2);
 
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		m_EmitRate = 1.f / 100.f;
 	}
 
 	void GPUParticleSystem::Update(float deltaTime)
@@ -106,6 +126,8 @@ namespace mods
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 6, m_SSBs[2]);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 7, m_SSBs[3]);
 		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 8, m_SSBs[4]);
+		glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 9, m_DeadList);
+
 		glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 3, m_DeadBuffer);
 
 		int32 max[3];
@@ -113,23 +135,28 @@ namespace mods
 		glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1, &max[1]);
 		glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, &max[2]);
 
+		m_EmitTime += deltaTime;
+		if (m_EmitTime >= m_EmitRate)
+		{
+			uint32 amounttospawn = (int32)glm::floor(m_EmitTime / m_EmitRate);
+
+			m_EmitShader.Bind();
+			m_EmitShader.SetUniformValue("AmountToSpawn", amounttospawn);
+			m_EmitShader.Dispatch((amounttospawn / 128) + 1, 1, 1);
+			glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_ATOMIC_COUNTER_BARRIER_BIT);
+
+			m_EmitTime = std::fmod(m_EmitTime, m_EmitRate);
+		}
+
 		m_ComputeShader.Bind();
 		m_ComputeShader.SetUniformValue("DT", deltaTime);
 		m_ComputeShader.Dispatch((m_Particles / 128) + 1, 1, 1);
-		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-
-		glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, m_DeadBuffer);
-		uint32* ptr = (uint32*)glMapBuffer(GL_ATOMIC_COUNTER_BUFFER, GL_READ_ONLY);
-		uint32 count = *ptr;
-
-		glUnmapBuffer(GL_ATOMIC_COUNTER_BUFFER);
-		std::cout << "Dead particles: " << count << std::endl;
+		glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT | GL_ATOMIC_COUNTER_BARRIER_BIT);
 	}
 
 	void GPUParticleSystem::Draw(ShaderProgram& program)
 	{
 		program.Bind();
-		program.SetUniformValue("size", 0.5f);
 		program.SetUniformValue("model", glm::translate(glm::mat4(1.f), m_EmitterPosition));
 
 		glBindVertexArray(m_VAO);

@@ -198,6 +198,13 @@ namespace mods
 			glUniform1i(location, value);
 	}
 
+	void ShaderProgram::SetUniformValue(const std::string& name, uint32 value)
+	{
+		int32 location;
+		if (GetUniformLocation(name, location))
+			glUniform1ui(location, value);
+	}
+
 	void ShaderProgram::SetUniformValue(const std::string& name, float value)
 	{
 		int32 location;
