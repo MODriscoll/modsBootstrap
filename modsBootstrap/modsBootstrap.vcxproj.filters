@@ -141,6 +141,9 @@
     <ClCompile Include="Source\Rendering\Shaders\ComputeShader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Rendering\Fonts\AltFont.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Include\IncludeGLFW.h">
@@ -285,6 +288,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Include\Rendering\Shaders\ComputeShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Include\Rendering\Fonts\AltFont.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

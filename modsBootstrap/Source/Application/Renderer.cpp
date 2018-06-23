@@ -13,6 +13,10 @@
 #include <cassert>
 #include <iostream>
 
+#include "Rendering\Fonts\AltFont.h"
+
+#include "Camera\Camera.h"
+
 namespace mods
 {
 	Renderer* Renderer::m_Singleton = nullptr;
@@ -385,6 +389,26 @@ namespace mods
 		glBindVertexArray(0);
 
 		m_FPShader.Unbind();
+
+		// New text rendering testing
+		{
+			static AltFont testfont("Resources/Fonts/consolas.ttf", 128);
+			static ShaderProgram testshader("Resources/Shaders/AltFont.vert", "Resources/Shaders/AltFont.frag");
+
+			testshader.Bind();
+
+			glActiveTexture(GL_TEXTURE2);
+			glBindTexture(GL_TEXTURE_2D, testfont.m_Handle);
+			testshader.SetUniformValue("atlas", 2);
+			testshader.SetUniformValue("projection", m_Camera->GetProjectionMatrix(eProjectionMode::Orthographic));
+
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+			glBindVertexArray(m_VAO);
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0);
+			glBindVertexArray(0);
+		}
 	}
 
 	void Renderer::EndFrame()

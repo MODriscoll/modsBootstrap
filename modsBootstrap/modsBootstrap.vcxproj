@@ -28,6 +28,7 @@
     <ClCompile Include="Source\Buffers\UniformBuffer.cpp" />
     <ClCompile Include="Source\Camera\Camera.cpp" />
     <ClCompile Include="Source\glad.c" />
+    <ClCompile Include="Source\Rendering\Fonts\AltFont.cpp" />
     <ClCompile Include="Source\Rendering\Fonts\Font.cpp" />
     <ClCompile Include="Source\Rendering\Lighting\DirectionalLight.cpp" />
     <ClCompile Include="Source\Rendering\Lighting\Light.cpp" />
@@ -73,6 +74,7 @@
     <ClInclude Include="Include\Camera\Camera.h" />
     <ClInclude Include="Include\IncludeGLFW.h" />
     <ClInclude Include="Include\Buffers\Buffer.h" />
+    <ClInclude Include="Include\Rendering\Fonts\AltFont.h" />
     <ClInclude Include="Include\Rendering\Fonts\Font.h" />
     <ClInclude Include="Include\Rendering\Lighting\LightAttenuation.h" />
     <ClInclude Include="Include\Rendering\Lighting\Light.h" />
