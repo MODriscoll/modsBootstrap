@@ -293,5 +293,8 @@
     <ClInclude Include="Include\Rendering\Fonts\AltFont.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Include\Rendering\Fonts\TextBatchRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

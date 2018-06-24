@@ -20,8 +20,9 @@ namespace mods
 	}
 
 	AltFont::AltFont(const std::string& path, int32 size)
-		: m_Handle(0)
+		: m_Atlas(0)
 		, m_Height(0)
+		, m_VAO(0)
 	{
 		FT_Library ft;
 		if (FT_Init_FreeType(&ft))
@@ -37,8 +38,8 @@ namespace mods
 			return;
 		}
 
-		size = !size ? 16 : size;
-		if (FT_Set_Pixel_Sizes(face, 0, size))
+		m_Size = !size ? 16 : size;
+		if (FT_Set_Pixel_Sizes(face, 0, m_Size))
 		{
 			std::cout << "Error: Failed to set size " << size << " for font" << std::endl;
 		}
@@ -46,9 +47,10 @@ namespace mods
 		int32 numChars = 128;
 		std::vector<FT_GlyphSlotRec_> glyphslots;
 		std::vector<std::vector<unsigned char>> bitmaps;
+		std::vector<unsigned char> characters;
 
 		bool bFail = false;
-		for (unsigned char c = 32; c < 128; ++c)
+		for (unsigned char c = 0; c < 128; ++c)
 		{
 			if (FT_Load_Char(face, c, FT_LOAD_RENDER))
 			{
@@ -62,6 +64,8 @@ namespace mods
 
 			auto& buf = bitmaps.back();
 			buf.assign(face->glyph->bitmap.buffer, face->glyph->bitmap.buffer + (face->glyph->bitmap.width * face->glyph->bitmap.rows));
+
+			characters.push_back(c);
 		}
 
 		uint32 pow = 6;
@@ -105,8 +109,16 @@ namespace mods
 			const BinNode& node = bin.Nodes[indices[i]];
 			const auto& bitmap = bitmaps[i];
 
-			if (bitmap.empty())
-				continue;
+			AltGlyph newglyph;
+			newglyph.Position = glm::ivec2(node.X, node.Y);
+			newglyph.Size = glm::ivec2(node.Width, node.Height);
+			newglyph.Bearing = glm::ivec2(glyph.bitmap_left, glyph.bitmap_top);
+			newglyph.Advance = glyph.advance.x;
+
+			m_Glyphs[characters[i]] = newglyph;
+
+			//if (bitmap.empty())
+			//	continue;
 
 			for (uint32 srcX = 0; srcX < glyph.bitmap.width; ++srcX)
 			{
@@ -131,8 +143,8 @@ namespace mods
 		glGetIntegerv(GL_UNPACK_ALIGNMENT, &unpack);
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-		glGenTextures(1, &m_Handle);
-		glBindTexture(GL_TEXTURE_2D, m_Handle);
+		glGenTextures(1, &m_Atlas);
+		glBindTexture(GL_TEXTURE_2D, m_Atlas);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -145,14 +157,135 @@ namespace mods
 		// Restore original unpack alignment
 		glPixelStorei(GL_UNPACK_ALIGNMENT, unpack);
 
+		uint32 MAX_CHARACTERS = 200;
+
+		glGenVertexArrays(1, &m_VAO);
+		glBindVertexArray(m_VAO);
+
+		glGenBuffers(1, &m_VBO);
+		glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+		glBufferData(GL_ARRAY_BUFFER, MAX_CHARACTERS * 4 * sizeof(GlyphVertex), nullptr, GL_DYNAMIC_DRAW);
+
+		glGenBuffers(1, &m_IBO);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, MAX_CHARACTERS * 6 * sizeof(uint32), nullptr, GL_DYNAMIC_DRAW);
+
+		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(GlyphVertex), (void*)offsetof(GlyphVertex, Position));
+		glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(GlyphVertex), (void*)offsetof(GlyphVertex, Color));
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(GlyphVertex), (void*)offsetof(GlyphVertex, TexCoords));
+		glEnableVertexAttribArray(0);
+		glEnableVertexAttribArray(1);
+		glEnableVertexAttribArray(2);
+
+		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
 		FT_Done_Face(face);
 		FT_Done_FreeType(ft);
 	}
 
 	AltFont::~AltFont()
 	{
-		if (m_Handle != 0)
-			glDeleteTextures(1, &m_Handle);
+		if (m_Atlas != 0)
+			glDeleteTextures(1, &m_Atlas);
+
+		if (m_VAO != 0)
+		{
+			glDeleteVertexArrays(1, &m_VAO);
+			glDeleteBuffers(1, &m_VBO);
+			glDeleteBuffers(1, &m_IBO);
+		}
+	}
+
+	void AltFont::Draw(const std::string& Text, const glm::ivec2& Position, const glm::vec4& color)
+	{
+		glm::vec2 pen = Position;
+		//pen.y = 1280.f - pen.y;
+
+		for (char c : Text)
+		{
+			// TODO: handle new line
+
+			auto it = m_Glyphs.find(c);
+			if (it == m_Glyphs.cend())
+				continue;
+
+			const auto& glyph = it->second;
+
+			float xpos = pen.x + glyph.Bearing.x;
+			float ypos = pen.y - (glyph.Size.y - glyph.Bearing.y);
+
+			float w = glyph.Size.x;
+			float h = glyph.Size.y;
+
+			int32 index = m_GlyphsBuffer.size();
+
+			GlyphVertex v;
+
+			v.Color = color;	
+
+			v.Position = glm::vec2(xpos, ypos + h);
+			v.TexCoords.x = (float)glyph.Position.x / m_Width;
+			v.TexCoords.y = ((float)glyph.Position.y / m_Height + ((float)glyph.Size.y / m_Height));
+			//v.TexCoords = glm::vec2(0.f, 1.f);
+
+			m_GlyphsBuffer.push_back(v);
+
+			v.Position = glm::vec2(xpos, ypos);
+			v.TexCoords.x = (float)glyph.Position.x / m_Width;
+			v.TexCoords.y = (float)glyph.Position.y / m_Height;
+			//v.TexCoords = glm::vec2(0.f);
+
+			m_GlyphsBuffer.push_back(v);
+
+			v.Position = glm::vec2(xpos + w, ypos);
+			v.TexCoords.x = (float)glyph.Position.x / m_Width + ((float)glyph.Size.x / m_Width);
+			v.TexCoords.y = (float)glyph.Position.y / m_Height;
+			//v.TexCoords = glm::vec2(1.f, 0.f);
+
+			m_GlyphsBuffer.push_back(v);
+
+			v.Position = glm::vec2(xpos + w, ypos + h);
+			v.TexCoords.x = (float)glyph.Position.x / m_Width + ((float)glyph.Size.x / m_Width);
+			v.TexCoords.y = ((float)glyph.Position.y / m_Height + ((float)glyph.Size.y / m_Height));
+			//v.TexCoords = glm::vec2(1.f);
+
+			m_GlyphsBuffer.push_back(v);
+
+			m_IndexBuffer.push_back(index + 0);
+			m_IndexBuffer.push_back(index + 1);
+			m_IndexBuffer.push_back(index + 2);
+
+			m_IndexBuffer.push_back(index + 0);
+			m_IndexBuffer.push_back(index + 2);
+			m_IndexBuffer.push_back(index + 3);	
+
+			pen.x += (glyph.Advance >> 6);
+		}
+	}
+
+	void AltFont::Flush()
+	{
+		glBindVertexArray(m_VAO);
+
+		glBindBuffer(GL_ARRAY_BUFFER, m_VBO);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GlyphVertex) * m_GlyphsBuffer.size(), m_GlyphsBuffer.data());
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO);
+		glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, sizeof(uint32) * m_IndexBuffer.size(), m_IndexBuffer.data());
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, m_Atlas);
+
+		glDrawElements(GL_TRIANGLES, m_IndexBuffer.size(), GL_UNSIGNED_INT, nullptr);
+
+		glBindVertexArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+		m_GlyphsBuffer.clear();
+		m_IndexBuffer.clear();
 	}
 
 	void RectangleBinPack::Init(uint32 width, uint32 height)

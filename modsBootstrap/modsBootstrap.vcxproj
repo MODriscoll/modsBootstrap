@@ -76,6 +76,7 @@
     <ClInclude Include="Include\Buffers\Buffer.h" />
     <ClInclude Include="Include\Rendering\Fonts\AltFont.h" />
     <ClInclude Include="Include\Rendering\Fonts\Font.h" />
+    <ClInclude Include="Include\Rendering\Fonts\TextBatchRenderer.h" />
     <ClInclude Include="Include\Rendering\Lighting\LightAttenuation.h" />
     <ClInclude Include="Include\Rendering\Lighting\Light.h" />
     <ClInclude Include="Include\Rendering\Lighting\DirectionalLight.h" />

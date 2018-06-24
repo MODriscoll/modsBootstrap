@@ -3,6 +3,7 @@
 #include "Types.h"
 
 #include <glm\vec2.hpp>
+#include <glm\vec4.hpp>
 
 #include <map>
 #include <string>
@@ -47,7 +48,6 @@ namespace mods
 		glm::ivec2 Size;
 		glm::ivec2 Bearing;
 		uint32 Advance;
-
 	};
 
 	class AltFont
@@ -57,17 +57,33 @@ namespace mods
 		AltFont(const std::string& path, int32 size);
 		~AltFont();
 
+		void Draw(const std::string& Text, const glm::ivec2& Position, const glm::vec4& color = glm::vec4(1.f));
+		void Flush();
+
 	public:
 
+		// Handle to atlas
+		uint32 m_Atlas;
+
+		//Size of the font
+		int32 m_Size;
+
+		// Width and height of the atlas
 		int32 m_Width, m_Height;
 
-		// Handle to atlas
-		uint32 m_Handle;
+		// All glyphs contained in the atlas
+		std::map<unsigned char, AltGlyph> m_Glyphs;
 
-		// Height (size) of the texture
-		//int32 m_Height;
+		uint32 m_VAO, m_VBO, m_IBO;
 
-		// Only ascii for now
-		std::map<char, AltGlyph> m_Glyphs;
+		struct GlyphVertex
+		{
+			glm::vec2 Position;
+			glm::vec4 Color;
+			glm::vec2 TexCoords;
+		};
+
+		std::vector<GlyphVertex> m_GlyphsBuffer;
+		std::vector<uint32> m_IndexBuffer;
 	};
 }

@@ -392,22 +392,21 @@ namespace mods
 
 		// New text rendering testing
 		{
-			static AltFont testfont("Resources/Fonts/consolas.ttf", 128);
+			static AltFont testfont("Resources/Fonts/consolas.ttf", 40);
 			static ShaderProgram testshader("Resources/Shaders/AltFont.vert", "Resources/Shaders/AltFont.frag");
 
 			testshader.Bind();
-
-			glActiveTexture(GL_TEXTURE2);
-			glBindTexture(GL_TEXTURE_2D, testfont.m_Handle);
-			testshader.SetUniformValue("atlas", 2);
+			testshader.SetUniformValue("atlas", 0);
 			testshader.SetUniformValue("projection", m_Camera->GetProjectionMatrix(eProjectionMode::Orthographic));
 
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-			glBindVertexArray(m_VAO);
-			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_BYTE, 0);
-			glBindVertexArray(0);
+			testfont.Draw("Hello World!", glm::ivec2(100.f), glm::vec4(1.f, 0.f, 0.f, 1.f));
+			testfont.Draw("The quick brown fox jumps over the lazy dog", glm::ivec2(0.f, 1.f));
+			testfont.Draw("123456789 !@#$%^&*", glm::ivec2(250.f), glm::vec4(0.9f, 0.8f, 0.2f, 0.5f));
+
+			testfont.Flush();
 		}
 	}
 
