@@ -30,6 +30,7 @@
     <ClCompile Include="Source\glad.c" />
     <ClCompile Include="Source\Rendering\Fonts\AltFont.cpp" />
     <ClCompile Include="Source\Rendering\Fonts\Font.cpp" />
+    <ClCompile Include="Source\Rendering\Fonts\TextBatchRenderer.cpp" />
     <ClCompile Include="Source\Rendering\Lighting\DirectionalLight.cpp" />
     <ClCompile Include="Source\Rendering\Lighting\Light.cpp" />
     <ClCompile Include="Source\Rendering\Lighting\LightRenderData.cpp" />

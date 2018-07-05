@@ -62,6 +62,11 @@ namespace mods
 
 	public:
 
+		inline bool IsValid() const { return m_Atlas != 0; }
+		inline uint32 GetHandle() const { return m_Atlas; }
+
+	public:
+
 		// Handle to atlas
 		uint32 m_Atlas;
 

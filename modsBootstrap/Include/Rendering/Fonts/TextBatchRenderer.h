@@ -78,6 +78,12 @@ namespace mods
 
 	private:
 
+		// Adds a new font into the batch, flushing if already full
+		// Returns index to newly added font or existing one
+		uint32 AddFont(const AltFont& font);
+
+	private:
+
 		// The max amount of characters to draw before flushing
 		uint32 m_MaxBatchSize; // Maybe fixed size?
 
