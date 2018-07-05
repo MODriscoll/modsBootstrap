@@ -1,7 +1,8 @@
 layout (std140, binding = 0) uniform Camera
 {
-	mat4 projection;
-	mat4 view;
-	vec3 position;
-	vec3 heading;
+	mat4 projection;		// Projection of scene
+	mat4 view;				// View of scene
+	vec3 position;			// Position of camera (in world space)
+	vec3 heading;			// Heading of camera (in world space)
+	mat4 ortho;				// Orthographic view of screen
 };

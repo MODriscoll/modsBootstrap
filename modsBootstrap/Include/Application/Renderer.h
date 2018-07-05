@@ -7,6 +7,8 @@
 
 #include "Rendering\Targets\FrameBuffer.h"
 
+#include "Rendering\Fonts\TextBatchRenderer.h"
+
 #include "Buffers\CameraUniformBuffer.h"
 #include "Buffers\LightUniformBuffer.h"
 #include "Buffers\AppUniformBuffer.h"
@@ -48,6 +50,10 @@ namespace mods
 
 		// Draws a model
 		static void DrawModel(const Model& model, ShaderProgram& program, const glm::mat4x4& transform);
+
+		// Draws text to screen
+		static void DrawString(const std::string& text, const AltFont& font, const glm::ivec2& position, 
+			const glm::vec4& color = glm::vec4(1.f), float depth = 0.f);
 
 	public:
 
@@ -209,6 +215,11 @@ namespace mods
 
 		// Application uniform buffer
 		AppUniforms m_AppUniform;
+
+	protected:
+
+		// Batch renderer for handling text
+		TextBatchRenderer TextRenderer;
 
 	private:
 

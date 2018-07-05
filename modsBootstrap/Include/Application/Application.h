@@ -24,6 +24,11 @@ namespace mods
 
 	public:
 
+		// Enable/Disables VSync
+		void EnableVSync(bool enable) const;
+
+	public:
+
 		// Get windows size
 		int32 GetWindowWidth() const;
 		int32 GetWindowHeight() const;

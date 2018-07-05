@@ -12,6 +12,8 @@
 
 #include <Rendering\Textures\Texture2D.h>
 
+#include <Rendering\Fonts\AltFont.h>
+
 #include <Camera\Camera.h>
 
 class DebugApplication : public mods::Application
@@ -44,4 +46,6 @@ private:
 
 	mods::ShaderProgram m_TestGPUParticleShader;
 	mods::GPUParticleSystem m_TestGPUParticles;
+
+	mods::AltFont* m_Font;
 };

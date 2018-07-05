@@ -64,11 +64,17 @@ bool DebugApplication::Startup()
 	m_TestGPUParticles.Init(1028 * 1028);
 	//m_TestGPUParticles.m_EmitterPosition.y = 7.f;
 
+	m_Font = new mods::AltFont("Resources/Fonts/consolas.ttf", 40);
+
+	EnableVSync(false);
+
 	return true;
 }
 
 bool DebugApplication::Shutdown()
 {
+	delete m_Font;
+
 	return true;
 }
 
@@ -146,4 +152,6 @@ void DebugApplication::Draw()
 	m_TestGPUParticleShader.Bind();
 	m_TestGPUParticleShader.SetUniformValue("image", 0);
 	m_TestGPUParticles.Draw(m_TestGPUParticleShader);
+
+	Renderer::DrawString(std::string("FPS: ") + std::to_string(GetFPS()), *m_Font, glm::ivec2(20));
 }

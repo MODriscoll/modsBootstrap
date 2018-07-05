@@ -22,7 +22,6 @@ namespace mods
 
 			GlyphVertex()
 				: Position(0.f)
-				, Depth(0.f)
 				, Index(0)
 				, Color(1.f)
 				, TexCoords(0.f)
@@ -33,10 +32,7 @@ namespace mods
 		public:
 
 			// Position of glyph on screen
-			glm::vec2 Position;
-
-			// Depth of the glyph (from 0 to 1)
-			float Depth;
+			glm::vec3 Position;
 
 			// Index to font to use
 			int32 Index;
@@ -67,7 +63,7 @@ namespace mods
 	public:
 
 		// Add given text to be rendered to screen
-		void Print(const std::string& text, const AltFont& font, const glm::vec2& position, const glm::vec4& color, float depth = 0.f);
+		void Print(const std::string& text, const AltFont& font, const glm::ivec2& position, const glm::vec4& color, float depth = 0.f);
 
 	public:
 
@@ -93,10 +89,9 @@ namespace mods
 		// All vertices to pass to vertex buffer
 		std::vector<GlyphVertex> m_Vertices;
 
-		// All indices to pass to element buffer
-		std::vector<uint32> m_Indices;
-
 		// Program for rendering text
+		// TODO: move outside? (due to projection matrix needing to be set)
+		// right now the shader uses the ortho from camera include
 		ShaderProgram m_Program;
 
 		// Count for how many characters are in current batch

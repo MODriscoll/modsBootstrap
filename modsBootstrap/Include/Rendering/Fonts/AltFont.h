@@ -3,6 +3,7 @@
 #include "Types.h"
 
 #include <glm\vec2.hpp>
+#include <glm\vec3.hpp>
 #include <glm\vec4.hpp>
 
 #include <map>
@@ -64,6 +65,11 @@ namespace mods
 
 		inline bool IsValid() const { return m_Atlas != 0; }
 		inline uint32 GetHandle() const { return m_Atlas; }
+
+		inline int32 GetSize() const { return m_Size; }
+
+		inline int32 GetWidth() const { return m_Width; }
+		inline int32 GetHeight() const { return m_Height; }
 
 	public:
 

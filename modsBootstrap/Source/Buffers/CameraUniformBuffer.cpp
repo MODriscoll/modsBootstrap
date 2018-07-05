@@ -13,6 +13,7 @@ namespace mods
 			, View(camera.GetViewMatrix())
 			, Position(camera.Position, 1.f)
 			, Heading(camera.GetHeading(), 0.f)
+			, Ortho(camera.GetProjectionMatrix(eProjectionMode::Orthographic))
 		{
 
 		}
@@ -27,9 +28,10 @@ namespace mods
 				glm::mat4 View;
 				glm::vec4 Position;
 				glm::vec4 Heading;
+				glm::mat4 Ortho;
 			};
 
-			float Data[40];
+			float Data[56];
 		};
 	};
 

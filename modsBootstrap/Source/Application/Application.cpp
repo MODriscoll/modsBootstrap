@@ -119,7 +119,7 @@ namespace mods
 					{
 						m_FPS = frames;
 						frames = 0;
-						frametime -= -1.0;
+						frametime -= 1.0;
 					}
 				}
 
@@ -150,6 +150,11 @@ namespace mods
 			error = 4;
 
 		return error;
+	}
+
+	void Application::EnableVSync(bool enable) const
+	{
+		glfwSwapInterval((int32)enable);
 	}
 
 	int32 Application::GetWindowWidth() const

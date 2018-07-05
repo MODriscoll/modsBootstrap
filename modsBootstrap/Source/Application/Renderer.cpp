@@ -72,6 +72,12 @@ namespace mods
 		model.Draw(program);
 	}
 
+	void Renderer::DrawString(const std::string& text, const AltFont& font, const glm::ivec2& position, 
+		const glm::vec4& color, float depth)
+	{
+		m_Singleton->TextRenderer.Print(text, font, position, color, depth);
+	}
+
 	int32 Renderer::AddLight(const Light& light)
 	{
 		switch (light.GetLightType())
@@ -390,9 +396,19 @@ namespace mods
 
 		m_FPShader.Unbind();
 
+		// TODO: Make HUD stage that takes place after post process
+		// Draws to own render target before finally drawing onto screen
+
+		// Enable transparency for HUD rendering
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		// Draw any text
+		TextRenderer.Flush();
+
 		// New text rendering testing
 		{
-			static AltFont testfont("Resources/Fonts/consolas.ttf", 40);
+			/*static AltFont testfont("Resources/Fonts/consolas.ttf", 40);
 			static ShaderProgram testshader("Resources/Shaders/AltFont.vert", "Resources/Shaders/AltFont.frag");
 
 			testshader.Bind();
@@ -400,13 +416,13 @@ namespace mods
 			testshader.SetUniformValue("projection", m_Camera->GetProjectionMatrix(eProjectionMode::Orthographic));
 
 			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);*/
 
-			testfont.Draw("Hello World!", glm::ivec2(100.f), glm::vec4(1.f, 0.f, 0.f, 1.f));
-			testfont.Draw("The quick brown fox jumps over the lazy dog", glm::ivec2(0.f, 1.f));
-			testfont.Draw("123456789 !@#$%^&*", glm::ivec2(250.f), glm::vec4(0.9f, 0.8f, 0.2f, 0.5f));
+			//testfont.Draw("Hello World!", glm::ivec2(100.f), glm::vec4(1.f, 0.f, 0.f, 1.f));
+			//testfont.Draw("The quick brown fox jumps over the lazy dog", glm::ivec2(0.f, 1.f));
+			//testfont.Draw("123456789 !@#$%^&*", glm::ivec2(250.f), glm::vec4(0.9f, 0.8f, 0.2f, 0.5f));
 
-			testfont.Flush();
+			//testfont.Flush();
 		}
 	}
 
@@ -502,6 +518,8 @@ namespace mods
 		m_FPShader.SetUniformValue("target.pBloom", 1);
 		m_FPShader.Unbind();
 
+		TextRenderer.Create(256);
+
 		return true;
 	}
 
@@ -520,6 +538,8 @@ namespace mods
 		glDeleteBuffers(1, &m_IBO);
 		glDeleteBuffers(1, &m_sphereVBO);
 		glDeleteBuffers(1, &m_sphereIBO);
+
+		TextRenderer.Destroy();
 
 		return true;
 	}
