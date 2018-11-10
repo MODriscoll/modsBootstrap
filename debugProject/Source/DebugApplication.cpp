@@ -154,4 +154,5 @@ void DebugApplication::Draw()
 	m_TestGPUParticles.Draw(m_TestGPUParticleShader);
 
 	Renderer::DrawString(std::string("FPS: ") + std::to_string(GetFPS()), *m_Font, glm::ivec2(20));
+	Renderer::DrawString("My First Line\nMy Second Line", *m_Font, glm::ivec2(300));
 }

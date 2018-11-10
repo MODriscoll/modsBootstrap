@@ -161,7 +161,8 @@ namespace mods
 			// Manage special characters differently
 			if (c == '\n')
 			{
-				pen.x = 0.f;
+				// TODO: assure we are moving down by correct amount
+				pen.x = position.x;
 				pen.y -= (float)font.GetSize();
 				continue;
 			}
