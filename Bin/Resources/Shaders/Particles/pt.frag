@@ -14,6 +14,6 @@ uniform sampler2D image;
 void main()
 {
 	gPosition = fPosition;
-	gNormal = fNormal;
+	gNormal = vec3(0.f);//fNormal;
 	gAlbedoSpec = vec4(texture(image, fTexCoords).rgb * fColor, 1.f);
 }

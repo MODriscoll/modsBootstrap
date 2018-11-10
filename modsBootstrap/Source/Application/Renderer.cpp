@@ -147,6 +147,11 @@ namespace mods
 		m_Singleton->m_bRenderWireframe = enable;
 	}
 
+	bool Renderer::IsWireframeEnabled()
+	{
+		return m_Singleton->m_bRenderWireframe;
+	}
+
 	void Renderer::EnableGammaCorrection(bool enable)
 	{
 		m_Singleton->m_bGammaCorrect = enable;
@@ -170,6 +175,26 @@ namespace mods
 	void Renderer::SetBloomThreshold(float threshold)
 	{
 		m_Singleton->m_BloomThreshold = glm::max(0.f, threshold);
+	}
+
+	bool Renderer::IsGammaCorrectionEnabled()
+	{
+		return m_Singleton->m_bGammaCorrect;
+	}
+
+	float Renderer::GetGammaExponent()
+	{
+		return m_Singleton->m_GammaExponent;
+	}
+
+	float Renderer::GetExposure()
+	{
+		return m_Singleton->m_HDRExposure;
+	}
+
+	bool Renderer::IsBloomEnabled()
+	{
+		return m_Singleton->m_bBloom;
 	}
 
 	void Renderer::StartFrame(float time)
@@ -518,7 +543,7 @@ namespace mods
 		m_FPShader.SetUniformValue("target.pBloom", 1);
 		m_FPShader.Unbind();
 
-		TextRenderer.Create(256);
+		TextRenderer.Create(512);
 
 		return true;
 	}

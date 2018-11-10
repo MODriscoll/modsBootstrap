@@ -62,9 +62,10 @@ bool DebugApplication::Startup()
 
 	m_TestGPUParticleShader.Load("Resources/Shaders/Particles/pt.vert", "Resources/Shaders/Particles/pt.geom", "Resources/Shaders/Particles/pt.frag");
 	m_TestGPUParticles.Init(1028 * 1028);
-	//m_TestGPUParticles.m_EmitterPosition.y = 7.f;
+	m_TestGPUParticles.m_EmitRate = 1.f;
+	m_TestGPUParticles.m_EmitterPosition.y = -200.f;
 
-	m_Font = new mods::AltFont("Resources/Fonts/consolas.ttf", 40);
+	m_Font = new mods::AltFont("Resources/Fonts/consolas.ttf", 24);
 
 	EnableVSync(false);
 
@@ -100,11 +101,6 @@ void DebugApplication::Tick(float deltaTime)
 	if (Input::IsKeyDown(eInputKey::Q))
 		m_Camera.Position -= up;
 
-	if (Input::WasKeyPressed(eInputKey::F1))
-		Renderer::EnableGammaCorrection(true);
-	if (Input::WasKeyPressed(eInputKey::F2))
-		Renderer::EnableGammaCorrection(false);
-
 	if (Input::IsKeyDown(eInputKey::MouseRight))
 	{
 		float DeltaX = Input::GetDeltaX() * 0.3f;
@@ -118,19 +114,14 @@ void DebugApplication::Tick(float deltaTime)
 		m_Camera.SetRotation(rot);
 	}
 
-	static bool wire = false;
-	if (Input::WasKeyPressed(eInputKey::F5))
-	{
-		wire = !wire;
-		Renderer::EnableWireframe(wire);
-	}
+	if (Input::WasKeyPressed(eInputKey::F1))
+		Renderer::EnableWireframe(!Renderer::IsWireframeEnabled());
 
-	static bool bloom = false;
-	if (Input::WasKeyPressed(eInputKey::F6))
-	{
-		bloom = !bloom;
-		Renderer::EnableBloom(bloom);
-	}
+	if (Input::WasKeyPressed(eInputKey::F2))
+		Renderer::EnableGammaCorrection(!Renderer::IsGammaCorrectionEnabled());
+
+	if (Input::WasKeyPressed(eInputKey::F3))
+		Renderer::EnableBloom(!Renderer::IsBloomEnabled());
 
 	m_ModelTransform = glm::rotate(m_ModelTransform, glm::radians(45.f) * deltaTime, glm::vec3(0.f, 1.f, 0.f));
 
@@ -153,6 +144,15 @@ void DebugApplication::Draw()
 	m_TestGPUParticleShader.SetUniformValue("image", 0);
 	m_TestGPUParticles.Draw(m_TestGPUParticleShader);
 
+	Renderer::DrawString(std::string("Controls:"), *m_Font, glm::ivec2(20, 680));
+	Renderer::DrawString(std::string("Forward = W, Backwards = S"), *m_Font, glm::ivec2(20, 660));
+	Renderer::DrawString(std::string("Left = A, Right = D"), *m_Font, glm::ivec2(20, 640));
+	Renderer::DrawString(std::string("Up = Q, Down = E (In Worldspace)"), *m_Font, glm::ivec2(20, 620));
+	Renderer::DrawString(std::string("Hold Right Mouse then move mouse to rotate camera"), *m_Font, glm::ivec2(20, 600));
+	Renderer::DrawString(std::string("F1 to toggle Wireframe, F2 to toggle Gamma Correction, F3 to toggle Bloom"), *m_Font, glm::ivec2(20, 580));
+
 	Renderer::DrawString(std::string("FPS: ") + std::to_string(GetFPS()), *m_Font, glm::ivec2(20));
-	Renderer::DrawString("My First Line\nMy Second Line", *m_Font, glm::ivec2(300));
+	Renderer::DrawString(std::string("Wireframe Enabled: ") + std::string(Renderer::IsWireframeEnabled() ? "True" : "False"), *m_Font, glm::ivec2(20, 40));
+	Renderer::DrawString(std::string("Gamma Correction Enabled: ") + std::string(Renderer::IsGammaCorrectionEnabled() ? "True" : "False"), *m_Font, glm::ivec2(20, 60));
+	Renderer::DrawString(std::string("Bloom Enabled: ") + std::string(Renderer::IsBloomEnabled() ? "True" : "False"), *m_Font, glm::ivec2(20, 80));
 }

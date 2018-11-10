@@ -68,6 +68,9 @@ namespace mods
 		// Enables/Disables wireframe rendering
 		static void EnableWireframe(bool enable);
 
+		/** Get if wireframe is enabled */
+		static bool IsWireframeEnabled();
+
 	public:
 
 		// Enables/Disables gamma correction
@@ -85,6 +88,18 @@ namespace mods
 		// Sets the threshold for colors
 		// considered bright enough to bloom
 		static void SetBloomThreshold(float threshold);
+
+		// Get if gamma correction is enabled
+		static bool IsGammaCorrectionEnabled();
+
+		// Get current gamma exponent
+		static float GetGammaExponent();
+
+		// Get current HDR exposure
+		static float GetExposure();
+
+		// Get if bloom is enabled
+		static bool IsBloomEnabled();
 
 	protected:
 

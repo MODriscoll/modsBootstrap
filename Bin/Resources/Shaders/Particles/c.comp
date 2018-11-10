@@ -47,8 +47,19 @@ void main()
 	vec3 c = par_col[gid].rgb;
 	float s = par_siz[gid].x;
 	float a = par_age[gid].x;
+		
+	vec3 pp = p + v * DT + 0.5f * DT * DT * G;
+	vec3 vp = v + G * DT;
+			
+	//pp.y = mod(pp.y - 40.f, -80.f) + 40.f;
+	//vp.y = max(vp.y, -20.f);
+			
+	par_pos[gid].xyz = pp;
+	par_vel[gid].xyz = vp;
+	par_col[gid].rgb = c;
+	par_siz[gid].x = s;	
 	
-	if (a <= 5.f)
+	if (a < 5.f)
 	{		
 		a += DT;
 		if (a > 5.f)
@@ -56,24 +67,24 @@ void main()
 			//atomicCounterIncrement(deadcount);
 			par_deaI[atomicCounterIncrement(deadcount)].x = int(gid);
 		}
-		else
-		{				
-			vec3 pp = p + v * DT + 0.5f * DT * DT * G;
-			vec3 vp = v + G * DT;
-			
-			//pp.y = mod(pp.y - 40.f, -80.f) + 40.f;
-			//vp.y = max(vp.y, -20.f);
-			
-			c = mix(vec3(1.f, 0.f, 0.f), vec3(0.f, 1.f, 0.f), clamp(a / 5.f, 0.f, 1.f));
-			
-			s = mix(1.f, 0.f, clamp(a / 5.f, 0.f, 1.f));
-			
-			par_pos[gid].xyz = pp;
-			par_vel[gid].xyz = vp;
-			par_col[gid].rgb = c;
-			par_siz[gid].x = s;		
-		}
-		
+	//	else
+	//	{				
+	//		vec3 pp = p + v * DT + 0.5f * DT * DT * G;
+	//		vec3 vp = v + G * DT;
+	//		
+	//		pp.y = mod(pp.y - 40.f, -80.f) + 40.f;
+	//		vp.y = max(vp.y, -20.f);
+	//		
+	//		c = mix(vec3(1.f, 0.f, 0.f), vec3(0.f, 1.f, 0.f), clamp(a / 5.f, 0.f, 1.f));
+	//		
+	//		s = mix(5.f, 1.f, clamp(a / 5.f, 0.f, 1.f));
+	//		
+	//		par_pos[gid].xyz = pp;
+	//		par_vel[gid].xyz = vp;
+	//		par_col[gid].rgb = c;
+	//		par_siz[gid].x = s;		
+	//	}
+	//	
 		par_age[gid].x = a;
 	}
 }

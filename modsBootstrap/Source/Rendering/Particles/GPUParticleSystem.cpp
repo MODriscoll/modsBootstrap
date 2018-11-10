@@ -22,7 +22,7 @@ namespace mods
 		if (MaxParticles <= 0)
 			return;
 
-		m_Particles = (501);// MaxParticles;
+		m_Particles = MaxParticles;
 
 		std::vector<glm::vec4> defs(m_Particles, glm::vec4(0.f));
 		std::vector<glm::vec4> age(m_Particles, glm::vec4(5.f));
@@ -115,8 +115,6 @@ namespace mods
 
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-		m_EmitRate = 1.f / 100.f;
 	}
 
 	void GPUParticleSystem::Update(float deltaTime)
@@ -136,7 +134,7 @@ namespace mods
 		glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2, &max[2]);
 
 		m_EmitTime += deltaTime;
-		if (m_EmitTime >= m_EmitRate)
+		if (m_EmitTime >= (1.f / glm::max(1.f, m_EmitRate)))
 		{
 			uint32 amounttospawn = (int32)glm::floor(m_EmitTime / m_EmitRate);
 

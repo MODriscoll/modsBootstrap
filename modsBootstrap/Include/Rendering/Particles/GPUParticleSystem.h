@@ -27,6 +27,7 @@ namespace mods
 	public:
 
 		glm::vec3 m_EmitterPosition = glm::vec3(0.f);
+		float m_EmitRate = 100.f;
 
 	protected:
 
@@ -39,7 +40,6 @@ namespace mods
 		uint32 m_DeadList;
 
 		float m_EmitTime = 0.f;
-		float m_EmitRate;
 
 		int32 m_Particles;
 
