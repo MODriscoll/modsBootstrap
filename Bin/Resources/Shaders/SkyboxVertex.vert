@@ -1,16 +1,16 @@
-#version 400 core
+#version 450 core
 
 layout (location = 0) in vec3 vPosition;
 
 out vec3 fTexCoords;
 
-uniform mat4 projection;
-uniform mat4 view;
+#include "Resources/Shaders/Scene/Camera.glin"
 
 void main()
 {
 	fTexCoords = vPosition;
-	vec4 pos = projection * view * vec4(vPosition, 1.f);
+	mat4 view_notrans = mat4(mat3(view));
+	vec4 pos = projection * view_notrans * vec4(vPosition, 1.f);
 	
 	// Results in z value always being 1
 	// z will get set to w which will result in (w / w = 1)

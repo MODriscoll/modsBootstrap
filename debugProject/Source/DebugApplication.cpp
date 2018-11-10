@@ -67,6 +67,20 @@ bool DebugApplication::Startup()
 
 	m_Font = new mods::AltFont("Resources/Fonts/consolas.ttf", 24);
 
+	std::array<std::string, 6> spacefiles =
+	{
+		"Resources/Textures/sor_cwd/Right.jpg",
+		"Resources/Textures/sor_cwd/Left.jpg",
+		"Resources/Textures/sor_cwd/Up.jpg",
+		"Resources/Textures/sor_cwd/Down.jpg",
+		"Resources/Textures/sor_cwd/Back.jpg",
+		"Resources/Textures/sor_cwd/Front.jpg"
+	};
+
+	m_SkySphere.Load(spacefiles);
+	m_SkySphereShader.Load("Resources/Shaders/SkyboxVertex.vert", "Resources/Shaders/SkyboxFragment.frag");
+	GenerateSkySphereMesh();
+
 	EnableVSync(false);
 
 	return true;
@@ -74,6 +88,8 @@ bool DebugApplication::Startup()
 
 bool DebugApplication::Shutdown()
 {
+	CleanUpSkySphereMesh();
+
 	delete m_Font;
 
 	return true;
@@ -155,4 +171,83 @@ void DebugApplication::Draw()
 	Renderer::DrawString(std::string("Wireframe Enabled: ") + std::string(Renderer::IsWireframeEnabled() ? "True" : "False"), *m_Font, glm::ivec2(20, 40));
 	Renderer::DrawString(std::string("Gamma Correction Enabled: ") + std::string(Renderer::IsGammaCorrectionEnabled() ? "True" : "False"), *m_Font, glm::ivec2(20, 60));
 	Renderer::DrawString(std::string("Bloom Enabled: ") + std::string(Renderer::IsBloomEnabled() ? "True" : "False"), *m_Font, glm::ivec2(20, 80));
+
+	// Needs to be drawn last
+	DrawSkySphere();
+}
+
+void DebugApplication::GenerateSkySphereMesh()
+{
+	float Vertices[] = 
+	{         
+		-1.0f,  1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		-1.0f,  1.0f, -1.0f,
+		1.0f,  1.0f, -1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		1.0f, -1.0f,  1.0f
+	};
+
+	glGenVertexArrays(1, &m_SSVAO);
+	glGenBuffers(1, &m_SSVBO);
+	glBindVertexArray(m_SSVAO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_SSVBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), &Vertices, GL_STATIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+	glBindVertexArray(0);
+}
+
+void DebugApplication::CleanUpSkySphereMesh()
+{
+	glDeleteBuffers(1, &m_SSVBO);
+	glDeleteVertexArrays(1, &m_SSVAO);
+}
+
+void DebugApplication::DrawSkySphere()
+{
+	glDepthFunc(GL_LEQUAL);
+
+	m_SkySphere.Bind();
+	m_SkySphereShader.Bind();
+	m_SkySphereShader.SetUniformValue("skybox", 0);
+
+	glBindVertexArray(m_SSVAO);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	glBindVertexArray(0);
 }

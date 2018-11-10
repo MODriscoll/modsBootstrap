@@ -4,15 +4,12 @@
 
 #include <Rendering\Meshes\Model.h>
 #include <Rendering\Shaders\Shader.h>
-
 #include <Rendering\Lighting\PointLight.h>
-
 #include <Rendering\Particles\ParticleEmitter.h>
 #include <Rendering\Particles\GPUParticleSystem.h>
-
 #include <Rendering\Textures\Texture2D.h>
-
 #include <Rendering\Fonts\AltFont.h>
+#include <Rendering\Textures\Cubemap.h>
 
 #include <Camera\Camera.h>
 
@@ -33,6 +30,12 @@ protected:
 
 private:
 
+	void GenerateSkySphereMesh();
+	void CleanUpSkySphereMesh();
+	void DrawSkySphere();
+
+private:
+
 	mods::Camera m_Camera;
 
 	mods::ShaderProgram m_ModelShader;
@@ -48,4 +51,10 @@ private:
 	mods::GPUParticleSystem m_TestGPUParticles;
 
 	mods::AltFont* m_Font;
+
+	mods::ShaderProgram m_SkySphereShader;
+	mods::Cubemap m_SkySphere;
+	
+	unsigned int m_SSVAO;
+	unsigned int m_SSVBO;
 };
